@@ -1,0 +1,47 @@
+{
+  "lands": [
+    {
+      "type": "Plains",
+      "quantity": 10
+    }
+  ],
+  "creatures": [
+    {
+      "name": "Radiant, Serra Archangel",
+      "quantity": 1,
+      "ability": "As Radiant enters the battlefield, it ressurrects the first two creatures of type angel from your graveyard. If not enough creatures on your graveyard, two random angel creatures will be drawn to your hands."
+    },
+    {
+      "name": "Anafenza, Unyielding Lineage",
+      "quantity": 1,
+      "ability": "As Anafenza enters the battlefield, it deals two damage points against every creature on the enemy's battlefield including the enemy player."
+    },
+    {
+      "name": "Serra Angel",
+      "quantity": 2
+    },
+    {
+      "name": "Benalish Honor Guard",
+      "quantity": 2
+    },
+    {
+      "name": "Benalish Hero",
+      "quantity": 2
+    }
+  ],
+  "spells": [
+    {
+      "name": "Pacifism",
+      "quantity": 1,
+      "ability": "All creature cards in the enemy battlefield gets their power reduced to zero for the next two turns. This doesn't affect cards deployed after Pacifism was cast."
+    },
+    {
+      "name": "Holy Day",
+      "quantity": 1
+    },
+    {
+      "name": "Divine Verdict",
+      "quantity": 1
+    }
+  ]
+}

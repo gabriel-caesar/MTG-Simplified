@@ -1,0 +1,25 @@
+.mainContainerImage {
+  background-repeat: no-repeat;
+  background-size: cover;
+  background-position: center;
+  width: 100%;
+  height: 100vh;
+  margin: auto;
+  display: flex;
+  justify-content: center;
+  align-items: start;
+  box-shadow: inset 0 0 1px 1px #000;
+  transition: box-shadow 2s;
+  z-index: 0;
+}
+
+/* font for the game title header */
+.fontCizel {
+  font-family: 'Cizel';
+}
+
+.shadowBox {
+  box-shadow: inset 0 0 6px 2px #2c2a05;
+}
+
+@import 'tailwindcss'

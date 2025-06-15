@@ -1,0 +1,44 @@
+{
+  "lands": [
+    {
+      "type": "Plains",
+      "quantity": 10
+    }
+  ],
+  "creatures": [
+    {
+      "name": "Thalia, Guardian of Thraben",
+      "quantity": 1
+    },
+    {
+      "name": "Syr Alin, the Lion's Claw",
+      "quantity": 1
+    },
+    {
+      "name": "Savannah Lions",
+      "quantity": 2
+    },
+    {
+      "name": "Dauntless Bodyguard",
+      "quantity": 2
+    },
+    {
+      "name": "Accorder Paladin",
+      "quantity": 2
+    }
+  ],
+  "spells": [
+    {
+      "name": "Pacifism",
+      "quantity": 1
+    },
+    {
+      "name": "Raise the Alarm",
+      "quantity": 1
+    },
+    {
+      "name": "Glorious Charge",
+      "quantity": 1
+    }
+  ]
+}

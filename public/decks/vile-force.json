@@ -1,0 +1,44 @@
+{
+  "lands": [
+    {
+      "type": "Swamp",
+      "quantity": 10
+    }
+  ],
+  "creatures": [
+    {
+      "name": "Gix, Yawgmoth Praetor",
+      "quantity": 1
+    },
+    {
+      "name": "Sheoldred, the Apocalypse",
+      "quantity": 1
+    },
+    {
+      "name": "Doomed Dissenter",
+      "quantity": 2
+    },
+    {
+      "name": "Walking Corpse",
+      "quantity": 2
+    },
+    {
+      "name": "Typhoid Rats",
+      "quantity": 2
+    }
+  ],
+  "spells": [
+    {
+      "name": "Dark Ritual",
+      "quantity": 1
+    },
+    {
+      "name": "Doom Blade",
+      "quantity": 1
+    },
+    {
+      "name": "Sign in Blood",
+      "quantity": 1
+    }
+  ]
+}

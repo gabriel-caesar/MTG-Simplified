@@ -1,0 +1,22 @@
+/* scrollbar from player's hands container */
+
+#cardsContainer::-webkit-scrollbar {
+  width: 8px;  
+}
+
+#cardsContainer::-webkit-scrollbar-track {
+  background: #101828;
+}
+
+#cardsContainer::-webkit-scrollbar-thumb {
+  background-color: oklch(82.8% 0.189 84.429);
+}
+
+#cardsContainer::-webkit-scrollbar-thumb:hover {
+  background-color: oklch(61.013% 0.12532 83.38);
+  cursor: grab;
+}
+
+#cardsContainer::-webkit-scrollbar-thumb:active {
+  cursor: grabbing;
+}

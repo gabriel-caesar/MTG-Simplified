@@ -1,0 +1,81 @@
+/* game font */
+* {
+  font-family: 'Cormorant Garamond', 'Cinzel', 'Uncial Antiqua', 'Arial';
+  box-sizing: border-box;
+}
+
+/* font for the game title header */
+.fontUncial {
+  font-family: 'Uncial Antiqua';
+}
+
+/* bg-color for buttons */
+.radialGradient {
+  background: radial-gradient(circle, #f9a332 60%, #2c2a05)
+}
+
+/* deck background color themes */
+.angel-deck {
+  background: radial-gradient(circle, #e3ea23 50%, #7d7600);
+}
+.human-deck {
+  background: radial-gradient(circle, #17c336 50%, #073620);
+}
+.vile-deck {
+  background: radial-gradient(circle, #fd1a1a 50%, #540303);
+}
+
+/* gameboard buttons */
+#pass-btn,
+#settings-btn,
+#resume-btn,
+#quit-btn,
+#yes-btn,
+#no-btn {
+  box-shadow: inset 0 0 10px 1px #2c2a05;
+}
+
+#pass-btn:hover,
+#settings-btn:hover,
+#resume-btn:hover,
+#quit-btn:hover,
+#yes-btn:hover,
+#no-btn:hover {
+  background-color: #bcb419;
+  cursor: pointer;
+}
+
+
+/* chains for the wooden sign */
+#vertical-chains {
+  background-image: url('../assets/vertical-chains.png');
+  background-repeat: no-repeat;
+  background-size: contain;
+  background-position: center;
+  width: 400px;
+  height: 400px;
+}
+
+/* wooden sign */
+#woodenSign {
+  background-image: url('../assets/wooden-sign.png');
+  background-repeat: no-repeat;
+  background-size: cover;
+  background-position: center;
+  transform: scale(1.3);
+}
+
+/* shadow box for card preview */
+.shadowing {
+  box-shadow: 0 0 10px 2px #353535;
+}
+
+/* white cards preview background color*/
+.white-card-background {
+  background: radial-gradient(#e4cc74 70%, #333127);
+}
+
+/* white cards preview description color */
+.white-card-desc {
+  background: radial-gradient(#d1c9ac 80%, #1c1c1a);
+}
