@@ -1,6 +1,7 @@
 export async function fetchCard(name) {
 
   try {
+    // fetching the card from Scryfall
     const response = await fetch(
       `https://api.scryfall.com/cards/named?exact=${name}`
     );
@@ -8,8 +9,10 @@ export async function fetchCard(name) {
       throw new Error(`Couldn't get a successful response`);
     }
 
+    // awaiting the card data
     const data = await response.json();
   
+    // maintaing only the card properties that we want
     const card = {
       name: data.name,
       power: data.power,
@@ -22,11 +25,21 @@ export async function fetchCard(name) {
       'id': data['mtgo_id'],
       'type': data['type_line'],
       description: data.flavor_text,
-    }
+    };
 
-    return card;
+    // if the card is a mana, we add a (activated) property to it
+    if (card.name === 'Plains' || card.name === 'Swamp') {
+      const landCard = {
+        ...card,
+        activated: false,
+      }
+      return landCard;
+    } else {
+      return card;
+    };
+
   } catch (error) {
     throw new Error(`Couldn't fetch card. ${error.message}`);
-  }
+  };
 
-}
+};

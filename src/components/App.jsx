@@ -16,10 +16,10 @@ function playerReducer(state, action) {
       return {
         name: action.payload,
         deck_name: '',
-        deck_card_objects: [], // filtered between creatures, lands and spelss
-        deck_cards: [], // unfiltered
+        deck_card_objects: [], // filtered between creatures, lands and spells (before battle starts)
         deck_current_cards: 21,
         hands: [],
+        mana_bar: [],
         hp: 20,
         battlefield: [],
         graveyard: [],
@@ -30,13 +30,23 @@ function playerReducer(state, action) {
         deck_name: action.payload.name,
         deck_card_objects: action.payload.card_objects,
       };
-    case 'set_hands':
+    case 'set_hands': // draws seven cards to the players hands
       return {
         ...state,
         hands: action.payload.hands,
         deck_card_objects: action.payload.updated_deck,
         deck_current_cards: action.payload.number_of_cards,
       };
+    case 'update_hands': // deploys one mana to the mana bar
+      return {
+        ...state,
+        hands: action.payload,
+      };
+    case 'deploy_mana':
+      return {
+        ...state,
+        mana_bar: action.payload,
+      }
     default:
       return state;
   }
@@ -57,9 +67,11 @@ function App() {
 
   const [playMainTheme, setPlayMainTheme] = useState(false); // when user quits battlefield
 
-  const [buttonSound, setButtonSound] = useState(false); // toggles when a button is clicked
+  const [buttonSound, setButtonSound] = useState(false); // plays when a button is clicked
 
-  const [cardSound, setCardSound] = useState(false); // toggles the card preview sound when any card is selected
+  const [cardSound, setCardSound] = useState(false); // plays when the card is previewed
+
+  const [manaSound, setManaSound] = useState(false); // plays when the mana is activated
 
 
   // control bar for sound fxs, music and theme
@@ -82,6 +94,9 @@ function App() {
 
   // card sound effect when selected from hands container
   const previewCardSoundRef = useRef(null);
+
+  // mana activation effect
+  const manaSoundRef = useRef(null);
 
   // decks states
   const [angelDeck, setAngelDeck] = useState({});
@@ -300,16 +315,12 @@ function App() {
 
     if (buttonSoundRef.current.volume && startWebPage) {
       buttonSoundRef.current.volume = soundFXVolumeController;
-      buttonSoundRef.current.currentTime = 1.5;
-      buttonSoundRef.current.play() // avoiding race conditions
-      .then(() => {
-        setTimeout(() => buttonSoundRef.current.pause(), 500);
-      }).catch((err) => {
-        console.error('Audio play failed:', err);
-      });
+      buttonSoundRef.current.currentTime = 0;
+      buttonSoundRef.current.play();
     }
   }, [buttonSound]);
 
+  // plays a sound for when cards are previewed
   useEffect(() => {
     previewCardSoundRef.current = new Audio('../../soundfxs/draw-card.mp3');
 
@@ -318,7 +329,18 @@ function App() {
       previewCardSoundRef.current.currentTime = 0;
       previewCardSoundRef.current.play();
     };
-  }, [cardSound])
+  }, [cardSound]);
+
+  // plays a sound for when mana is activated
+  useEffect(() => {
+    manaSoundRef.current = new Audio('../../soundfxs/mana-activation.mp3');
+
+    if (manaSoundRef.current.volume && startWebPage) {
+      manaSoundRef.current.volume = soundFXVolumeController;
+      manaSoundRef.current.currentTime = 0;
+      manaSoundRef.current.play();
+    };
+  }, [manaSound]);
 
   // adjust sound fx volume
   useEffect(() => {
@@ -364,6 +386,8 @@ function App() {
           buttonSound,
           cardSound,
           setCardSound,
+          manaSound,
+          setManaSound
         }}
       >
         {startWebPage ? (

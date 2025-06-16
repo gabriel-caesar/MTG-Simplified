@@ -2,7 +2,7 @@ import '../css/gameboard.css';
 import '../css/scroll_bars.css';
 import '../css/main_menu.css';
 import 'mana-font/css/mana.min.css'; // npm install mana-font for mtg mana icons
-import { useContext, useState, useEffect } from 'react';
+import { useContext, useState, useEffect, createContext } from 'react';
 import { globalContext } from './App';
 import { IoMdArrowDropup, IoMdArrowDropdown } from 'react-icons/io';
 import { MdOutlineStar } from 'react-icons/md';
@@ -10,6 +10,9 @@ import { FaGripfire } from 'react-icons/fa';
 import { GiMountaintop, GiBroadsword } from 'react-icons/gi';
 import { IoArrowRedoSharp } from 'react-icons/io5';
 import { Cog } from 'lucide-react';
+
+// a local file context to link states and functions to other components
+const gameboardContext = createContext(null);
 
 function Gameboard({ setBattleStarts, setLeaveBattlefield, setPlayMainTheme }) {
   const {
@@ -36,8 +39,45 @@ function Gameboard({ setBattleStarts, setLeaveBattlefield, setPlayMainTheme }) {
   // erases the UI before quiting
   const [eraseUI, setEraseUI] = useState(false);
 
-  // if true, player already deployed one mana
-  const [oneManaPerTurn, setOneManaPerTurn] = useState(false);
+  // if false, player already deployed one mana
+  const [oneManaPerTurn, setOneManaPerTurn] = useState(true);
+
+  // state to serve as a prop for card component
+  const [cardBeingClicked, setCardBeingClicked] = useState('');
+
+  // handles the deployment of creatures/spells
+  function deployCreatureOrSpell() {}
+
+  // handles the deployment of mana
+  function deployOneMana() {
+    // searches for a single mana card
+    const manaToBeDeployed = player.hands.find((handCard) =>
+      handCard.type.match(/land/i)
+    );
+
+    // searches the that mana index inside the hands array
+    const manaIndex = player.hands.indexOf(manaToBeDeployed);
+
+    // splice it out from the hands array
+    player.hands.splice(manaIndex, 1); // mutating player.hands
+
+    // update the player's hands through an action
+    dispatchPlayer({
+      type: 'update_hands',
+      payload: player.hands,
+    });
+
+    // send the selected mana to the mana bar
+    dispatchPlayer({
+      type: 'deploy_mana',
+      payload: [...player.mana_bar, manaToBeDeployed],
+    });
+
+    // unselect the current mana being deployed
+    setCardBeingClicked('');
+
+    setOneManaPerTurn(false); // limit of one mana deployed per turn
+  }
 
   // function to reverse the component to deck selection
   function handleQuit() {
@@ -83,7 +123,16 @@ function Gameboard({ setBattleStarts, setLeaveBattlefield, setPlayMainTheme }) {
   }, [liftWoodenSign]);
 
   return (
-    <>
+    <gameboardContext.Provider
+      value={{
+        oneManaPerTurn,
+        setOneManaPerTurn,
+        deployOneMana,
+        deployCreatureOrSpell,
+        cardBeingClicked,
+        setCardBeingClicked,
+      }}
+    >
       {!eraseUI && (
         <>
           <div
@@ -104,6 +153,7 @@ function Gameboard({ setBattleStarts, setLeaveBattlefield, setPlayMainTheme }) {
               <button
                 onClick={() => {
                   setButtonSound(!buttonSound);
+                  setOneManaPerTurn(true);
                 }}
                 className='active:bg-amber-600 absolute right-0 top-80 z-3 bg-amber-300 rounded-sm text-lg font-bold p-2 border-2 transition-colors'
                 id='pass-btn'
@@ -195,23 +245,35 @@ function Gameboard({ setBattleStarts, setLeaveBattlefield, setPlayMainTheme }) {
               >
                 <Cog />
               </button>
-              <Player oneManaPerTurn={oneManaPerTurn} setOneManaPerTurn={setOneManaPerTurn} />
+              <Player
+                oneManaPerTurn={oneManaPerTurn}
+                setOneManaPerTurn={setOneManaPerTurn}
+              />
             </div>
           )}
         </>
       )}
-    </>
+    </gameboardContext.Provider>
   );
 }
 
 // players battlefield component
-function Player({
-  oneManaPerTurn,
-  setOneManaPerTurn
-}) {
-  const { player, setButtonSound, buttonSound, cardSound, setCardSound } = useContext(globalContext);
+function Player() {
+  const {
+    player,
+    setButtonSound,
+    buttonSound,
+    cardSound,
+    setCardSound,
+    manaSound,
+    setManaSound,
+    dispatchPlayer,
+  } = useContext(globalContext);
 
-  console.log(player.deck_card_objects);
+  const { cardBeingClicked, setCardBeingClicked } =
+    useContext(gameboardContext);
+
+  console.log('PLAYER OBJECT', player);
 
   // state that opens and closes the graveyard/hp container
   const [openGraveyard, setOpenGraveyard] = useState(false);
@@ -219,11 +281,24 @@ function Player({
   // state that opens and closes the player's hands container
   const [openHands, setOpenHands] = useState(false);
 
-  // state used to show the clicked card details
-  const [showCardDetails, setShowCardDetails] = useState(false);
-
-  // state to serve as a prop for card component
-  const [cardBeingClicked, setCardBeingClicked] = useState('');
+  // activates a mana
+  function useMana(card, index) {
+    if (card.activated) {
+      // if the player clicked an activated mana
+      player.mana_bar[index].activated = false;
+      dispatchPlayer({
+        type: 'deploy_mana',
+        payload: player.mana_bar,
+      });
+    } else {
+      // mana being activated by the first time
+      player.mana_bar[index].activated = true;
+      dispatchPlayer({
+        type: 'deploy_mana',
+        payload: player.mana_bar,
+      });
+    }
+  }
 
   return (
     <>
@@ -312,17 +387,38 @@ function Player({
             })}
           </ul>
 
-          {cardBeingClicked !== '' && <CardPreview card={cardBeingClicked} />}
+          {cardBeingClicked && <CardPreview card={cardBeingClicked} />}
         </div>
 
-        <div id='mana-bar-wrapper'>
-          <h1 className='left-83.5 top-70.5 absolute rounded-t-sm fontUncial bg-gradient-to-bl from-blue-700 to-gray-900 text-amber-400 border-amber-400 text-2xl w-40 text-center border-2'>
+        <div id='mana-bar-wrapper' className='absolute right-101 top-74.5'>
+          <h1 className='-top-8.5 absolute rounded-t-sm fontUncial bg-gradient-to-bl from-blue-700 to-gray-900 text-amber-400 border-amber-400 text-2xl w-40 text-center border-2'>
             Mana bar
           </h1>
           <div
-            className='w-200 h-8 border-2 border-amber-400 border-b-0 bg-gradient-to-bl from-blue-700 to-gray-900 absolute right-101 top-79 rounded-t-sm'
+            className='w-200 h-12 border-2 border-amber-400 border-b-0 bg-gradient-to-bl from-blue-700 to-gray-900  rounded-t-sm p-1 flex justify-start items-center'
             id='mana-bar'
-          ></div>
+          >
+            {player.mana_bar.map((card, index) => {
+              return (
+                <button
+                  className={`flex justify-between items-center rounded-sm mr-2 w-22 p-1 font-bold text-lg  border-2 ${card.name === 'Plains' ? 'white-card-background text-black' : 'black-card-background text-amber-50'} hover:cursor-pointer hover:opacity-70 transition-all ${card.activated && 'activatedMana'}`}
+                  id='mana-btn'
+                  onClick={() => {useMana(card, index); setManaSound(!manaSound)}}
+                  key={index}
+                >
+                  <p>{card.name}</p>
+
+                  <p>
+                    {card.color[0] === 'W' ? (
+                      <i class='ms ms-w ms-cost ms-shadow'></i>
+                    ) : (
+                      <i class='ms ms-b ms-cost ms-shadow'></i>
+                    )}
+                  </p>
+                </button>
+              );
+            })}
+          </div>
         </div>
 
         <div id='battlefield'></div>
@@ -405,6 +501,7 @@ function Bot() {
   );
 }
 
+// function to display in the UI the amount of mana cost for cards
 function CardMana({ mana_cost }) {
   return (
     <>
@@ -442,7 +539,16 @@ function CardMana({ mana_cost }) {
 }
 
 function CardPreview({ card }) {
-  console.log(card.name);
+  // card is the only prop because it comes from the Player's deck directly
+
+  // getting important data from Gameboard context
+  const {
+    oneManaPerTurn,
+    setOneManaPerTurn,
+    deployOneMana,
+    deployCreatureOrSpell,
+  } = useContext(gameboardContext);
+
   return (
     <div
       className={`white-card-background absolute -top-60 left-80 flex flex-col justify-start items-center rounded-2xl p-2 w-90 h-140 z-6 shadowing border-10 border-black`}
@@ -470,18 +576,42 @@ function CardPreview({ card }) {
       <div
         className={`absolute ${card.type.match(/land/i) ? 'opacity-80' : 'opacity-10'} text-9xl bottom-25`}
       >
-        {card.color[0] === 'W' ? <i class='ms ms-w'></i> : <i class='ms ms-b'></i>}
+        {card.color[0] === 'W' ? (
+          <i class='ms ms-w'></i>
+        ) : (
+          <i class='ms ms-b'></i>
+        )}
       </div>
 
       <div className='my-2 border-4 white-card-desc font-bold text-lg p-2 w-80 h-50'>
-        {card.ability ? card.ability : card.description && `~${card.description}`}
+        {card.ability
+          ? card.ability
+          : card.description && `~${card.description}`}
       </div>
 
       <span className='flex justify-between items-center px-1 font-bold text-lg w-full'>
-        <button className='active:opacity-80 border-2 hover:opacity-60 hover:cursor-pointer transition-all text-black px-2 bg-gradient-to-b from-amber-950 to-amber-400' id='deploy-btn'>
+        <button
+          className={`active:opacity-80 border-2 hover:opacity-60  transition-all text-black px-2 
+            ${
+              card.type.match(/land/i)
+                ? oneManaPerTurn
+                  ? 'radialGradient hover:cursor-pointer'
+                  : 'bg-gradient-to-b from-blue-950 to-gray-500 hover:cursor-not-allowed'
+                : 'bg-gradient-to-b from-blue-950 to-gray-500 hover:cursor-not-allowed'
+            }`}
+          id='deploy-btn'
+          disabled={
+            card.type.match(/land/i) ? (oneManaPerTurn ? false : true) : false
+          }
+          onClick={
+            card.type.match(/land/i)
+              ? () => deployOneMana()
+              : () => deployCreatureOrSpell()
+          }
+        >
           Deploy Card
         </button>
-        {(card.power && card.toughness) && (
+        {card.power && card.toughness && (
           <p className='text-3xl font-bold'>
             {card.power}/{card.toughness}
           </p>

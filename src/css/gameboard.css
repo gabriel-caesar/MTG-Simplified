@@ -79,3 +79,14 @@
 .white-card-desc {
   background: radial-gradient(#d1c9ac 80%, #1c1c1a);
 }
+
+/* black cards preview background color*/
+.black-card-background {
+  background: radial-gradient(#3b0404 70%, #713737);
+}
+
+/* activated mana effect */
+.activatedMana {
+  box-shadow: 0 0 10px 2px #e20b0b;
+  background: linear-gradient(#d40b0b 40%, #2c2a05);  
+}
