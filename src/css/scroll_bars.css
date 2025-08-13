@@ -20,3 +20,49 @@
 #cardsContainer::-webkit-scrollbar-thumb:active {
   cursor: grabbing;
 }
+
+/* battlefield card container description (sometimes it get really big) */
+
+#battlefieldCardDesc::-webkit-scrollbar {
+  width: 4px;  
+}
+
+#battlefieldCardDesc::-webkit-scrollbar-track {
+  background: #101828;
+}
+
+#battlefieldCardDesc::-webkit-scrollbar-thumb {
+  background-color: oklch(82.8% 0.189 84.429);
+}
+
+#battlefieldCardDesc::-webkit-scrollbar-thumb:hover {
+  background-color: oklch(61.013% 0.12532 83.38);
+  cursor: grab;
+}
+
+#battlefieldCardDesc::-webkit-scrollbar-thumb:active {
+  cursor: grabbing;
+}
+
+/* mana bar scroll bar */
+#mana-bar::-webkit-scrollbar {
+  height: 4px;  
+}
+
+#mana-bar::-webkit-scrollbar-track {
+  background: #101828;
+}
+
+#mana-bar::-webkit-scrollbar-thumb {
+  background-color: oklch(82.8% 0.189 84.429);
+}
+
+#mana-bar::-webkit-scrollbar-thumb:hover {
+  background-color: oklch(61.013% 0.12532 83.38);
+  cursor: grab;
+}
+
+#mana-bar::-webkit-scrollbar-thumb:active {
+  cursor: grabbing;
+}
+

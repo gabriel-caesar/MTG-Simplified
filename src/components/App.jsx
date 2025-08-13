@@ -46,14 +46,81 @@ function playerReducer(state, action) {
       return {
         ...state,
         mana_bar: action.payload,
-      }
+      };
+    case 'update_battlefield':
+      return {
+        ...state,
+        battlefield: action.payload,
+      };
+    case 'card_died':
+      return {
+        ...state,
+        battlefield: action.payload.updatedBattlefield,
+        graveyard: action.payload.updatedGraveyard,
+      };
     default:
       return state;
   }
-}
+};
+
+// reducer function to purely change state (player)
+function botReducer(state, action) {
+  switch (action.type) {
+    case 'create-player': // creates a brand new instance of player
+      return {
+        name: 'Bot',
+        deck_name: '',
+        deck_card_objects: [], // filtered between creatures, lands and spells (before battle starts)
+        deck_current_cards: 21,
+        hands: [],
+        mana_bar: [],
+        hp: 20,
+        battlefield: [],
+        graveyard: [],
+      };
+    case 'set_deck': // sets a brand new deck for the player
+      return {
+        ...state,
+        deck_name: action.payload.name,
+        deck_card_objects: action.payload.card_objects,
+      };
+    case 'set_hands':
+      return {
+        ...state,
+        hands: action.payload.hands,
+        deck_card_objects: action.payload.updated_deck,
+        deck_current_cards: action.payload.number_of_cards,
+      };
+    case 'update_hands':
+      return {
+        ...state,
+        hands: action.payload,
+      };
+    case 'deploy_mana':
+      return {
+        ...state,
+        mana_bar: action.payload,
+      };
+    case 'update_battlefield':
+      return {
+        ...state,
+        battlefield: action.payload,
+      };
+    case 'card_died':
+      return {
+        ...state,
+        battlefield: action.payload.updatedBattlefield,
+        graveyard: action.payload.updatedGraveyard,
+      };
+    default:
+      return state;
+  }
+};
 
 function App() {
-  const [player, dispatchPlayer] = useReducer(playerReducer, {});
+  const [player, dispatchPlayer] = useReducer(playerReducer, {}); // player state manager
+
+  const [bot, dispatchBot] = useReducer(botReducer, {}); // bot state manager
 
   const [appTheme, setAppTheme] = useState('forest'); // main app theme
 
@@ -81,7 +148,7 @@ function App() {
 
   // state to control the theme volume
   const [themeSongVolumeController, setThemeSongVolumeController] =
-    useState(0.3);
+    useState(0);
 
   // theme song ref to keep it away from being created from scratch every time react re-renders
   const songRef = useRef(null);
@@ -102,18 +169,16 @@ function App() {
   const [angelDeck, setAngelDeck] = useState({});
   const [resistanceDeck, setResistanceDeck] = useState({});
   const [vileDeck, setVileDeck] = useState({});
+  // used to decide what deck bot will choose
+  const allDecks = [angelDeck, resistanceDeck, vileDeck];
 
-  function openDeckObject() {
-    // pseudo-code
-    // iterate through every card object
-    // figure out their quantity
-    // make copies for every object for how much quantity they have
+  function openDeckObject(competitor) {
 
     // used to iterate through every cards without going through properties (creatures, spells...)
     const deck_9_cards = [
-      ...player.deck_card_objects.creatures,
-      ...player.deck_card_objects.lands,
-      ...player.deck_card_objects.spells,
+      ...competitor.deck_card_objects.creatures,
+      ...competitor.deck_card_objects.lands,
+      ...competitor.deck_card_objects.spells,
     ];
 
     // extracting every card that quantity > 1 and filtering the undefined results
@@ -154,9 +219,9 @@ function App() {
     return [...deck_21_cards, ...deck_7_cards];
   }
 
-  function drawSevenCards() {
+  function drawSevenCards(competitor, dispatch) {
     // turns the quantity oriented object to raw 21 object cards array/deck
-    let deck_21_cards = openDeckObject();
+    let deck_21_cards = openDeckObject(competitor);
 
     let hands_cards = []; // temporary array to hold 7 cards
 
@@ -179,7 +244,7 @@ function App() {
     }
 
     // dispatching all the updated deck and hand info
-    dispatchPlayer({
+    dispatch({
       type: 'set_hands',
       payload: {
         hands: hands_cards.sort(),
@@ -254,7 +319,7 @@ function App() {
     // if there is already a soundtrack going on, pause it
     if (songRef.current) {
       songRef.current.pause();
-    }
+    };
 
     // if the page loaded the sounds and music
     songRef.current = new Audio('../../soundfxs/main-theme.mp3');
@@ -264,8 +329,8 @@ function App() {
         songRef.current.volume = themeSongVolumeController;
         songRef.current.loop = true;
         songRef.current.play();
-      }
-    }
+      };
+    };
   }, [startWebPage, playMainTheme]);
 
   // when battle starts, song changes (player clicked 'To Battle')
@@ -295,7 +360,8 @@ function App() {
           setBattlePrep(false); // screen backs to normal
           songRef.current.play();
 
-          drawSevenCards(); // draw cards to hands
+          drawSevenCards(player, dispatchPlayer); // draw cards to player's hands
+          drawSevenCards(bot, dispatchBot); // draw cards to bot's hands
         }
       }, 12000);
     }
@@ -380,6 +446,8 @@ function App() {
           setStartWebPage,
           player,
           dispatchPlayer,
+          bot,
+          dispatchBot,
           battlePrep,
           songRef,
           setButtonSound,
@@ -387,13 +455,14 @@ function App() {
           cardSound,
           setCardSound,
           manaSound,
-          setManaSound
+          setManaSound,
+          allDecks
         }}
       >
         {startWebPage ? (
           <>
             <nav
-              className={`absolute flex justify-around items-center border-r-2 border-t-2 border-l-2 p-1 w-40 ${appTheme === 'vile' ? 'bg-gray-400' : 'backdrop-blur-lg'} rounded-t-sm rounded-tl-sm top-5 left-6 z-2`}
+              className={`absolute flex justify-around items-center border-r-2 border-t-2 border-l-2 p-1 w-40 ${appTheme === 'vile' ? 'bg-gray-400' : 'backdrop-blur-lg'} rounded-t-sm rounded-tl-sm top-5 left-6 z-10`}
             >
               <button
                 className={`${musicControl ? 'border-black' : 'border-transparent'} active:opacity-50 hover:cursor-pointer border-2 rounded-sm hover:text-gray-300 hover:border-black p-1 transition-colors`}
@@ -434,7 +503,7 @@ function App() {
               </button>
             </nav>
             <div
-              className={`${(soundControl || themeControl || musicControl) && 'border-t-2'} absolute left-6 top-16 text-lg font-bold ${appTheme === 'vile' ? 'bg-gray-400' : 'backdrop-blur-lg'} w-40 p-1 border-r-2 border-l-2 border-b-2 rounded-b-sm rounded-bl-sm z-2`}
+              className={`${(soundControl || themeControl || musicControl) && 'border-t-2'} absolute left-6 top-16 text-lg font-bold ${appTheme === 'vile' ? 'bg-gray-400' : 'backdrop-blur-lg'} w-40 p-1 border-r-2 border-l-2 border-b-2 rounded-b-sm rounded-bl-sm z-10`}
             >
               {musicControl ? (
                 <div className='flex flex-col justify-center items-center'>
@@ -506,6 +575,7 @@ function App() {
                 setBattleStarts={setBattleStarts}
                 setLeaveBattlefield={setLeaveBattlefield}
                 setPlayMainTheme={setPlayMainTheme}
+                playMainTheme={playMainTheme}
               />
             ) : (
               <MainMenu

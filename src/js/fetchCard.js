@@ -31,11 +31,25 @@ export async function fetchCard(name) {
     if (card.name === 'Plains' || card.name === 'Swamp') {
       const landCard = {
         ...card,
-        activated: false,
+        activated: false, // if mana was activated to deploy a card
+        used: false, // if mana was used to deploy a card
       }
       return landCard;
     } else {
-      return card;
+      if (card.type.match(/creature/i)) {
+        return {
+          ...card,
+          enoughManaToDeploy: false,
+          attack: false,
+          defend: false,
+        };
+      } else {
+        return {
+          ...card,
+          enoughManaToDeploy: false,
+          cast: false,
+        };
+      }
     };
 
   } catch (error) {

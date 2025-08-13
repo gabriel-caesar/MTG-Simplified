@@ -11,7 +11,7 @@
 
 /* bg-color for buttons */
 .radialGradient {
-  background: radial-gradient(circle, #f9a332 60%, #2c2a05)
+  background: radial-gradient(circle, #f9a332 60%, #2c2a05);
 }
 
 /* deck background color themes */
@@ -44,7 +44,6 @@
   background-color: #bcb419;
   cursor: pointer;
 }
-
 
 /* chains for the wooden sign */
 #vertical-chains {
@@ -80,6 +79,11 @@
   background: radial-gradient(#d1c9ac 80%, #1c1c1a);
 }
 
+/* black cards preview description color */
+.black-card-desc {
+  background: radial-gradient(#880c0c 80%, #511515);
+}
+
 /* black cards preview background color*/
 .black-card-background {
   background: radial-gradient(#3b0404 70%, #713737);
@@ -88,5 +92,40 @@
 /* activated mana effect */
 .activatedMana {
   box-shadow: 0 0 10px 2px #e20b0b;
-  background: linear-gradient(#d40b0b 40%, #2c2a05);  
+  background: linear-gradient(#d40b0b 40%, #2c2a05);
+}
+
+/* transition animation when hovering a card on the battlefield */
+#cardContainer:hover {
+  box-shadow: 0 0 20px 6px #37cbe9;
+}
+
+/* when mana is used, i change its color with this class */
+.cardTapped {
+  background: linear-gradient(#91b6c2 40%, #191917);
+  box-shadow: none;
+}
+
+/* turn creature when attacking */
+.creatureTurn {
+  transform: rotate(-90deg);
+}
+
+/* custom transition timers for battlefield cards */
+.cardTransition {
+  transition:
+    transform 0.6s,
+    height 0.35s,
+    width 0.35s,
+    top 0.35s,
+    bottom 0.35s,
+    z-index 0.35s;
+}
+
+.small {
+  height: 15rem;
+}
+
+.large {
+  height: 30rem;
 }

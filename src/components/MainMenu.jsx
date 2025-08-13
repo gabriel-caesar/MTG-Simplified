@@ -14,7 +14,7 @@ import { FaGripfire } from 'react-icons/fa';
 
 function MainMenu({ setBattleStarts, setBattlePrep }) {
   // getting the context states from App component (the root of the game)
-  const { player, dispatchPlayer, startWebPage } = useContext(globalContext);
+  const { player, dispatchPlayer, startWebPage, dispatchBot, allDecks } = useContext(globalContext);
 
   const [playerName, setPlayerName] = useState(''); // holds the planer name
 
@@ -32,6 +32,8 @@ function MainMenu({ setBattleStarts, setBattlePrep }) {
 
     // sending an action to create a brand new player object carrying its name
     dispatchPlayer({ type: 'create-player', payload: playerName });
+
+    dispatchBot({ type: 'create-player' });
 
     setLiftWoodenSign(true); // chains goes up
 
@@ -91,6 +93,26 @@ function MainMenu({ setBattleStarts, setBattlePrep }) {
       // updating menu
       setLiftWoodenSign(false);
     }, 900); // animation is 1s, timeout is 0.9s
+
+    // filtering the deck player chose
+    const playerDeckChoice = allDecks.find(d => d.name === deck.name);
+    const index = allDecks.indexOf(playerDeckChoice);
+    allDecks.splice(index, 1);
+    // randomly selects both of the remaining two choices of deck
+    const botDeck = allDecks[Math.floor(Math.random() * 2)];
+
+    // uptdating the bot deck
+    dispatchBot({
+      type: 'set_deck',
+      payload: {
+        name: botDeck.name,
+        card_objects: {
+          lands: botDeck.lands,
+          creatures: botDeck.creatures,
+          spells: botDeck.spells,
+        },
+      },
+    });
 
     // updating the user deck
     dispatchPlayer({
