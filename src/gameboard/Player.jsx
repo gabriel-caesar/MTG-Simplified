@@ -1,10 +1,10 @@
 import { useContext, useState } from 'react';
 import { globalContext } from '../App.jsx';
-import Graveyard from './battlefield-ui/graveyard';
-import ManaBar from './battlefield-ui/ManaBar';
+import Graveyard from './battlefield-ui/Graveyard.jsx';
+import ManaBar from './battlefield-ui/ManaBar.jsx';
+import Hands from './battlefield-ui/Hands.jsx';
 import Battlefield from './Battlefield.jsx';
-import Hands from './battlefield-ui/Hands';
-import HP from './battlefield-ui/HP';
+import HP from './battlefield-ui/HP.jsx';
 
 export default // players battlefield component
 function Player() {
