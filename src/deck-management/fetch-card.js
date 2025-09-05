@@ -1,4 +1,4 @@
-export async function fetchCard(name) {
+export default async function fetchCard(name) {
 
   try {
     // fetching the card from Scryfall
