@@ -2,8 +2,8 @@ import {
   deployOneMana,
   deployCreatureOrSpell,
 } from '../../gameplay-actions/deploy-cards';
-import { gameboardContext } from '../Gameboard';
-import { globalContext } from '../../App.jsx';
+import { gameboardContext } from '../../contexts/gameboard-context.js';
+import { globalContext } from '../../contexts/global-context.js';
 import { useContext } from 'react';
 import CardMana from './CardMana';
 

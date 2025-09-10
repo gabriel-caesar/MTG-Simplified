@@ -2,18 +2,15 @@ import '../css/gameboard.css';
 import '../css/scroll_bars.css';
 import '../css/main_menu.css';
 import 'mana-font/css/mana.min.css'; // npm install mana-font for mtg mana icons
-import { useContext, useState, useEffect, createContext, useRef } from 'react';
-import { globalContext } from '../App.jsx';
-import { Cog } from 'lucide-react';
+import { useContext, useState, useEffect, useRef } from 'react';
+import { gameboardContext } from '../contexts/gameboard-context.js';
+import { globalContext } from '../contexts/global-context.js';
 import { isEnoughMana } from '../gameplay-actions/mana.js';
-import Bot from './Bot.jsx';
-import Player from './Player.jsx';
+import { Cog } from 'lucide-react';
 import PassTurnButton from './PassTurnButton.jsx';
 import GameLog from './GameLog.jsx';
-
-// a gameboard context to link states and functions to other components
-// eslint-disable-next-line react-refresh/only-export-components
-export const gameboardContext = createContext(null);
+import Player from './Player.jsx';
+import Bot from './Bot.jsx';
 
 export default function Gameboard({
   setBattleStarts,
@@ -51,6 +48,9 @@ export default function Gameboard({
 
   // state that will disable every playing tool from player while bot plays
   const [playerPassedTurn, setPlayerPassedTurn] = useState(false);
+
+  // if competitor is currently attacking with a card
+  const [isAttacking, setIsAttacking] = useState(false);
 
   // reference of bot state for the recursive botPlays() function
   const botRef = useRef(bot);
@@ -133,6 +133,8 @@ export default function Gameboard({
     setOneManaPerTurn,
     originalToughness,
     setOriginalToughness,
+    isAttacking,
+    setIsAttacking,
     gameTurn,
     setGameTurn,
     botRef,

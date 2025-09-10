@@ -3,7 +3,6 @@ import uniqueId from '../deck-management/unique-id';
 
 // handles the deployment of creatures/spells
 export function deployCreatureOrSpell(competitor, dispatch, card, gameTurn) {
-
   if (competitor.battlefield.length <= 5) {
     // if card is not a land
     if (!card.type.match(/land/i)) {
@@ -12,9 +11,11 @@ export function deployCreatureOrSpell(competitor, dispatch, card, gameTurn) {
       // select the card object
       const selectedCard = competitor.hands[cardSelectedIndex];
 
-      // adding a turn tracker and an unique instance id to avoid duplicate issues
+      // adding a turn tracker, summoning sickness
+      // and an unique instance id to avoid duplicate issues
       const cardToBeDeployed = {
         ...selectedCard,
+        summoningSickness: true,
         deployedOnTurn: gameTurn,
         instanceId: uniqueId(),
       };
@@ -67,8 +68,33 @@ export function deployOneMana(competitor, dispatch) {
     type: 'deploy_mana',
     payload: [...competitor.mana_bar, manaToBeDeployed],
   });
+}
 
-  if (competitor.name !== 'Bot') {
-    // unselect the current mana being deployed
+export function deployPriority(deployableCards) {
+  // placeholder to be assigned a value later on
+  let c = null;
+  // Priority 1: Legendary creatures
+  const legendaryCreatures = deployableCards.filter(
+    (card) => card.type.match(/creature/i) && card.legendary
+  );
+
+  // Priority 2: Regular creatures
+  const regularCreatures = deployableCards.filter(
+    (card) => card.type.match(/creature/i) && !card.legendary
+  );
+
+  // Priority 3: Spells
+  const spells = deployableCards.filter(
+    (card) => !card.type.match(/creature/i) && !card.type.match(/land/i)
+  );
+
+  // based on priority, assign the respective value to c
+  if (legendaryCreatures.length > 0) {
+    c = legendaryCreatures[0];
+  } else if (regularCreatures.length > 0) {
+    c = regularCreatures[0];
+  } else if (spells.length > 0) {
+    c = spells[0];
   }
+  return c;
 }

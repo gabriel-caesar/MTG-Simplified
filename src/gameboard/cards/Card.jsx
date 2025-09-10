@@ -1,15 +1,20 @@
 import { GiCrossedSwords, GiBoltSpellCast } from 'react-icons/gi';
 import { useContext, useState } from 'react';
-import { gameboardContext } from '../Gameboard.jsx';
-import { globalContext } from '../../App.jsx';
+import { gameboardContext } from '../../contexts/gameboard-context.js';
+import { globalContext } from '../../contexts/global-context.js';
 import { X } from 'lucide-react';
-import castSpell from '../../gameplay-actions/cast-spell.js';
-import attack from '../../gameplay-actions/attack.js';
+import { playerAttacks } from '../../gameplay-actions/tap-cards.js';
 
 export default function Card({ competitor, dispatch }) {
   // if the player clicks the card to inspect it further
-  const { toEnlarge, setToEnlarge, setOriginalToughness } =
-    useContext(gameboardContext);
+  const {
+    toEnlarge,
+    setToEnlarge,
+    setOriginalToughness,
+    isAttacking,
+    setIsAttacking,
+    setCardBeingClicked,
+  } = useContext(gameboardContext);
 
   // button sound for when the attack menu is opened
   const { buttonSound, setButtonSound, bot, dispatchBot } =
@@ -26,12 +31,13 @@ export default function Card({ competitor, dispatch }) {
       id='cardContainer'
       className={`rounded-lg p-1 mx-2 cardTransition transition-all relative
             flex flex-col justify-start items-center
-            ${card.attack || card.defend ? 'creatureTurn' : ''}
+            ${(card.attack || card.defend) && 'creatureTurn'}
             ${
               card.color[0] === 'W'
                 ? 'white-card-background text-black'
                 : 'black-card-background text-amber-200 border-black'
             }
+            ${card.summoningSickness && 'sickness'}
             ${
               toEnlarge === card.instanceId
                 ? `z-10 w-80 large border-8 ${!isBot ? '-top-60' : 'top-10'} hover:cursor-default`
@@ -40,8 +46,11 @@ export default function Card({ competitor, dispatch }) {
             ${isBot && 'mt-14'}`}
       key={index}
       onClick={() => {
-        setOpenAttackMenu(false);
-        setToEnlarge(toEnlarge === card.instanceId ? '' : card.instanceId);
+        if (!isAttacking) { // if its not attack phase, enlarge the card
+          setOpenAttackMenu(false); // making sure the attack menu reamins closed everytime user enlarge a card
+          setCardBeingClicked(''); // if player had a card from the hands clicked, unclick it
+          setToEnlarge(toEnlarge === card.instanceId ? '' : card.instanceId); // unenlarge a card if it is already
+        }
       }}
     >
       <h1
@@ -53,7 +62,7 @@ export default function Card({ competitor, dispatch }) {
       <img
         src={card.image_uris.art_crop}
         alt='card-image'
-        className={`border-2 ${toEnlarge === card.instanceId ? 'w-80 h-60' : 'w-40 h-30'}`}
+        className={`border-2 ${toEnlarge === card.instanceId ? 'w-80 h-60' : 'w-40 h-30'} `}
       />
 
       <p
@@ -111,13 +120,25 @@ export default function Card({ competitor, dispatch }) {
                   className={`radialGradient border-2 ${card.type.match(/creature/i) ? 'border-gray-900' : 'border-gray-400'} text-gray-900 flex justify-between items-center rounded-sm`}
                 >
                   <button
-                    className='hover:cursor-pointer hover:bg-gray-900 hover:text-amber-400 hover:border-gray-900 border-2 border-transparent h-8 transition-all bg-transparent font-bold rounded-l-sm w-22'
+                    className={`
+                      ${
+                        card.summoningSickness
+                          ? 'hover:cursor-not-allowed hover:bg-red-900 hover:text-neutral-200 hover:border-red-900'
+                          : 'hover:cursor-pointer hover:bg-gray-900 hover:text-amber-400 hover:border-gray-900 '
+                      }
+                      border-2 border-transparent h-8 transition-all bg-transparent font-bold rounded-l-sm w-22
+                    `}
                     id='attack-or-spell-button'
                     aria-label='attack-or-spell-button'
+                    disabled={
+                      card.summoningSickness || isAttacking ? true : false
+                    }
                     onClick={(e) => {
                       e.stopPropagation(); // doesn't let the click propagate to the card itself
+                      setIsAttacking(true); // attacking phase starts
+
                       card.type.match(/creature/i)
-                        ? attack(
+                        ? playerAttacks(
                             card,
                             competitor,
                             dispatch,
@@ -126,12 +147,16 @@ export default function Card({ competitor, dispatch }) {
                             setToEnlarge,
                             setOriginalToughness
                           )
-                        : castSpell(card, competitor, dispatch);
+                        : '';
 
-                      // card goes back to its original size
                       setTimeout(() => {
+                        // card goes back to its original size
                         setToEnlarge(null);
                       }, 800);
+                      
+                      setTimeout(() => {
+                        setIsAttacking(false); // attack returns false by the end of its execution
+                      }, 3500)
                     }}
                   >
                     {card.type.match(/creature/i) ? 'Attack' : 'Cast'}

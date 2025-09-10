@@ -1,9 +1,9 @@
 import '../css/main_menu.css';
+import { globalContext } from '../contexts/global-context.js';
 import { useContext, useEffect, useState } from 'react';
-import { globalContext } from '../App.jsx';
 import DeckSelection from './DeckSelection.jsx';
-import DeckDetails from './DeckDetails.jsx';
 import EnterYourName from './EnterYourName.jsx';
+import DeckDetails from './DeckDetails.jsx';
 
 export default function MainMenu({ setBattleStarts, setBattlePrep, soundFXVolumeController }) {
   // getting the context states from App component (the root of the game)

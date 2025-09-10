@@ -1,5 +1,5 @@
+import { globalContext } from '../../contexts/global-context.js';
 import { useContext } from 'react';
-import { globalContext } from '../../App';
 
 export default function Controller({
   musicControl,

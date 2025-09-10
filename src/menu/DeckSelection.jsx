@@ -1,6 +1,6 @@
-import { useContext } from 'react';
-import { globalContext } from '../App';
 import { GiCurlyWing, GiDevilMask, GiVikingShield } from 'react-icons/gi';
+import { globalContext } from '../contexts/global-context.js';
+import { useContext } from 'react';
 
 // deck selection panel after the user wrote his name on the wooden sign
 export default function DeckSelection({ player, goBack, handleDeckSelection }) {

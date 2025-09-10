@@ -1,5 +1,5 @@
 import { useContext, useState } from 'react';
-import { globalContext } from '../App.jsx';
+import { globalContext } from '../contexts/global-context.js';
 import Graveyard from './battlefield-ui/Graveyard.jsx';
 import ManaBar from './battlefield-ui/ManaBar.jsx';
 import Hands from './battlefield-ui/Hands.jsx';

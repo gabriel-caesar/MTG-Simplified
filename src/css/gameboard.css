@@ -12,6 +12,11 @@
 /* bg-color for buttons */
 .radialGradient {
   background: radial-gradient(circle, #f9a332 60%, #2c2a05);
+
+}
+/* bg-color for gamelog when in attack phase */
+.attackingRadialGrandient {
+  background: radial-gradient(circle, #c20b0b 60%, #2c2a05);
 }
 
 /* deck background color themes */
@@ -122,10 +127,18 @@
     z-index 0.35s;
 }
 
+/* used to ensmall cards when inspecting in the battlefield */
 .small {
   height: 15rem;
 }
 
+/* used to enlarge cards when inspecting in the battlefield */
 .large {
   height: 30rem;
+}
+
+/* summoning sickness effect */
+.sickness {
+  box-shadow: 0 0 10px 2px #780e0e;
+  filter: brightness(60%);
 }

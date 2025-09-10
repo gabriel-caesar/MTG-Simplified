@@ -14,11 +14,11 @@ export function botDefends(
 
   // checking for existing regular creatures
   const areRegularCreatures = battlefield.some(
-    (c) => /creature/i.test(c.type) && !c.legendary
+    (c) => /creature/i.test(c.type) && !c.legendary && !c.summoningSickness
   );
   // checking for existing legendary creatures
   const areLegendaryCreatures = battlefield.some(
-    (c) => /creature/i.test(c.type) && c.legendary
+    (c) => /creature/i.test(c.type) && c.legendary && !c.summoningSickness
   );
 
   // toughest regular or legendary creature
@@ -30,10 +30,8 @@ export function botDefends(
   // priority conditions
   if (areRegularCreatures) {
     const toughnessValues = battlefield
-      .filter((c) => c.toughness && !c.legendary && !c.attack && !c.defend)
+      .filter((c) => c.toughness && !c.legendary && !c.attack && !c.defend && !c.summoningSickness)
       .map((c) => c.toughness);
-
-    console.log(`Regular toughnessValues: ${toughnessValues}\n`);
 
     toughest = toughnessValues.length > 0 ? Math.max(...toughnessValues) : null;
 
@@ -43,10 +41,8 @@ export function botDefends(
       );
   } else if (areLegendaryCreatures) {
     const toughnessValues = battlefield
-      .filter((c) => c.toughness && c.legendary && !c.attack && !c.defend)
+      .filter((c) => c.toughness && c.legendary && !c.attack && !c.defend && !c.summoningSickness)
       .map((c) => c.toughness);
-
-    console.log(`Legendary toughnessValues: ${toughnessValues}\n`);
 
     toughest = toughnessValues.length > 0 ? Math.max(...toughnessValues) : null;
 
@@ -166,5 +162,89 @@ export function botDefends(
         updatedGraveyard: updatedPlayerGraveyard,
       },
     });
-  }, 2500);
+  }, 3500);
+}
+
+export function botDeployingCard(deployableCards) {
+  let cardToDeploy = null;
+
+  // Priority 1: Legendary creatures
+  const legendaryCreatures = deployableCards.filter(
+    (card) => card.type.match(/creature/i) && card.legendary
+  );
+
+  // Priority 2: Regular creatures
+  const regularCreatures = deployableCards.filter(
+    (card) => card.type.match(/creature/i) && !card.legendary
+  );
+
+  // Priority 3: Spells
+  const spells = deployableCards.filter(
+    (card) => !card.type.match(/creature/i) && !card.type.match(/land/i)
+  );
+
+  if (legendaryCreatures.length > 0) {
+    cardToDeploy = legendaryCreatures[0];
+    console.log('Bot deploying legendary creature:', cardToDeploy.name);
+  } else if (regularCreatures.length > 0) {
+    cardToDeploy = regularCreatures[0];
+    console.log('Bot deploying creature:', cardToDeploy.name);
+  } else if (spells.length > 0) {
+    cardToDeploy = spells[0];
+    console.log('Bot deploying spell:', cardToDeploy.name);
+  }
+
+  return cardToDeploy;
+}
+
+export function botAttackingCard(attackableCards) {
+  let cardToAttack = null;
+  let mostPowerfulCreature = null;
+  let mostPowerfulLegendaryCreature = null;
+
+  // Priority 1: Legendary creatures
+  const legendaryCreatures = attackableCards.filter(
+    (card) => card.type.match(/creature/i) && card.legendary
+  );
+
+  if (legendaryCreatures.length > 0) {
+    // take the max out of an array full of legendary creature power values
+    const legendaryPower = Math.max(...legendaryCreatures.map((card) => card.power));
+
+    // find that most powerful legendary creature
+    mostPowerfulLegendaryCreature = legendaryCreatures.find(
+      (legend) => legend.power === legendaryPower
+    );
+  }
+
+  // Priority 2: Regular creatures
+  const regularCreatures = attackableCards.filter(
+    (card) => card.type.match(/creature/i) && !card.legendary
+  );
+  
+  if (regularCreatures.length > 0) {
+    // take the max out of an array full of regular creature power values
+    const creaturePower = Math.max(...regularCreatures.map(card => card.power));
+
+    // find that most powerful regular creature
+    mostPowerfulCreature = regularCreatures.find(creature => creature.power === creaturePower);
+  }
+  
+  // Priority 3: Spells
+  const spells = attackableCards.filter(
+    (card) => !card.type.match(/creature/i) && !card.type.match(/land/i)
+  );
+
+  if (mostPowerfulLegendaryCreature) {
+    cardToAttack = mostPowerfulLegendaryCreature;
+    console.log('Bot attacking with the legendary creature:', mostPowerfulLegendaryCreature.name);
+  } else if (mostPowerfulCreature) {
+    cardToAttack = mostPowerfulCreature;
+    console.log('Bot attacking with the creature:', mostPowerfulCreature.name);
+  } else if (spells.length > 0) {
+    cardToAttack = spells[0];
+    console.log('Bot casting the spell:', spells[0].name);
+  }
+
+  return cardToAttack;
 }

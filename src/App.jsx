@@ -1,5 +1,6 @@
-import { createContext, useEffect, useReducer, useRef, useState } from 'react';
+import { useEffect, useReducer, useRef, useState } from 'react';
 import { competitorObject, deckObject } from './reducers/definitions.js';
+import { globalContext } from './contexts/global-context.js';
 import drawSevenCards from './deck-management/draw-seven-cards.js';
 import ControlBar from './menu/control-bar/ControlBar.jsx';
 import createDeck from './deck-management/create-deck.js';
@@ -9,10 +10,6 @@ import MainMenu from './menu/MainMenu.jsx';
 import Start from './menu/Start.jsx';
 import Gameboard from './gameboard/Gameboard.jsx';
 import './css/app.css';
-
-// global store for context
-// eslint-disable-next-line
-export const globalContext = createContext(null);
 
 function App() {
   const [player, dispatchPlayer] = useReducer(playerReducer, competitorObject); // player state manager
@@ -38,7 +35,7 @@ function App() {
   const [manaSound, setManaSound] = useState(false); // plays when the mana is activated
 
   // state to control the theme volume
-  const [themeSongVolumeController, setThemeSongVolumeController] = useState(0.1);
+  const [themeSongVolumeController, setThemeSongVolumeController] = useState(0);
 
   // sound effects volume controller
   const [soundFXVolumeController, setSoundFXVolumeController] = useState(0.5);

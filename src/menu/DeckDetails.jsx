@@ -1,8 +1,8 @@
-import { useContext } from 'react';
-import { globalContext } from '../App';
-import { MdOutlineStar } from 'react-icons/md';
 import { GiBookmarklet, GiBroadsword, GiMountaintop } from 'react-icons/gi';
+import { globalContext } from '../contexts/global-context.js';
+import { MdOutlineStar } from 'react-icons/md';
 import { FaGripfire } from 'react-icons/fa';
+import { useContext } from 'react';
 
 // shows deck details for the selected deck
 export default function DeckDetails({ deck, goBack, toBattle }) {

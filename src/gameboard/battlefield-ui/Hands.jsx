@@ -1,12 +1,12 @@
 import { IoMdArrowDropdown, IoMdArrowDropup } from 'react-icons/io';
 import { GiBroadsword, GiMountaintop } from 'react-icons/gi';
-import { gameboardContext } from '../Gameboard.jsx';
 import { MdOutlineStar } from 'react-icons/md';
 import { useContext, useState } from 'react';
 import { FaGripfire } from 'react-icons/fa';
-import { globalContext } from '../../App.jsx';
+import { globalContext } from '../../contexts/global-context.js';
 import CardPreview from '../cards/CardPreview.jsx';
 import CardMana from '../cards/CardMana.jsx';
+import { gameboardContext } from '../../contexts/gameboard-context.js';
 
 export default function Hands({ competitor, dispatch }) {
   // state that opens and closes the competitor's hands container
@@ -16,7 +16,7 @@ export default function Hands({ competitor, dispatch }) {
   const isBot = competitor.name === 'Bot';
 
   // context APIs
-  const { setCardBeingClicked, cardBeingClicked, playerPassedTurn } =
+  const { setCardBeingClicked, cardBeingClicked, playerPassedTurn, setToEnlarge } =
     useContext(gameboardContext);
   const { setButtonSound, buttonSound, cardSound, setCardSound } =
     useContext(globalContext);
@@ -86,6 +86,7 @@ export default function Hands({ competitor, dispatch }) {
                   ? setCardBeingClicked(card)
                   : setCardBeingClicked('');
                 setCardSound(!cardSound);
+                setToEnlarge(''); // if player had an enlarged card in the battlefield, make it original size
               }}
               disabled={playerPassedTurn || isBot ? true : false}
             >

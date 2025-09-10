@@ -1,6 +1,6 @@
 import { Volume2, Palette, Headphones, HeadphoneOff } from 'lucide-react';
 import { useContext, useState } from 'react';
-import { globalContext } from '../../App';
+import { globalContext } from '../../contexts/global-context.js';
 import Controller from './Controller';
 
 export default function ControlBar({

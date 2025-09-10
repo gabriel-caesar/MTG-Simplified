@@ -1,3 +1,5 @@
+import { botDefends } from './bot';
+
 // when competitor decides to attack/defend with a card
 export function tapCard(
   competitor,
@@ -56,22 +58,45 @@ export function tapUsedManas(card, dispatch, player) {
   });
 }
 
-// untap attacking of defending cards
-export function untapCards(competitor, dispatch) {
-  const battlefield = competitor.battlefield;
+// main attack function for player
+export function playerAttacks(
+  card,
+  attacker,
+  attackerDispatch,
+  defender,
+  defenderDispatch,
+  setToEnlarge,
+  setOriginalToughness
+) {
+  // if who's attacking is Bot
+  const isBot = attacker.name === 'Bot';
 
-  // is the battlefield array empty?
-  if (battlefield.length > 0) {
-    const untappedCards = battlefield.map((card) => ({
-      ...card,
-      attack: card.attack ? false : card.attack,
-      defend: card.defend ? false : card.defend,
-    }));
+  // tapping attacking card
+  tapCard(attacker, attackerDispatch, card, true, false);
 
-    // updating the state
-    dispatch({
-      type: 'update_battlefield',
-      payload: untappedCards,
-    });
-  }
+  // bot defends
+  if (!isBot)
+    botDefends(
+      card,
+      defender,
+      defenderDispatch,
+      attacker,
+      attackerDispatch,
+      setToEnlarge,
+      setOriginalToughness
+    );
 }
+
+// casting a spell from a card in the battlefield
+export default function castSpell(card, competitor, dispatch) {
+  const updatedBattlefield = competitor.battlefield.map((c) => ({
+    ...c,
+    cast: c === card ? true : c.cast,
+  }));
+
+  dispatch({
+    type: 'update_battlefield',
+    payload: updatedBattlefield,
+  });
+}
+

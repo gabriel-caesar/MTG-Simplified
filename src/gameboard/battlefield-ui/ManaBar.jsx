@@ -1,7 +1,7 @@
 import { useContext } from 'react';
 import { isEnoughMana, activateMana } from '../../gameplay-actions/mana.js';
-import { globalContext } from '../../App.jsx';
-import { gameboardContext } from '../Gameboard.jsx';
+import { globalContext } from '../../contexts/global-context.js';
+import { gameboardContext } from '../../contexts/gameboard-context.js';
 
 export default function ManaBar({ competitor, dispatch }) {
 

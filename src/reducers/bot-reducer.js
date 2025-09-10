@@ -52,6 +52,15 @@ export default function botReducer(state, action) {
         ...state,
         hp: action.payload
       };
+    case 'reset_competitor_for_new_turn':
+      return {
+        ...state,
+        hands: action.payload.updatedHands,
+        deck_card_objects: action.payload.updatedDeck,
+        deck_current_cards: action.payload.updatedNumber,
+        battlefield: action.payload.updatedBattlefield,
+        mana_bar: action.payload.updatedManaBar
+      };
     default:
       return state;
   }

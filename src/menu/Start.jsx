@@ -1,6 +1,6 @@
-import '../css/main_menu.css';
+import { globalContext } from '../contexts/global-context.js';
 import { useContext } from 'react';
-import { globalContext } from '../App.jsx';
+import '../css/main_menu.css';
 
 function Start() {
   const { setStartWebPage, setButtonSound, buttonSound } =

@@ -1,12 +1,12 @@
 import { useContext } from 'react';
-import { gameboardContext } from './Gameboard';
-import { globalContext } from '../App';
+import { globalContext } from '../contexts/global-context.js';
+import { gameboardContext } from '../contexts/gameboard-context.js';
 import {
   deployCreatureOrSpell,
   deployOneMana,
+  deployPriority,
 } from '../gameplay-actions/deploy-cards.js';
 import { isEnoughMana } from '../gameplay-actions/mana.js';
-import { untapCards } from '../gameplay-actions/tap-cards.js';
 
 export default function PassTurnButton() {
   const {
@@ -14,6 +14,7 @@ export default function PassTurnButton() {
     setPlayerPassedTurn,
     originalToughness,
     setOriginalToughness,
+    setCardBeingClicked,
     setOneManaPerTurn,
     setGameTurn,
     gameTurn,
@@ -34,7 +35,6 @@ export default function PassTurnButton() {
     // if there is mana in bot's hands and bot didn't deploy one mana yet, deploy it
     const isMana = bot.hands.find((card) => card.type.match(/land/i));
     if (isMana && !hasDeployedMana) {
-      console.log('Deployed one mana.');
       deployOneMana(bot, dispatchBot);
 
       // wait for bot object to be updated
@@ -59,7 +59,6 @@ export default function PassTurnButton() {
         type: 'deploy_mana',
         payload: updatedManaBar,
       });
-      console.log('Activated all my manas.');
 
       // wait for bot object to be updated
       setTimeout(() => {
@@ -70,7 +69,6 @@ export default function PassTurnButton() {
 
     // (enoughManaToDeploy === true) if bot has sufficient mana
     isEnoughMana(bot, dispatchBot);
-    console.log('Checked for creatures or spells to deploy.');
 
     setTimeout(() => {
       const currentBot = botRef.current;
@@ -78,11 +76,12 @@ export default function PassTurnButton() {
         (card) => card.enoughManaToDeploy && !card.type.match(/land/i)
       );
 
-      console.log('Deployable cards found:', deployableCards.length);
+      const attackableCards = currentBot.battlefield.filter(
+        (card) => !card.summoningSickness && card.type.match(/creature/i)
+      );
 
       // base condition, where there are no deployable cards left
       if (deployableCards.length === 0 || currentBot.battlefield.length === 6) {
-        console.log('Bot turn complete - no more deployable cards');
         setGameTurn((prev) => prev + 1); // updates game turn count
         setPlayerPassedTurn(false); // end bot turn (passes turn)
         resetPlayerForNewTurn(player, dispatchPlayer); // reset player for new turn
@@ -90,33 +89,9 @@ export default function PassTurnButton() {
       }
 
       // Step 5: Deploy cards with priority system
-      // Priority 1: Legendary creatures
-      const legendaryCreatures = deployableCards.filter(
-        (card) => card.type.match(/creature/i) && card.legendary
-      );
+      const cardToDeploy = deployPriority(deployableCards);
 
-      // Priority 2: Regular creatures
-      const regularCreatures = deployableCards.filter(
-        (card) => card.type.match(/creature/i) && !card.legendary
-      );
-
-      // Priority 3: Spells
-      const spells = deployableCards.filter(
-        (card) => !card.type.match(/creature/i) && !card.type.match(/land/i)
-      );
-
-      let cardToDeploy = null;
-
-      if (legendaryCreatures.length > 0) {
-        cardToDeploy = legendaryCreatures[0];
-        console.log('Bot deploying legendary creature:', cardToDeploy.name);
-      } else if (regularCreatures.length > 0) {
-        cardToDeploy = regularCreatures[0];
-        console.log('Bot deploying creature:', cardToDeploy.name);
-      } else if (spells.length > 0) {
-        cardToDeploy = spells[0];
-        console.log('Bot deploying spell:', cardToDeploy.name);
-      }
+      const cardToAttack = null;
 
       if (cardToDeploy) {
         deployCreatureOrSpell(currentBot, dispatchBot, cardToDeploy, gameTurn);
@@ -127,7 +102,6 @@ export default function PassTurnButton() {
         }, 2000);
       } else {
         // Fallback - end turn
-        console.log('Bot turn complete - no valid cards to deploy');
         setPlayerPassedTurn(false);
       }
     }, 100);
@@ -137,6 +111,9 @@ export default function PassTurnButton() {
   function passTurn() {
     // disables player actions
     setPlayerPassedTurn(true);
+
+    // if there is a card being previewed, unselect it
+    setCardBeingClicked('');
 
     // updates the turn count
     setGameTurn((prev) => prev + 1);
@@ -155,15 +132,55 @@ export default function PassTurnButton() {
     // reset the permission to deploy one mana
     // per turn only when competitor is the player
     if (competitor.name !== 'Bot') setOneManaPerTurn(true);
+    let updatedBattlefield = null;
 
-    // resets mana used and activated
-    competitor.mana_bar.forEach((mana) => {
-      mana.activated = false;
-      mana.used = false;
+    // reseting manas to reset mana_bar
+    const updatedManaBar = competitor.mana_bar.map((mana) => ({
+      ...mana,
+      activated: false,
+      used: false,
+    }));
+
+    // updating the battlefield to untap attacking or 
+    // defending cards and removing summoning sickness
+    updatedBattlefield = competitor.battlefield.map((card) => {
+      if (card.type.match(/creature/i)) {
+        return {
+          ...card,
+          defend: false, // untap cards
+          attack: false, // untap cards
+          summoningSickness: card.summoningSickness ? false : card.summoningSickness,
+        };
+      }
+      return card;
     });
 
-    // untap defending or attacking cards from the previous turn
-    untapCards(competitor, dispatch);
+    // card toughness are restored if creature didn't die after combat
+    // restoring battlefield cards' toughness from competitor
+    if (originalToughness.length > 0) {
+      updatedBattlefield = updatedBattlefield.map((card) => {
+        // up to this point updatedBattlefield updated card sickness and attack/defend properties
+        const found = originalToughness.find((el) => el.id === card.instanceId);
+        return {
+          ...card,
+          toughness: found ? found.toughness : card.toughness,
+        };
+      });
+    }
+
+    // clear the card original toughness for the competitor which is getting reset
+    const updatedOriginalToughness = originalToughness.filter((el) => {
+      competitor.name === 'Bot'
+        ? el.deck_name !== bot.deck_name // supposed to "keep only player's cards"
+        : el.deck_name !== player.deck_name; // supposed to "keep only bot's cards"
+    });
+
+    setOriginalToughness(updatedOriginalToughness);
+
+    // variable placeholders for the dispatch function
+    let updatedHands = competitor.hands;
+    let updatedDeck = competitor.deck_card_objects;
+    let updatedNumber = competitor.deck_card_objects.length;
 
     // checking if there are cards in the deck
     if (competitor.deck_current_cards > 0) {
@@ -178,52 +195,27 @@ export default function PassTurnButton() {
       // splice that card out from the deck
       competitor.deck_card_objects.splice(drawnCardIndex, 1);
       // build a updated array for the player's hands with the new drawn card
-      const updatedHands = [...competitor.hands, cardToBeDrawn];
+      updatedHands = [...competitor.hands, cardToBeDrawn];
+      // updated deck object
+      updatedDeck = competitor.deck_card_objects;
+      // updated length of deck object
+      updatedNumber = competitor.deck_card_objects.length;
 
-      // update hands and deck info
-      dispatch({
-        type: 'set_hands',
-        payload: {
-          hands: updatedHands,
-          updated_deck: competitor.deck_card_objects,
-          number_of_cards: competitor.deck_card_objects.length,
-        },
-      });
-
-      // restoring battlefield cards' toughness from competitor
-      if (originalToughness.length > 0) {
-        const updatedBattlefield = competitor.battlefield.map((card) => {
-          const found = originalToughness.find(
-            (el) => el.id === card.instanceId
-          );
-          console.log('found:', found);
-          return {
-            ...card,
-            defend: false, // untapping the card
-            attack: false, // untapping the card
-            toughness: found ? found.toughness : card.toughness,
-          };
-        });
-
-        // dispatching the new updated battlefield
-        dispatch({
-          type: 'update_battlefield',
-          payload: updatedBattlefield,
-        });
-      }
-
-      // clear the card original toughness for the competitor which is getting reset
-      const updatedOriginalToughness = originalToughness.filter((el) => {
-        competitor.name === 'Bot'
-          ? el.deck_name !== bot.deck_name
-          : el.deck_name !== player.deck_name;
-      });
-
-      setOriginalToughness(updatedOriginalToughness);
     } else {
-      console.log(`Deck ran out of cards for ${competitor.name}`);
       return;
     }
+
+    // final dispatch to reset competitor
+    dispatch({
+      type: 'reset_competitor_for_new_turn',
+      payload: {
+        updatedHands: updatedHands,
+        updatedDeck: updatedDeck,
+        updatedNumber: updatedNumber,
+        updatedBattlefield: updatedBattlefield,
+        updatedManaBar: updatedManaBar,
+      },
+    });
   }
 
   return (

@@ -1,6 +1,6 @@
-import { useContext } from 'react';
-import { globalContext } from '../../App.jsx';
 import { IoMdArrowDropdown, IoMdArrowDropup } from 'react-icons/io';
+import { globalContext } from '../../contexts/global-context.js';
+import { useContext } from 'react';
 
 export default function Graveyard({ openGraveyard, setOpenGraveyard, competitor }) {
 
