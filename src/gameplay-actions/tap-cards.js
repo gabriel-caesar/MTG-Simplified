@@ -8,6 +8,7 @@ export function tapCard(
   attacking = false,
   defending = false
 ) {
+  console.log(`\nExecuting the attack function for ${competitor.name}\n`)
   const updatedBattlefield = competitor.battlefield.map((c) => {
     if (card.instanceId === c.instanceId) {
       return {
@@ -16,7 +17,7 @@ export function tapCard(
         defend: defending,
       };
     }
-
+    
     return c;
   });
 

@@ -133,6 +133,7 @@ export default function MainMenu({ setBattleStarts, setBattlePrep, soundFXVolume
       chainSound.pause();
     }, 1200);
     // plays the sound if the start button is hit or if the lift sign state changes
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [startWebPage, liftWoodenSign]);
 
   return (

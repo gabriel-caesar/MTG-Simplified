@@ -1,12 +1,14 @@
 import { useContext } from 'react';
 import { globalContext } from '../contexts/global-context.js';
 import { gameboardContext } from '../contexts/gameboard-context.js';
+import { isEnoughMana } from '../gameplay-actions/mana.js';
+import { tapCard } from '../gameplay-actions/tap-cards.js';
+import { botAttackingCard } from '../gameplay-actions/bot.js';
 import {
   deployCreatureOrSpell,
   deployOneMana,
   deployPriority,
 } from '../gameplay-actions/deploy-cards.js';
-import { isEnoughMana } from '../gameplay-actions/mana.js';
 
 export default function PassTurnButton() {
   const {
@@ -29,6 +31,9 @@ export default function PassTurnButton() {
     setButtonSound,
     buttonSound,
   } = useContext(globalContext);
+
+  // how many cards are allowed to be on the battlefield for each player
+  const BATTLEFIELD_CARD_CAP = 6;
 
   // bot decisions recursive function
   function botPlays(bot, hasDeployedMana = false) {
@@ -71,38 +76,65 @@ export default function PassTurnButton() {
     isEnoughMana(bot, dispatchBot);
 
     setTimeout(() => {
-      const currentBot = botRef.current;
-      const deployableCards = currentBot.hands.filter(
+      // filter the current cards that can be deployed
+      const deployableCards = botRef.current.hands.filter(
         (card) => card.enoughManaToDeploy && !card.type.match(/land/i)
       );
 
-      const attackableCards = currentBot.battlefield.filter(
-        (card) => !card.summoningSickness && card.type.match(/creature/i)
+      // filter the current cards that can attack
+      const attackableCards = botRef.current.battlefield.filter(
+        (card) =>
+          !card.summoningSickness &&
+          !card.attack &&
+          !card.defend &&
+          card.type.match(/creature/i)
       );
 
-      // base condition, where there are no deployable cards left
-      if (deployableCards.length === 0 || currentBot.battlefield.length === 6) {
-        setGameTurn((prev) => prev + 1); // updates game turn count
-        setPlayerPassedTurn(false); // end bot turn (passes turn)
-        resetPlayerForNewTurn(player, dispatchPlayer); // reset player for new turn
-        return;
+      // base condition, where there are no attackable cards left on the battlefield
+      if (attackableCards.length === 0) {
+        // base condition, where there are no deployable cards left
+        if (
+          deployableCards.length === 0 ||
+          botRef.current.battlefield.length === BATTLEFIELD_CARD_CAP
+        ) {
+          setGameTurn((prev) => prev + 1); // updates game turn count
+          setPlayerPassedTurn(false); // end bot turn (passes turn)
+          resetPlayerForNewTurn(player, dispatchPlayer); // reset player for new turn
+          return;
+        }
       }
 
       // Step 5: Deploy cards with priority system
       const cardToDeploy = deployPriority(deployableCards);
 
-      const cardToAttack = null;
+      // Step 6: Cards to attack with priority system
+      const cardToAttack = botAttackingCard(attackableCards);
 
       if (cardToDeploy) {
-        deployCreatureOrSpell(currentBot, dispatchBot, cardToDeploy, gameTurn);
+        // if there is a card to deploy, call this function
+        deployCreatureOrSpell(
+          botRef.current,
+          dispatchBot,
+          cardToDeploy,
+          gameTurn
+        );
 
-        // wait for bot object to be updated
+        // // wait for bot object to be updated
         setTimeout(() => {
           botPlays(botRef.current, hasDeployedMana);
         }, 2000);
-      } else {
-        // Fallback - end turn
-        setPlayerPassedTurn(false);
+      } else if (cardToAttack) { 
+        // else if was added in order to prevent dispatch overlap, 
+        // which was disabling the bot's ability to deploy creatures
+        // due to event loop and mess up of the call stack under the hood
+
+        // if there is a card to attack, call this function
+        tapCard(botRef.current, dispatchBot, cardToAttack, true, false);
+
+        // // wait for bot object to be updated
+        setTimeout(() => {
+          botPlays(botRef.current, hasDeployedMana);
+        }, 200);
       }
     }, 100);
   }
@@ -141,7 +173,7 @@ export default function PassTurnButton() {
       used: false,
     }));
 
-    // updating the battlefield to untap attacking or 
+    // updating the battlefield to untap attacking or
     // defending cards and removing summoning sickness
     updatedBattlefield = competitor.battlefield.map((card) => {
       if (card.type.match(/creature/i)) {
@@ -149,7 +181,9 @@ export default function PassTurnButton() {
           ...card,
           defend: false, // untap cards
           attack: false, // untap cards
-          summoningSickness: card.summoningSickness ? false : card.summoningSickness,
+          summoningSickness: card.summoningSickness
+            ? false
+            : card.summoningSickness,
         };
       }
       return card;
@@ -200,7 +234,6 @@ export default function PassTurnButton() {
       updatedDeck = competitor.deck_card_objects;
       // updated length of deck object
       updatedNumber = competitor.deck_card_objects.length;
-
     } else {
       return;
     }

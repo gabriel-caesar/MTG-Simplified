@@ -185,13 +185,10 @@ export function botDeployingCard(deployableCards) {
 
   if (legendaryCreatures.length > 0) {
     cardToDeploy = legendaryCreatures[0];
-    console.log('Bot deploying legendary creature:', cardToDeploy.name);
   } else if (regularCreatures.length > 0) {
     cardToDeploy = regularCreatures[0];
-    console.log('Bot deploying creature:', cardToDeploy.name);
   } else if (spells.length > 0) {
     cardToDeploy = spells[0];
-    console.log('Bot deploying spell:', cardToDeploy.name);
   }
 
   return cardToDeploy;
@@ -209,11 +206,11 @@ export function botAttackingCard(attackableCards) {
 
   if (legendaryCreatures.length > 0) {
     // take the max out of an array full of legendary creature power values
-    const legendaryPower = Math.max(...legendaryCreatures.map((card) => card.power));
+    const legendaryPower = Math.max(...legendaryCreatures.map((card) => Number(card.power)));
 
     // find that most powerful legendary creature
     mostPowerfulLegendaryCreature = legendaryCreatures.find(
-      (legend) => legend.power === legendaryPower
+      (legend) => legend.power == legendaryPower
     );
   }
 
@@ -224,10 +221,10 @@ export function botAttackingCard(attackableCards) {
   
   if (regularCreatures.length > 0) {
     // take the max out of an array full of regular creature power values
-    const creaturePower = Math.max(...regularCreatures.map(card => card.power));
+    const creaturePower = Math.max(...regularCreatures.map(card => Number(card.power)));
 
     // find that most powerful regular creature
-    mostPowerfulCreature = regularCreatures.find(creature => creature.power === creaturePower);
+    mostPowerfulCreature = regularCreatures.find(creature => creature.power == creaturePower);
   }
   
   // Priority 3: Spells
@@ -246,5 +243,6 @@ export function botAttackingCard(attackableCards) {
     console.log('Bot casting the spell:', spells[0].name);
   }
 
+  console.log(`\n cardToAttack from bot.js = ${cardToAttack}`)
   return cardToAttack;
 }
