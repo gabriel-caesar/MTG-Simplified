@@ -16,9 +16,15 @@ export default function Hands({ competitor, dispatch }) {
   const isBot = competitor.name === 'Bot';
 
   // context APIs
-  const { setCardBeingClicked, cardBeingClicked, playerPassedTurn, setToEnlarge } =
-    useContext(gameboardContext);
-  const { setButtonSound, buttonSound, cardSound, setCardSound } =
+  const {
+    setCardBeingClicked,
+    cardBeingClicked,
+    playerPassedTurn,
+    setToEnlarge,
+    isPlayerAttacking,
+    isBotAttacking,
+  } = useContext(gameboardContext);
+  const { setButtonSound, buttonSound, cardSound, setCardSound, gameWonBy } =
     useContext(globalContext);
 
   return (
@@ -28,7 +34,7 @@ export default function Hands({ competitor, dispatch }) {
         ${!isBot && openHands ? 'top-1' : !isBot && !openHands && 'top-78.5'}
         ${isBot && openHands ? 'top-0' : isBot && !openHands && '-top-77.5'}
         ${isBot ? 'rounded-br-sm' : 'rounded-tr-sm'}
-        absolute w-80 h-85.5 flex flex-col border-r-2 transition-all z-4
+        absolute w-80 h-85.5 flex flex-col border-r-2 transition-all z-15
       `}
       id={`${competitor.name}HandsContainer`}
     >
@@ -39,19 +45,27 @@ export default function Hands({ competitor, dispatch }) {
         `}
         id='drawer-knob'
         onClick={() => {
-          setButtonSound(!buttonSound);
-          setOpenHands(!openHands);
-          if (openHands) setCardBeingClicked('');
+          if (!isPlayerAttacking) {
+            // if player is attacking disable the button
+            setButtonSound(!buttonSound);
+            setOpenHands(!openHands);
+            if (openHands) setCardBeingClicked('');
+          }
         }}
       >
-        {
-          !isBot ? 
-            (openHands ? <IoMdArrowDropdown /> : <IoMdArrowDropup />) 
-                : isBot && 
-                 (openHands ? <IoMdArrowDropup /> : <IoMdArrowDropdown />)
-        }
+        {!isBot ? (
+          openHands ? (
+            <IoMdArrowDropdown />
+          ) : (
+            <IoMdArrowDropup />
+          )
+        ) : (
+          isBot && (openHands ? <IoMdArrowDropup /> : <IoMdArrowDropdown />)
+        )}
       </span>
-      <h1 className={`${isBot ? 'order-3 rounded-br-sm' : 'rounded-tr-sm'} text-center text-2xl radialGradient border-2 border-r-0 fontUncial`}>
+      <h1
+        className={`${isBot ? 'order-3 rounded-br-sm' : 'rounded-tr-sm'} text-center text-2xl radialGradient border-2 border-r-0 fontUncial`}
+      >
         {competitor.name}'s hands
       </h1>
 
@@ -80,15 +94,21 @@ export default function Hands({ competitor, dispatch }) {
                 flex w-full justify-between items-center border-t-2 border-b-2  hover:border-b-black hover:border-t-black rounded-sm px-2 py-1 transition-all 
               `}
               key={index}
+              id='hands-card-button'
+              aria-label='hands-card-button'
+              disabled={
+                gameWonBy !== ''
+                  ? true
+                  : playerPassedTurn || isBotAttacking || isBot
+                    ? true
+                    : false
+              }
               onClick={() => {
                 // if clicked in an already selected card, unselect it
-                cardBeingClicked !== card
-                  ? setCardBeingClicked(card)
-                  : setCardBeingClicked('');
+                setCardBeingClicked(cardBeingClicked !== card ? card : '');
                 setCardSound(!cardSound);
                 setToEnlarge(''); // if player had an enlarged card in the battlefield, make it original size
               }}
-              disabled={playerPassedTurn || isBot ? true : false}
             >
               <li className='font-bold text-lg flex items-center'>
                 {card.type.match(/legendary/i) ? (
@@ -114,11 +134,12 @@ export default function Hands({ competitor, dispatch }) {
                 )}
               </li>
 
-              {(!card.type.match(/basic land/i) && !isBot) && ( // if card is not a land
-                <p className='flex justify-center items-center'>
-                  <CardMana mana_cost={card.mana_cost} />
-                </p>
-              )}
+              {!card.type.match(/basic land/i) &&
+                !isBot && ( // if card is not a land
+                  <p className='flex justify-center items-center'>
+                    <CardMana mana_cost={card.mana_cost} />
+                  </p>
+                )}
             </button>
           );
         })}
@@ -129,7 +150,13 @@ export default function Hands({ competitor, dispatch }) {
         )}
       </ul>
 
-      {(cardBeingClicked && !isBot) && <CardPreview card={cardBeingClicked} competitor={competitor} dispatch={dispatch} />}
+      {cardBeingClicked && !isBot && (
+        <CardPreview
+          card={cardBeingClicked}
+          competitor={competitor}
+          dispatch={dispatch}
+        />
+      )}
     </div>
   );
 }

@@ -1,22 +1,66 @@
 import { useContext } from 'react';
-import { isEnoughMana, activateMana } from '../../gameplay-actions/mana.js';
+import {
+  isEnoughMana,
+  activateMana,
+  activateAllManas,
+} from '../../gameplay-actions/mana.js';
 import { globalContext } from '../../contexts/global-context.js';
 import { gameboardContext } from '../../contexts/gameboard-context.js';
+import { SiElement } from 'react-icons/si';
 
 export default function ManaBar({ competitor, dispatch }) {
-
   // context APIs
-  const { setManaSound, manaSound } = useContext(globalContext);
-  const { playerPassedTurn } = useContext(gameboardContext);
+  const { setManaSound, manaSound, gameWonBy } = useContext(globalContext);
+  const { playerPassedTurn, isBotAttacking } = useContext(gameboardContext);
 
   // condition if the manabar is for Bot
   const isBot = competitor.name === 'Bot';
 
   return (
-    <div id='mana-bar-wrapper' className={`${!isBot ? 'top-74.5' : 'top-0'} absolute right-101 `}>
-      <h1 className={`${!isBot ? 'rounded-t-sm -top-8.5' : 'rounded-b-sm top-11.5 right-0'} absolute fontUncial bg-gradient-to-bl from-blue-700 to-gray-900 text-amber-400 border-amber-400 text-2xl w-40 text-center border-2`}>
+    <div
+      id='mana-bar-wrapper'
+      className={`${!isBot ? 'top-74.5' : 'top-0'} absolute right-101 `}
+    >
+      <h1
+        className={`
+        ${!isBot ? 'rounded-tl-sm -top-8.5' : 'rounded-b-sm top-11.5 right-0'} 
+        absolute fontUncial bg-gradient-to-bl from-blue-700 to-gray-900
+        border-amber-400 text-2xl w-40 text-center border-2 text-amber-400
+      `}
+      >
         Mana bar
       </h1>
+
+      {!isBot && (
+        <button
+          className={`
+            absolute text-2xl border-2 text-amber-400 rounded-tr-sm -top-8.5 left-40
+            bg-gradient-to-bl from-red-700 to-gray-900 p-1 hover:cursor-pointer
+            hover:from-amber-600 hover:to-gray-900 transition-all
+          `}
+          id='activate-all-manas-button'
+          aria-label='activate-all-manas-button'
+          disabled={
+            gameWonBy !== ''
+              ? true
+              : playerPassedTurn || isBotAttacking
+                ? true
+                : false
+          }
+          onClick={() => {
+            const hasUnactivatedMana = competitor.mana_bar.some(
+              (mana) => !mana.activated && !mana.used
+            );
+            if (hasUnactivatedMana) {
+              setManaSound(!manaSound);
+              activateAllManas(competitor, dispatch, hasUnactivatedMana);
+            }
+          }}
+        >
+          <SiElement />
+        </button>
+      )}
+
       <div
         className={`${!isBot ? 'rounded-t-sm border-b-0' : 'rounded-b-sm border-t-0'} w-200 h-12 border-2 border-amber-400 bg-gradient-to-bl from-blue-700 to-gray-900  p-1 flex justify-start items-center overflow-x-auto overflow-y-hidden`}
         id='mana-bar'
@@ -28,17 +72,26 @@ export default function ManaBar({ competitor, dispatch }) {
                 card.used
                   ? 'hover:cursor-not-allowed cardTapped'
                   : card.name === 'Plains'
-                    ? 'white-card-background text-black hover:cursor-pointer hover:opacity-70'
-                    : 'black-card-background text-amber-200 hover:cursor-pointer hover:opacity-70'
+                    ? `${isBotAttacking ? 'hover:cursor-not-allowed' : 'hover:cursor-pointer'} white-card-background text-black hover:opacity-70`
+                    : `${isBotAttacking ? 'hover:cursor-not-allowed' : 'hover:cursor-pointer'} black-card-background text-amber-200 hover:cursor-pointer hover:opacity-70`
               }`}
               id='mana-btn'
+              aria-label='mana-btn'
               onClick={() => {
                 activateMana(card, index, competitor, dispatch);
                 isEnoughMana(competitor, dispatch); // updates if there is enough mana for cards in hand
                 setManaSound(!manaSound);
               }}
               key={index}
-              disabled={playerPassedTurn ? true : card.used ? true : false}
+              disabled={
+                gameWonBy !== ''
+                  ? true
+                  : playerPassedTurn || isBotAttacking
+                    ? true
+                    : card.used
+                      ? true
+                      : false
+              }
             >
               <p>{card.name}</p>
 

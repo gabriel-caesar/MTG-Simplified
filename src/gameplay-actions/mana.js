@@ -1,7 +1,6 @@
 // calculates if there is enough amount of mana activated
 // for creatures or spells to be deployed
 export function isEnoughMana(competitor, dispatch) {
-  
   // player or bot (limiting battlefield for 6 cards max)
   if (competitor.mana_bar.length > 0 && competitor.battlefield.length <= 5) {
     const updatedHands = competitor.hands.map((cs) => {
@@ -68,6 +67,21 @@ export function activateMana(card, index, competitor, dispatch) {
     dispatch({
       type: 'deploy_mana',
       payload: competitor.mana_bar,
+    });
+  }
+}
+
+// activates all manas at once
+export function activateAllManas(competitor, dispatch, hasUnactivatedMana) {
+  if (hasUnactivatedMana) {
+    const updatedManaBar = competitor.mana_bar.map((mana) => ({
+      ...mana,
+      activated: !mana.used ? true : mana.activated,
+    }));
+
+    dispatch({
+      type: 'deploy_mana',
+      payload: updatedManaBar,
     });
   }
 }

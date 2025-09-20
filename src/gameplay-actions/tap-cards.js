@@ -8,7 +8,6 @@ export function tapCard(
   attacking = false,
   defending = false
 ) {
-  console.log(`\nExecuting the attack function for ${competitor.name}\n`)
   const updatedBattlefield = competitor.battlefield.map((c) => {
     if (card.instanceId === c.instanceId) {
       return {
@@ -17,14 +16,19 @@ export function tapCard(
         defend: defending,
       };
     }
-    
+
     return c;
   });
+
+  // this will store the card with its attack/defend prop turned to true in the variable
+  const updatedAttackingCard = updatedBattlefield.find(c => c.instanceId === card.instanceId);
 
   dispatch({
     type: 'update_battlefield',
     payload: updatedBattlefield,
   });
+
+  return updatedAttackingCard;
 }
 
 // helper function to tap manas after use
@@ -67,7 +71,9 @@ export function playerAttacks(
   defender,
   defenderDispatch,
   setToEnlarge,
-  setOriginalToughness
+  setOriginalToughness,
+  gameWonBy,
+  setGameWonBy
 ) {
   // if who's attacking is Bot
   const isBot = attacker.name === 'Bot';
@@ -84,7 +90,9 @@ export function playerAttacks(
       attacker,
       attackerDispatch,
       setToEnlarge,
-      setOriginalToughness
+      setOriginalToughness, 
+      gameWonBy, 
+      setGameWonBy
     );
 }
 
@@ -100,4 +108,3 @@ export default function castSpell(card, competitor, dispatch) {
     payload: updatedBattlefield,
   });
 }
-

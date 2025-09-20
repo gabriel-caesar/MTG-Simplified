@@ -16,6 +16,8 @@ function App() {
 
   const [bot, dispatchBot] = useReducer(botReducer, competitorObject); // bot state manager
 
+  const [gameWonBy, setGameWonBy] = useState(''); // game winning state
+
   const [appTheme, setAppTheme] = useState('forest'); // main app theme
 
   const [startWebPage, setStartWebPage] = useState(false); // toggling it enables music and sound fxs
@@ -35,7 +37,8 @@ function App() {
   const [manaSound, setManaSound] = useState(false); // plays when the mana is activated
 
   // state to control the theme volume
-  const [themeSongVolumeController, setThemeSongVolumeController] = useState(0);
+  const [themeSongVolumeController, setThemeSongVolumeController] =
+    useState(0.3);
 
   // sound effects volume controller
   const [soundFXVolumeController, setSoundFXVolumeController] = useState(0.5);
@@ -129,6 +132,27 @@ function App() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [battleStarts]);
 
+  // change the music theme when the player gets defeated or defeats bot
+  useEffect(() => {
+    // if there is already a soundtrack going on, pause it
+    if (songRef.current) {
+      songRef.current.pause();
+    }
+
+    // if the page loaded the sounds and music
+    songRef.current = new Audio(
+      `../../soundfxs/${gameWonBy === 'Bot' ? 'defeat' : gameWonBy !== '' && gameWonBy === player.name && 'victory'}-theme.mp3`
+    );
+    if (startWebPage || playMainTheme) {
+      if (songRef.current.volume) {
+        // this condition forces the song default volume
+        songRef.current.volume = themeSongVolumeController;
+        songRef.current.loop = true;
+        songRef.current.play();
+      }
+    }
+  }, [gameWonBy]);
+
   // hook to watch for button clicks and sounds
   useEffect(() => {
     buttonSoundRef.current = new Audio('../../soundfxs/button-sound.mp3');
@@ -187,6 +211,8 @@ function App() {
     manaSound,
     setManaSound,
     allDecks,
+    gameWonBy,
+    setGameWonBy,
   };
 
   return (
@@ -203,9 +229,13 @@ function App() {
                 `url('/UI_themes/gameboard-heaven.png')`,
         boxShadow: battlePrep
           ? 'inset 0 0 80px 50px #000'
-          : leaveBattlefield
-            ? 'inset 0 0 380px 250px #000'
-            : 'inset 0 0 1px 1px #000',
+          : gameWonBy === 'Bot'
+            ? 'inset 0 0 380px 100px #290000'
+            : gameWonBy === player.name && gameWonBy !== ''
+              ? 'inset 0 0 380px 80px #a68d02'
+              : leaveBattlefield
+                ? 'inset 0 0 380px 250px #000'
+                : 'inset 0 0 1px 1px #000',
       }}
     >
       <globalContext.Provider value={contextValues}>

@@ -15,7 +15,7 @@
 
 }
 /* bg-color for gamelog when in attack phase */
-.attackingRadialGrandient {
+.reactionRadialGrandient {
   background: radial-gradient(circle, #c20b0b 60%, #2c2a05);
 }
 
@@ -30,13 +30,8 @@
   background: radial-gradient(circle, #fd1a1a 50%, #540303);
 }
 
-/* gameboard buttons */
-#pass-turn-btn,
-#settings-btn,
-#resume-btn,
-#quit-btn,
-#yes-btn,
-#no-btn {
+/* gameboard button inset shadow */
+.inset-shadow-button {
   box-shadow: inset 0 0 10px 1px #2c2a05;
 }
 
@@ -45,7 +40,12 @@
 #resume-btn:hover,
 #quit-btn:hover,
 #yes-btn:hover,
-#no-btn:hover {
+#no-btn:hover,
+#defend-with-button:hover,
+#take-on-hp-button:hover,
+#reset-defendant-button:hover,
+#return-menu-button:hover,
+#open-log-button:hover {
   background-color: #bcb419;
   cursor: pointer;
 }
@@ -67,6 +67,24 @@
   background-size: cover;
   background-position: center;
   transform: scale(1.3);
+}
+
+/* victory wooden sign */
+#victoryWoodenSign {
+  background-image: url('../assets/victory-wooden-sign.png');
+  background-repeat: no-repeat;
+  background-size: cover;
+  background-position: center;
+  transform: scale(1.7);
+}
+
+/* defeat wooden sign */
+#defeatWoodenSign {
+  background-image: url('../assets/defeat-wooden-sign.png');
+  background-repeat: no-repeat;
+  background-size: cover;
+  background-position: center;
+  transform: scale(1.7);
 }
 
 /* shadow box for card preview */

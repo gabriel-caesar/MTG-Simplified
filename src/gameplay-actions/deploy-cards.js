@@ -1,5 +1,5 @@
 import { tapUsedManas } from './tap-cards.js';
-import uniqueId from '../deck-management/unique-id';
+import { uniqueId} from '../deck-management/utils.js';
 
 // handles the deployment of creatures/spells
 export function deployCreatureOrSpell(competitor, dispatch, card, gameTurn) {
@@ -15,6 +15,7 @@ export function deployCreatureOrSpell(competitor, dispatch, card, gameTurn) {
       // and an unique instance id to avoid duplicate issues
       const cardToBeDeployed = {
         ...selectedCard,
+        attackPhaseSickness: competitor.name !== 'Bot' ? true : false, // this fixes the summoning sickness for Player
         summoningSickness: true,
         deployedOnTurn: gameTurn,
         instanceId: uniqueId(),

@@ -8,7 +8,9 @@ export function botDefends(
   player,
   dispatchPlayer,
   setToEnlarge,
-  setOriginalToughness
+  setOriginalToughness, 
+  gameWonBy, 
+  setGameWonBy
 ) {
   const battlefield = bot.battlefield;
 
@@ -54,7 +56,17 @@ export function botDefends(
   if (toughest === null && defender === null) {
     setTimeout(() => {
       const updatedBotHP = bot.hp - attackerCard.power;
-      dispatchBot({ type: 'take_damage_on_hp', payload: updatedBotHP });
+
+      dispatchBot({
+        type: 'take_damage_on_hp',
+        payload: updatedBotHP,
+      });
+
+      // if player killed bot
+      if (updatedBotHP <= 0) {
+        setGameWonBy(player.name);
+        return; // terminate function execution
+      }
     }, 2000);
     return;
   }
@@ -194,7 +206,7 @@ export function botDeployingCard(deployableCards) {
   return cardToDeploy;
 }
 
-export function botAttackingCard(attackableCards) {
+export function botCardToAttack(attackableCards) {
   let cardToAttack = null;
   let mostPowerfulCreature = null;
   let mostPowerfulLegendaryCreature = null;
@@ -234,15 +246,11 @@ export function botAttackingCard(attackableCards) {
 
   if (mostPowerfulLegendaryCreature) {
     cardToAttack = mostPowerfulLegendaryCreature;
-    console.log('Bot attacking with the legendary creature:', mostPowerfulLegendaryCreature.name);
   } else if (mostPowerfulCreature) {
     cardToAttack = mostPowerfulCreature;
-    console.log('Bot attacking with the creature:', mostPowerfulCreature.name);
   } else if (spells.length > 0) {
     cardToAttack = spells[0];
-    console.log('Bot casting the spell:', spells[0].name);
   }
 
-  console.log(`\n cardToAttack from bot.js = ${cardToAttack}`)
   return cardToAttack;
 }

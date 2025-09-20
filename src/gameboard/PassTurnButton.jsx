@@ -3,12 +3,13 @@ import { globalContext } from '../contexts/global-context.js';
 import { gameboardContext } from '../contexts/gameboard-context.js';
 import { isEnoughMana } from '../gameplay-actions/mana.js';
 import { tapCard } from '../gameplay-actions/tap-cards.js';
-import { botAttackingCard } from '../gameplay-actions/bot.js';
+import { botCardToAttack } from '../gameplay-actions/bot.js';
 import {
   deployCreatureOrSpell,
   deployOneMana,
   deployPriority,
 } from '../gameplay-actions/deploy-cards.js';
+import LoadingSpinner from './LoadingSpinner.jsx';
 
 export default function PassTurnButton() {
   const {
@@ -21,6 +22,12 @@ export default function PassTurnButton() {
     setGameTurn,
     gameTurn,
     botRef,
+    setBotAttackingCards,
+    isBotAttacking,
+    setIsBotAttacking,
+    isPlayerAttacking,
+    setLoadSpin,
+    expandLog,
   } = useContext(gameboardContext);
 
   const {
@@ -97,9 +104,21 @@ export default function PassTurnButton() {
           deployableCards.length === 0 ||
           botRef.current.battlefield.length === BATTLEFIELD_CARD_CAP
         ) {
+          // if bot is attacking, turn the state true
+          if (botRef.current.battlefield.some((c) => c.attack))
+            setIsBotAttacking(true);
           setGameTurn((prev) => prev + 1); // updates game turn count
           setPlayerPassedTurn(false); // end bot turn (passes turn)
-          resetPlayerForNewTurn(player, dispatchPlayer); // reset player for new turn
+          resetPlayerForNewTurn(
+            player,
+            dispatchPlayer,
+            !botRef.current.battlefield.some((creature) => creature.attack)
+              ? true
+              : false
+          ); // reset player for new turn
+          setLoadSpin(false);
+          // if any bot creatures are attacking, remove player's creatures attack sickness
+
           return;
         }
       }
@@ -108,7 +127,7 @@ export default function PassTurnButton() {
       const cardToDeploy = deployPriority(deployableCards);
 
       // Step 6: Cards to attack with priority system
-      const cardToAttack = botAttackingCard(attackableCards);
+      const cardToAttack = botCardToAttack(attackableCards);
 
       if (cardToDeploy) {
         // if there is a card to deploy, call this function
@@ -123,13 +142,22 @@ export default function PassTurnButton() {
         setTimeout(() => {
           botPlays(botRef.current, hasDeployedMana);
         }, 2000);
-      } else if (cardToAttack) { 
-        // else if was added in order to prevent dispatch overlap, 
+      } else if (cardToAttack) {
+        // else if was added in order to prevent dispatch overlap,
         // which was disabling the bot's ability to deploy creatures
         // due to event loop and mess up of the call stack under the hood
 
-        // if there is a card to attack, call this function
-        tapCard(botRef.current, dispatchBot, cardToAttack, true, false);
+        // if there is a card to attack, call this function and it will return the updated attacking card
+        const updatedAttackingCard = tapCard(
+          botRef.current,
+          dispatchBot,
+          cardToAttack,
+          true,
+          false
+        );
+
+        // appending the most updated card that's attacking inside the array
+        setBotAttackingCards((prev) => [...prev, updatedAttackingCard]);
 
         // // wait for bot object to be updated
         setTimeout(() => {
@@ -141,6 +169,9 @@ export default function PassTurnButton() {
 
   // handles pass turn actions
   function passTurn() {
+    // loading spinner in action
+    setLoadSpin(true);
+
     // disables player actions
     setPlayerPassedTurn(true);
 
@@ -160,11 +191,14 @@ export default function PassTurnButton() {
   }
 
   // reset competitor for a new turn
-  function resetPlayerForNewTurn(competitor, dispatch) {
+  function resetPlayerForNewTurn(competitor, dispatch, attackPhase = false) { // attackPhase argument is only valid for the player
     // reset the permission to deploy one mana
     // per turn only when competitor is the player
     if (competitor.name !== 'Bot') setOneManaPerTurn(true);
     let updatedBattlefield = null;
+
+    // reset bot's attacking cards array
+    if (competitor.name === 'Bot') setBotAttackingCards([]);
 
     // reseting manas to reset mana_bar
     const updatedManaBar = competitor.mana_bar.map((mana) => ({
@@ -180,7 +214,11 @@ export default function PassTurnButton() {
         return {
           ...card,
           defend: false, // untap cards
-          attack: false, // untap cards
+          // if there wasn't any creature attacking, 
+          // untap player's attacking creature from the previous turn
+          attack: attackPhase ? false : competitor.name === 'Bot' ? false : card.attack, 
+          // if attackPhase is true, turn off attackPhaseSickness
+          attackPhaseSickness: attackPhase ? false : card.attackPhaseSickness, 
           summoningSickness: card.summoningSickness
             ? false
             : card.summoningSickness,
@@ -235,7 +273,7 @@ export default function PassTurnButton() {
       // updated length of deck object
       updatedNumber = competitor.deck_card_objects.length;
     } else {
-      return;
+      console.log('No cards to be drawn');
     }
 
     // final dispatch to reset competitor
@@ -257,12 +295,23 @@ export default function PassTurnButton() {
         setButtonSound(!buttonSound);
         passTurn(player, dispatchPlayer);
       }}
-      className={`active:bg-amber-600 absolute right-0 top-80 z-3  rounded-sm text-lg font-bold p-2 border-2 transition-colors ${playerPassedTurn ? 'bg-gray-500' : 'bg-amber-300'}`}
+      className={`
+        active:bg-amber-600 absolute right-0 top-81 z-3 rounded-sm text-lg font-bold p-2 border-2 inset-shadow-button transition-colors 
+        ${playerPassedTurn || isBotAttacking || isPlayerAttacking ? 'bg-gray-500' : 'bg-amber-300'}
+      `}
       id='pass-turn-btn'
       aria-label='pass-turn-btn'
-      disabled={playerPassedTurn ? true : false}
+      disabled={
+        playerPassedTurn || isBotAttacking || isPlayerAttacking ? true : false
+      }
     >
-      Pass Turn
+      {playerPassedTurn ||
+      isPlayerAttacking ||
+      (isBotAttacking && !expandLog) ? (
+        <LoadingSpinner />
+      ) : (
+        'Pass Turn'
+      )}
     </button>
   );
 }

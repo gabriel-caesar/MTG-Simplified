@@ -23,13 +23,14 @@ function Player() {
         <ManaBar competitor={player} dispatch={dispatchPlayer} />
 
         <div
-          className={`${openGraveyard ? 'top-17' : 'top-78.5'} absolute flex right-0 border-l-2 rounded-tl-sm transition-all`}
+          className={`${openGraveyard ? 'top-17' : 'top-78.5'} absolute flex right-0 border-l-2 rounded-tl-sm transition-all z-15`}
           id='graveyard-hp-wrapper'
         >
           <Graveyard
             openGraveyard={openGraveyard}
             setOpenGraveyard={setOpenGraveyard}
             competitor={player}
+            dispatch={dispatchPlayer}
           />
           <HP openGraveyard={openGraveyard} competitor={player} />
         </div>

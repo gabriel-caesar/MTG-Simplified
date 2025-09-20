@@ -1,0 +1,9 @@
+.pulse {
+  animation: 2s infinite 0s pulse
+}
+
+@keyframes pulse {
+  0% {color: oklch(42.027% 0.07704 87.389)}
+  50% {color: oklch(82.8% 0.189 84.429)}
+  100% {color: oklch(42.027% 0.07704 87.389)}
+}

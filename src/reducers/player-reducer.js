@@ -47,6 +47,11 @@ export default function playerReducer(state, action) {
         battlefield: action.payload.updatedBattlefield,
         graveyard: action.payload.updatedGraveyard,
       };
+    case 'take_damage_on_hp':
+      return {
+        ...state,
+        hp: action.payload,
+      };
     case 'reset_competitor_for_new_turn':
       return {
         ...state,

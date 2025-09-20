@@ -1,5 +1,5 @@
 // unique id generator
-export default function uniqueId() {
+export function uniqueId() {
   let id = [];
   let counter = 0;
   for (let i = 0; i < 20; i++) {
@@ -12,4 +12,19 @@ export default function uniqueId() {
     }
   }
   return id.join(''); // turning the array into string
+}
+
+// strips the comma out of the long legendary creature names
+export function shortenName(name) {
+   const array = [];
+  
+  for (let i = 0; i < name.length; i++) {
+    if (name[i].match(/\,/)) {
+      break
+    } else {
+      array.push(name[i]);
+    }
+  }
+
+  return array.join('');
 }

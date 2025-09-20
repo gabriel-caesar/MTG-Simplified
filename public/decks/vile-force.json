@@ -8,7 +8,8 @@
   "creatures": [
     {
       "name": "Gix, Yawgmoth Praetor",
-      "quantity": 1
+      "quantity": 1,
+      "ability": "Whenever a creature deals combat damage to one of your opponents, its controller may pay 1 life. If they do, they draw a card."
     },
     {
       "name": "Sheoldred, the Apocalypse",

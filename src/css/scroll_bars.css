@@ -21,8 +21,95 @@
   cursor: grabbing;
 }
 
-/* battlefield card container description (sometimes it get really big) */
+/* graveyard container scroll bar */
+#graveyardContainer::-webkit-scrollbar {
+  width: 8px;  
+}
 
+#graveyardContainer::-webkit-scrollbar-track {
+  background: #101828;
+}
+
+#graveyardContainer::-webkit-scrollbar-thumb {
+  background-color: oklch(82.8% 0.189 84.429);
+}
+
+#graveyardContainer::-webkit-scrollbar-thumb:hover {
+  background-color: oklch(61.013% 0.12532 83.38);
+  cursor: grab;
+}
+
+#graveyardContainer::-webkit-scrollbar-thumb:active {
+  cursor: grabbing;
+}
+
+/* game log scrollbar */
+#game-state-log::-webkit-scrollbar {
+  width: 8px;  
+}
+
+#game-state-log::-webkit-scrollbar-track {
+  background: #000;
+}
+
+#game-state-log::-webkit-scrollbar-thumb {
+  background-color: oklch(82.8% 0.189 84.429);
+}
+
+#game-state-log::-webkit-scrollbar-thumb:hover {
+  background-color: oklch(61.013% 0.12532 83.38);
+  cursor: grab;
+}
+
+#game-state-log::-webkit-scrollbar-thumb:active {
+  cursor: grabbing;
+}
+
+/* defenders window scrollbar */
+#defenders-window::-webkit-scrollbar {
+  width: 8px;  
+}
+
+#defenders-window::-webkit-scrollbar-track {
+  background: #000;
+}
+
+#defenders-window::-webkit-scrollbar-thumb {
+  background-color: #112160;
+}
+
+#defenders-window::-webkit-scrollbar-thumb:hover {
+  background-color: oklch(47.688% 0.15234 25.046);
+  cursor: grab;
+}
+
+#defenders-window::-webkit-scrollbar-thumb:active {
+  cursor: grabbing;
+}
+
+/* container description enlarged to inspect the card */
+#inspected-card-description::-webkit-scrollbar {
+  width: 4px;  
+}
+
+#inspected-card-description::-webkit-scrollbar-track {
+  background: #101828;
+}
+
+#inspected-card-description::-webkit-scrollbar-thumb {
+  background-color: oklch(82.8% 0.189 84.429);
+}
+
+#inspected-card-description::-webkit-scrollbar-thumb:hover {
+  background-color: oklch(61.013% 0.12532 83.38);
+  cursor: grab;
+}
+
+#inspected-card-description::-webkit-scrollbar-thumb:active {
+  cursor: grabbing;
+}
+
+/* regular sized battlefield card description */
 #battlefieldCardDesc::-webkit-scrollbar {
   width: 4px;  
 }

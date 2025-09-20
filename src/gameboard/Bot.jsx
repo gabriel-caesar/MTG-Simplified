@@ -22,13 +22,14 @@ export default function Bot() {
       <ManaBar competitor={bot} dispatch={dispatchBot} />
 
       <div
-        className={`${openGraveyard ? 'top-0' : '-top-61.5'} absolute flex right-0 border-l-2 rounded-bl-sm transition-all`}
+        className={`${openGraveyard ? 'top-0' : '-top-61.5'} absolute flex right-0 border-l-2 rounded-bl-sm transition-all z-15`}
         id='graveyard-hp-wrapper'
       >
         <Graveyard
           openGraveyard={openGraveyard}
           setOpenGraveyard={setOpenGraveyard}
           competitor={bot}
+          dispatch={dispatchBot}
         />
         <HP openGraveyard={openGraveyard} competitor={bot} />
       </div>

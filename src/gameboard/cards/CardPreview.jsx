@@ -7,17 +7,30 @@ import { globalContext } from '../../contexts/global-context.js';
 import { useContext } from 'react';
 import CardMana from './CardMana';
 
-export default function CardPreview({ card, competitor, dispatch }) {
+export default function CardPreview({ card, competitor, dispatch, isGraveyard = false }) {
   // context API
   const { oneManaPerTurn, setOneManaPerTurn, setCardBeingClicked, gameTurn } =
     useContext(gameboardContext);
 
   const { buttonSound, setButtonSound } = useContext(globalContext);
 
+  const isBot = competitor.name === 'Bot';
+
   return (
     <div
-      className={`${card.color[0] === 'W' ? 'white-card-background text-black' : 'black-card-background text-amber-200'} absolute -top-60 left-80 flex flex-col justify-start items-center rounded-2xl p-2 w-90 h-140 z-10 shadowing border-10 border-black`}
+      className={`
+        ${card.color[0] === 'W' ? 'white-card-background text-black' : 'black-card-background text-amber-200'} 
+        ${
+          (isGraveyard && isBot) 
+            ? 'top-10 right-80' 
+            : (isGraveyard && !isBot)
+              ? '-top-76 right-80'
+              : '-top-60 left-80'
+        }
+        absolute flex flex-col justify-start items-center rounded-2xl p-2 w-90 h-140 shadowing border-10 border-black
+      `}
       id='cardPreviewContainer'
+      aria-label='cardPreviewContainer'
     >
       <span className='rounded-t-sm w-full flex justify-between items-center px-1'>
         <h1
@@ -34,11 +47,20 @@ export default function CardPreview({ card, competitor, dispatch }) {
         className='w-80 h-50 border-4 my-1'
         src={card.image_uris.art_crop}
         alt='card-image'
+        aria-label='card-image'
       />
 
-      <div className='flex w-full'>
+      <div 
+        className='flex justify-center items-center w-full'
+        id='card-type-text'
+        aria-label='card-type-text'
+      >
         <p
-          className={`${card.color[0] === 'W' ? 'text-black' : 'text-amber-200'} font-bold text-lg`}
+          className={`
+            ${card.type.match(/legendary/i) && 'legendary-shimmer'}
+            ${card.color[0] === 'W' ? 'text-black' : 'text-amber-200'} 
+            font-bold text-center text-lg
+          `}
         >
           {card.type}
         </p>
@@ -47,6 +69,7 @@ export default function CardPreview({ card, competitor, dispatch }) {
       <div
         className={`absolute ${card.type.match(/land/i) ? 'opacity-80' : 'opacity-10'} text-9xl bottom-25`}
         id='colorSymbol'
+        aria-label='colorSymbol'
       >
         {card.color[0] === 'W' ? (
           <i class='ms ms-w'></i>
@@ -58,6 +81,7 @@ export default function CardPreview({ card, competitor, dispatch }) {
       <div
         className={`my-2 border-4 ${card.color[0] === 'W' ? 'white-card-desc text-black' : 'black-card-desc text-amber-200'} font-bold text-lg p-2 w-80 h-50`}
         id='cardDescription'
+        aria-label='cardDescription'
       >
         {card.ability
           ? card.ability
@@ -77,6 +101,7 @@ export default function CardPreview({ card, competitor, dispatch }) {
                   : 'bg-gradient-to-b from-blue-950 to-gray-500 hover:cursor-not-allowed'
             }`}
           id='deploy-btn'
+          aria-label='deploy-btn'
           disabled={
             card.type.match(/land/i)
               ? oneManaPerTurn
@@ -101,7 +126,11 @@ export default function CardPreview({ card, competitor, dispatch }) {
           Deploy Card
         </button>
         {card.power && card.toughness && (
-          <p className='text-3xl font-bold'>
+          <p 
+            className='text-3xl font-bold'
+            id='card-power-toughness-text'
+            aria-label='card-power-toughness-text'
+          >
             {card.power}/{card.toughness}
           </p>
         )}

@@ -16,6 +16,7 @@ export default function HP({ openGraveyard, competitor }) {
         } 
         ${openGraveyard ? 'items-center' : !isBot ? 'items-start' : 'items-end'} flex justify-center
         ${isBot ? 'border-b-2' : 'border-t-2'}
+        z-15 w-[68.21px]
       `}
       id={`${competitor}HPContainer`}
     >
