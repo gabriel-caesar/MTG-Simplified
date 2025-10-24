@@ -7,10 +7,21 @@ import { globalContext } from '../../contexts/global-context.js';
 import { useContext } from 'react';
 import CardMana from './CardMana';
 
-export default function CardPreview({ card, competitor, dispatch, isGraveyard = false }) {
+export default function CardPreview({
+  card,
+  competitor,
+  dispatch,
+  isGraveyard = false,
+}) {
   // context API
-  const { oneManaPerTurn, setOneManaPerTurn, setCardBeingClicked, gameTurn } =
-    useContext(gameboardContext);
+  const {
+    oneManaPerTurn,
+    setOneManaPerTurn,
+    setCardBeingClicked,
+    gameTurn,
+    setGameState,
+    gameState,
+  } = useContext(gameboardContext);
 
   const { buttonSound, setButtonSound } = useContext(globalContext);
 
@@ -21,9 +32,9 @@ export default function CardPreview({ card, competitor, dispatch, isGraveyard = 
       className={`
         ${card.color[0] === 'W' ? 'white-card-background text-black' : 'black-card-background text-amber-200'} 
         ${
-          (isGraveyard && isBot) 
-            ? 'top-10 right-80' 
-            : (isGraveyard && !isBot)
+          isGraveyard && isBot
+            ? 'top-10 right-80'
+            : isGraveyard && !isBot
               ? '-top-76 right-80'
               : '-top-60 left-80'
         }
@@ -50,7 +61,7 @@ export default function CardPreview({ card, competitor, dispatch, isGraveyard = 
         aria-label='card-image'
       />
 
-      <div 
+      <div
         className='flex justify-center items-center w-full'
         id='card-type-text'
         aria-label='card-type-text'
@@ -91,6 +102,7 @@ export default function CardPreview({ card, competitor, dispatch, isGraveyard = 
       <span className='flex justify-between items-center px-1 font-bold text-lg w-full'>
         <button
           className={`active:opacity-80 border-2 hover:opacity-60  transition-all text-black px-2 
+            ${isGraveyard && 'hidden'}
             ${
               card.type.match(/land/i)
                 ? oneManaPerTurn
@@ -117,7 +129,14 @@ export default function CardPreview({ card, competitor, dispatch, isGraveyard = 
               deployOneMana(competitor, dispatch);
               setOneManaPerTurn(false); // limit of one mana deployed per turn
             } else {
-              deployCreatureOrSpell(competitor, dispatch, card, gameTurn);
+              deployCreatureOrSpell(
+                competitor,
+                dispatch,
+                card,
+                gameTurn,
+                setGameState,
+                gameState
+              );
             }
             setButtonSound(!buttonSound); // release the button sound
             setCardBeingClicked(''); // unselect card from hands
@@ -125,8 +144,8 @@ export default function CardPreview({ card, competitor, dispatch, isGraveyard = 
         >
           Deploy Card
         </button>
-        {card.power && card.toughness && (
-          <p 
+        {card.type.match(/creature/i) && (
+          <p
             className='text-3xl font-bold'
             id='card-power-toughness-text'
             aria-label='card-power-toughness-text'

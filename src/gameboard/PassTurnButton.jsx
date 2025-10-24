@@ -28,6 +28,11 @@ export default function PassTurnButton() {
     isPlayerAttacking,
     setLoadSpin,
     expandLog,
+    setGameState,
+    gameState,
+    setExpandLog,
+    toEnlarge,
+    setOpenManaBar,
   } = useContext(gameboardContext);
 
   const {
@@ -43,7 +48,7 @@ export default function PassTurnButton() {
   const BATTLEFIELD_CARD_CAP = 6;
 
   // bot decisions recursive function
-  function botPlays(bot, hasDeployedMana = false) {
+  function botPlays(bot, hasDeployedMana = false, newTurn, gameState) {
     // if there is mana in bot's hands and bot didn't deploy one mana yet, deploy it
     const isMana = bot.hands.find((card) => card.type.match(/land/i));
     if (isMana && !hasDeployedMana) {
@@ -51,7 +56,7 @@ export default function PassTurnButton() {
 
       // wait for bot object to be updated
       setTimeout(() => {
-        botPlays(botRef.current, true);
+        botPlays(botRef.current, true, newTurn, gameState);
       }, 2000);
 
       return;
@@ -74,7 +79,7 @@ export default function PassTurnButton() {
 
       // wait for bot object to be updated
       setTimeout(() => {
-        botPlays(botRef.current, hasDeployedMana);
+        botPlays(botRef.current, hasDeployedMana, newTurn, gameState);
       }, 2000);
       return;
     }
@@ -129,18 +134,20 @@ export default function PassTurnButton() {
       // Step 6: Cards to attack with priority system
       const cardToAttack = botCardToAttack(attackableCards);
 
-      if (cardToDeploy) {
-        // if there is a card to deploy, call this function
-        deployCreatureOrSpell(
+      if (cardToDeploy && botRef.current.battlefield.length <= 5) {
+        // if there is a card to deploy and battlefield space, call this function
+        const updatedGameState = deployCreatureOrSpell(
           botRef.current,
           dispatchBot,
           cardToDeploy,
-          gameTurn
+          newTurn,
+          setGameState,
+          gameState
         );
 
         // // wait for bot object to be updated
         setTimeout(() => {
-          botPlays(botRef.current, hasDeployedMana);
+          botPlays(botRef.current, hasDeployedMana, newTurn, updatedGameState);
         }, 2000);
       } else if (cardToAttack) {
         // else if was added in order to prevent dispatch overlap,
@@ -161,7 +168,7 @@ export default function PassTurnButton() {
 
         // // wait for bot object to be updated
         setTimeout(() => {
-          botPlays(botRef.current, hasDeployedMana);
+          botPlays(botRef.current, hasDeployedMana, newTurn, gameState);
         }, 200);
       }
     }, 100);
@@ -169,6 +176,9 @@ export default function PassTurnButton() {
 
   // handles pass turn actions
   function passTurn() {
+    // closes mana bar if in narrow screen size
+    setOpenManaBar('');
+
     // loading spinner in action
     setLoadSpin(true);
 
@@ -178,20 +188,28 @@ export default function PassTurnButton() {
     // if there is a card being previewed, unselect it
     setCardBeingClicked('');
 
-    // updates the turn count
-    setGameTurn((prev) => prev + 1);
+    // shrinks the game log if opened
+    setExpandLog(false);
+
+    // updates the turn count and making the update synchronous
+    const newTurn = gameTurn + 1;
+    setGameTurn(newTurn);
 
     // reset bot for new turn
     resetPlayerForNewTurn(bot, dispatchBot);
 
     // bot plays
     setTimeout(() => {
-      botPlays(botRef.current, false);
+      botPlays(botRef.current, false, newTurn, gameState);
     }, 100);
   }
 
   // reset competitor for a new turn
   function resetPlayerForNewTurn(competitor, dispatch, attackPhase = false) { // attackPhase argument is only valid for the player
+    
+    // closes the narrow screen mana bar
+    setOpenManaBar('');
+    
     // reset the permission to deploy one mana
     // per turn only when competitor is the player
     if (competitor.name !== 'Bot') setOneManaPerTurn(true);
@@ -296,7 +314,9 @@ export default function PassTurnButton() {
         passTurn(player, dispatchPlayer);
       }}
       className={`
-        active:bg-amber-600 absolute right-0 top-81 z-3 rounded-sm text-lg font-bold p-2 border-2 inset-shadow-button transition-colors 
+        active:bg-amber-600
+        rounded-sm text-lg font-bold p-2 border-2 inset-shadow-button transition-colors 
+        ${toEnlarge === '' || toEnlarge === null ? 'z-5' : 'z-3'}
         ${playerPassedTurn || isBotAttacking || isPlayerAttacking ? 'bg-gray-500' : 'bg-amber-300'}
       `}
       id='pass-turn-btn'

@@ -54,34 +54,43 @@ export function isEnoughMana(competitor, dispatch) {
 
 // activates a mana for the desired competitor
 export function activateMana(card, index, competitor, dispatch) {
-  if (card.activated) {
-    // if the competitor clicked an activated mana
-    competitor.mana_bar[index].activated = false;
-    dispatch({
-      type: 'deploy_mana',
-      payload: competitor.mana_bar,
-    });
-  } else {
-    // mana being activated by the first time
-    competitor.mana_bar[index].activated = true;
-    dispatch({
-      type: 'deploy_mana',
-      payload: competitor.mana_bar,
-    });
-  }
+
+  // updating the mana activation state based if it is already activated or not
+  const updatedManaBar = competitor.mana_bar.map((m, i) => {
+      if (i === index) {
+        return { ...m, activated: card.activated ? false : true }
+      }
+      return m
+    })
+
+  dispatch({
+    type: 'deploy_mana',
+    payload: updatedManaBar,
+  });
 }
 
 // activates all manas at once
-export function activateAllManas(competitor, dispatch, hasUnactivatedMana) {
-  if (hasUnactivatedMana) {
-    const updatedManaBar = competitor.mana_bar.map((mana) => ({
-      ...mana,
-      activated: !mana.used ? true : mana.activated,
-    }));
+export function activateAllManas(competitor, dispatch) {
+  const updatedManaBar = competitor.mana_bar.map((mana) => ({
+    ...mana,
+    activated: !mana.used ? true : mana.activated,
+  }));
 
-    dispatch({
-      type: 'deploy_mana',
-      payload: updatedManaBar,
-    });
-  }
+  dispatch({
+    type: 'deploy_mana',
+    payload: updatedManaBar,
+  });
+}
+
+// deactivates all manas at once
+export function deactivateAllManas(competitor, dispatch) {
+  const updatedManaBar = competitor.mana_bar.map((mana) => ({
+    ...mana,
+    activated: !mana.used ? false : mana.activated,
+  }));
+
+  dispatch({
+    type: 'deploy_mana',
+    payload: updatedManaBar,
+  });
 }

@@ -1,3 +1,5 @@
+import { uniqueId } from '../deck-management/utils';
+
 export async function playerDefends(
   bot,
   dispatchBot,
@@ -10,7 +12,8 @@ export async function playerDefends(
   setExpandLog,
   expandLog,
   setGameWonBy,
-  gameWonBy,
+  setGameState,
+  gameTurn,
 ) {
   const defenderCards = battlefieldCopy // has defend props
     .filter((c) => c.defend) // we need to find the defendant cards
@@ -34,6 +37,9 @@ export async function playerDefends(
     power: Number(card.power),
   }));
 
+  // this will show in the Game Log Messages representing the combat state
+  const combatState = { turn: gameTurn, log: [], owner: player.name, id: uniqueId() }
+
   // this loop calculates what card dies or still lives after battle
   for (let i = 0; i < defenderCards.length; i++) {
     const defenderReference = defenderCards[i];
@@ -47,6 +53,18 @@ export async function playerDefends(
     const defenderIndex = playerBattlefieldCopy.findIndex(
       (c) => c.instanceId === defenderReference.instanceId
     );
+
+    // populating combatState
+    const attacker = attackerReference;
+    const defender = defenderReference;
+    combatState.log.push({
+      id: uniqueId(),
+      type: 'Creature clash',
+      details: {
+        attacker: attacker,
+        defender: defender,
+      }
+    })
 
     const playerCardCalc =
       playerBattlefieldCopy[defenderIndex].toughness -
@@ -140,6 +158,9 @@ export async function playerDefends(
 
     // final update batch to erase cards that were killed and calculate toughness loss
     setTimeout(() => {
+      // needs to be accessed after the isThereHpDamage to update the GameLog and gameOwnBy
+      let updatedPlayerHP = null;
+
       if (isThereHpDamage) {
         // filter decisions which takeOnHp is true and sum the attack power of attackers
         const totalDamage = playerDefenseDecisions
@@ -152,19 +173,35 @@ export async function playerDefends(
           }, 0);
 
         // storing the damage taken on hp in a variable
-        const updatedPlayerHP = player.hp - totalDamage;
+        updatedPlayerHP = player.hp - totalDamage;
+
+        // storing the HP damage to be shown in the game log
+        combatState.log.push({
+          id: uniqueId(),
+          type: 'Take damage on HP',
+          totalDamage: totalDamage,
+          details: botAttackingCards.map(card => ({
+            name: card.name,
+            power: card.power,
+            toughness: card.toughness,
+            instanceId: card.instanceId,
+          }))
+        });
 
         // update the HP minus damage
         dispatchPlayer({
           type: 'take_damage_on_hp',
           payload: updatedPlayerHP,
         });
-        
-        // if bot killed player
-        if (updatedPlayerHP <= 0) {
-          setGameWonBy('Bot')
-          return; // terminate function execution
-        }
+      }
+
+      // updating the state by any means
+      setGameState(prev => [ combatState, ...prev ]);
+
+      // if bot killed player
+      if (updatedPlayerHP !== null && updatedPlayerHP <= 0) {
+        setGameWonBy('Bot')
+        return; // terminate function execution
       }
 
       dispatchBot({

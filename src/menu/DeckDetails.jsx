@@ -28,7 +28,7 @@ export default function DeckDetails({ deck, goBack, toBattle }) {
           }
         >
           <ul>
-            {deck.creatures.map((creature) => {
+            {deck.creatures.map((creature, index) => {
               if (creature.legendary) {
                 return (
                   <p
@@ -42,7 +42,7 @@ export default function DeckDetails({ deck, goBack, toBattle }) {
               } else {
                 return (
                   <p
-                    key={creature.id}
+                    key={creature.id ? creature.id : index}
                     className='flex items-center font-bold text-xl'
                   >
                     <GiBroadsword className='mr-1' /> ({creature.quantity}){' '}

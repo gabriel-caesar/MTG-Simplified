@@ -1,5 +1,5 @@
 import { GiCrossedSwords, GiBoltSpellCast } from 'react-icons/gi';
-import { useContext, useState } from 'react';
+import { useContext, useEffect, useRef, useState } from 'react';
 import { gameboardContext } from '../../contexts/gameboard-context.js';
 import { globalContext } from '../../contexts/global-context.js';
 import { playerAttacks } from '../../gameplay-actions/tap-cards.js';
@@ -19,6 +19,8 @@ export default function Card({ competitor, dispatch }) {
     setExpandLog,
     isBotAttacking,
     setLoadSpin,
+    gameState,
+    setGameState,
   } = useContext(gameboardContext);
 
   // button sound for when the attack menu is opened
@@ -37,6 +39,27 @@ export default function Card({ competitor, dispatch }) {
   // if the card is coming from the Bot competitor
   const isBot = competitor.name === 'Bot';
 
+  // card ref to check if the user is clicking in or not in it
+  const cardRef = useRef(null);
+
+  // handles the mouse click off the card area, so it will shrink it
+  useEffect(() => {
+
+    const handleClickOff = e => {
+      if (cardRef.current && !cardRef.current.contains(e.target)) {
+        console.log('AAAAAAAAAAAAAA')
+        setToEnlarge('');
+      }
+    }
+
+    window.addEventListener('click', handleClickOff);
+
+    return () => {
+      window.removeEventListener('click', handleClickOff);
+    };
+
+  }, [toEnlarge])
+
   return competitor.battlefield.map((card, index) => (
     <div
       id='cardContainer'
@@ -50,15 +73,18 @@ export default function Card({ competitor, dispatch }) {
         }
         ${
           toEnlarge === card.instanceId
-            ? `z-16 w-80 large border-8 ${!isBot ? '-top-60' : 'top-10'} hover:cursor-default`
-            : `${isPlayerAttacking || isBotAttacking ? 'hover:cursor-not-allowed' : 'hover:cursor-pointer'} z-4 border-4 w-40 small top-0`
+            ? `z-16 w-80 large border-8 ${!isBot ? '-top-1/2' : 'top-10'} hover:cursor-default`
+            : `${isPlayerAttacking || isBotAttacking ? 'hover:cursor-not-allowed' : 'hover:cursor-pointer'} border-4 w-40 small top-0`
         }
         ${(card.attack || card.defend) && 'creatureTurn'}
         ${(card.summoningSickness || card.attackPhaseSickness) && 'sickness'}
         ${isBot && 'mt-14'}
       `}
       key={index}
-      onClick={() => {
+      ref={cardRef}
+      onClick={(e) => {
+        // helps the click off function work
+        e.stopPropagation();
         if (!isPlayerAttacking && !isBotAttacking && gameWonBy === '') {
           // if its not attack phase or anybody won the game yet, enlarge the card
           setOpenAttackMenu(false); // making sure the attack menu reamins closed everytime user enlarge a card
@@ -210,7 +236,9 @@ export default function Card({ competitor, dispatch }) {
                           setToEnlarge,
                           setOriginalToughness,
                           gameWonBy,
-                          setGameWonBy
+                          setGameWonBy,
+                          setGameState,
+                          gameState
                         )
                       : '';
 

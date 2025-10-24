@@ -6,11 +6,11 @@ import { useContext, useState, useEffect, useRef } from 'react';
 import { gameboardContext } from '../contexts/gameboard-context.js';
 import { globalContext } from '../contexts/global-context.js';
 import { isEnoughMana } from '../gameplay-actions/mana.js';
-import { Cog } from 'lucide-react';
-import PassTurnButton from './PassTurnButton.jsx';
+import SettingsSign from './wooden-signs/SettingsSign.jsx';
+import MiddleBar from './MiddleBar.jsx';
 import Player from './Player.jsx';
 import Bot from './Bot.jsx';
-import GameLog from './game-log/GameLog.jsx';
+import GameWonBySign from './wooden-signs/GameWonBySign.jsx';
 
 export default function Gameboard({
   setBattleStarts,
@@ -22,9 +22,6 @@ export default function Gameboard({
     battlePrep,
     player,
     dispatchPlayer,
-    appTheme,
-    buttonSound,
-    setButtonSound,
     bot,
     gameWonBy,
     setGameWonBy,
@@ -72,6 +69,9 @@ export default function Gameboard({
   // featured in the GameLog and PassTurnButton
   const [loadSpin, setLoadSpin] = useState(false);
 
+  // array that will feed game log with data
+  const [gameState, setGameState] = useState([]);
+
   // reference of bot state for the recursive botPlays() function
   const botRef = useRef(bot);
 
@@ -89,6 +89,9 @@ export default function Gameboard({
 
   // expands or shrinks the gamelog panel
   const [expandLog, setExpandLog] = useState(false);
+
+  // opens the mana bar for the narrow screen mana bar
+  const [openManaBar, setOpenManaBar] = useState('');
 
   // function to reverse the component to deck selection
   function handleQuit() {
@@ -177,158 +180,43 @@ export default function Gameboard({
     setPlayerGraveCard,
     botGraveCard,
     setBotGraveCard,
+    gameState,
+    setGameState,
+    openManaBar,
+    setOpenManaBar,
   };
 
   return (
     <gameboardContext.Provider value={values}>
       {!eraseUI && (
         <>
-          <div
-            className={`w-full h-0.5 absolute top-86.5 ${appTheme === 'vile' ? 'bg-gray-400' : 'bg-black'} z-3`}
-          ></div>
-          <GameLog />
+          {/* Sign is dropped whenever a competitor wins the game */}
+          {gameWonBy !== '' && (
+            <GameWonBySign
+              liftWoodenSign={liftWoodenSign}
+              handleQuit={handleQuit}
+            />
+          )}
+          {/* Will show as soon as player goes to battle */}
+          <MiddleBar
+            liftWoodenSign={liftWoodenSign}
+            setLiftWoodenSign={setLiftWoodenSign}
+            setOpenMenu={setOpenMenu}
+            openMenu={openMenu}
+            handleQuit={handleQuit}
+          />
           {!battlePrep && ( // waits for the horn to be fully blown and the dark screen to fade out
             <div className='flex flex-col w-full h-full overflow-hidden'>
+              <SettingsSign
+                openMenu={openMenu}
+                setOpenMenu={setOpenMenu}
+                liftWoodenSign={liftWoodenSign}
+                setLiftWoodenSign={setLiftWoodenSign}
+                handleQuit={handleQuit}
+                areYouSureQuit={areYouSureQuit}
+                setAreYouSureQuit={setAreYouSureQuit}
+              />
               <Bot />
-              <PassTurnButton />
-              {openMenu && (
-                <div
-                  className='absolute left-190 z-10 flex justify-center items-end bg-amber-400'
-                  id='wrapper-for-chains'
-                  style={{
-                    animation: !liftWoodenSign // tells the code to lift up or drag the wooden sign down
-                      ? 'bounce-in 1s linear'
-                      : 'bounce-out 1s linear',
-                  }}
-                >
-                  <div
-                    className='absolute w-100 h-60 top-50 z-6 flex flex-col justify-center items-center'
-                    id='woodenSign'
-                  >
-                    <h1
-                      className='text-amber-400 text-2xl fontUncial'
-                      id='menu-header-text'
-                      aria-label='menu-header-text'
-                    >
-                      {areYouSureQuit ? 'Leave the battlefield?' : 'Menu'}
-                    </h1>
-                    {!areYouSureQuit ? (
-                      <>
-                        <button
-                          onClick={() => {
-                            setButtonSound(!buttonSound);
-                            setLiftWoodenSign(true);
-                            setTimeout(() => setOpenMenu(false), 900);
-                          }}
-                          className='active:opacity-50 my-4 bg-amber-300 rounded-sm text-lg font-bold px-2 border-2 w-60 transition-colors inset-shadow-button'
-                          id='resume-btn'
-                        >
-                          Resume
-                        </button>
-                        <button
-                          className='active:opacity-50 bg-amber-300 rounded-sm text-lg font-bold px-2 border-2 w-60 transition-colors inset-shadow-button'
-                          id='quit-btn'
-                          onClick={() => {
-                            setButtonSound(!buttonSound);
-                            setAreYouSureQuit(true);
-                          }}
-                        >
-                          Quit
-                        </button>
-                      </>
-                    ) : (
-                      <div className='active:opacity-50 flex flex-col justify-center items-center'>
-                        <button
-                          onClick={() => {
-                            setButtonSound(!buttonSound);
-                            handleQuit();
-                          }}
-                          className='active:opacity-50 my-4 bg-amber-300 rounded-sm text-lg font-bold px-2 w-60 border-2 transition-all inset-shadow-button'
-                          id='yes-btn'
-                        >
-                          Yes
-                        </button>
-                        <button
-                          onClick={() => {
-                            setButtonSound(!buttonSound);
-                            setAreYouSureQuit(false);
-                          }}
-                          className='active:opacity-50 bg-amber-300 rounded-sm text-lg font-bold px-2 w-60 border-2 transition-colors inset-shadow-button'
-                          id='no-btn'
-                        >
-                          No
-                        </button>
-                      </div>
-                    )}
-                  </div>
-                  <div className='absolute -top-50' id='vertical-chains'></div>
-                </div>
-              )}
-
-              {gameWonBy !== '' && (
-                <div
-                  className='absolute left-190 z-10 flex justify-center items-end bg-amber-400'
-                  id='wrapper-for-chains'
-                  style={{
-                    animation: liftWoodenSign // tells the code to lift up or drag the wooden sign down
-                          ? 'bounce-in 1s linear'
-                          : 'bounce-out 1s linear'
-                  }}
-                >
-                  <div
-                    className='absolute w-100 h-60 top-50 z-6 flex flex-col justify-center items-center'
-                    id={`${gameWonBy !== 'Bot' ? 'victoryWoodenSign' : 'defeatWoodenSign'}`}
-                  >
-                    <h1
-                      className='text-amber-400 text-2xl fontUncial mt-10'
-                      id={`${gameWonBy !== 'Bot' ? 'victory' : 'defeat'}-header-text`}
-                      aria-label={`${gameWonBy !== 'Bot' ? 'victory' : 'defeat'}-header-text`}
-                    >
-                      {gameWonBy !== 'Bot' ? 'Victory' : 'Defeat'}
-                    </h1>
-
-                    <button
-                      className='active:opacity-50 bg-amber-300 rounded-sm text-lg my-2 font-bold px-2 w-60 border-2 transition-colors inset-shadow-button'
-                      id='open-log-button'
-                      aria-label='open-log-button'
-                    >
-                      Open Game Log
-                    </button>
-
-                    <button
-                      className='active:opacity-50 bg-amber-300 rounded-sm text-lg font-bold px-2 w-60 border-2 transition-colors inset-shadow-button'
-                      id='return-menu-button'
-                      aria-label='return-menu-button'
-                      onClick={() => {
-                        setButtonSound(!buttonSound);
-                        handleQuit();
-                      }}
-                    >
-                      Return to Menu
-                    </button>
-                  </div>
-                  <div className='absolute -top-50' id='vertical-chains'></div>
-                </div>
-              )}
-
-              <button
-                className='active:bg-amber-600 absolute top-81.5 z-3 bg-amber-300 rounded-sm text-3xl font-bold p-2 border-2 transition-colors inset-shadow-button'
-                id='settings-btn'
-                aria-label='settings-btn'
-                disabled={gameWonBy !== '' ? true : false}
-                onClick={() => {
-                  setButtonSound(!buttonSound);
-                  if (liftWoodenSign) {
-                    setOpenMenu(!openMenu);
-                    setLiftWoodenSign(false);
-                  } else {
-                    setLiftWoodenSign(true);
-                    setTimeout(() => setOpenMenu(false), 900);
-                  }
-                }}
-              >
-                <Cog />
-              </button>
               <Player />
             </div>
           )}

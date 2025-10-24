@@ -217,7 +217,7 @@ function App() {
 
   return (
     <main
-      className='mainContainerImage relative transition-all'
+      className='mainContainerImage relative transition-all w-200 h-20 overflow-hidden'
       style={{
         // depending on what state appTheme is, the theme changes
         backgroundImage:

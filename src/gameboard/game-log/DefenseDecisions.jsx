@@ -12,7 +12,8 @@ export default function DefenseDecisions({ battlefieldCopy, setBattlefieldCopy }
     setPlayerDefenseDecisions,
     gameTurn,
   } = useContext(gameboardContext);
-  const { setButtonSound, buttonSound, player } = useContext(globalContext);
+  const { setButtonSound, buttonSound, gameWonBy } = useContext(globalContext);
+  
   const [openDefendersWindow, setOpenDefendersWindow] = useState('');
 
   function undoDefendant(creature, HP) {
@@ -104,6 +105,7 @@ export default function DefenseDecisions({ battlefieldCopy, setBattlefieldCopy }
                       id='reset-defendant-button'
                       aria-label='reset-defendant-button'
                       className='ml-2 inset-shadow-button rounded-sm p-1 bg-amber-300 text-gray-900 border-2 hover:cursor-pointer transition-all mr-2'
+                      disabled={gameWonBy !== '' ? true : false}
                       onClick={() => {
                         setButtonSound(!buttonSound);
                         undoDefendant(card, playerDefenseDecisions.find(
@@ -120,6 +122,7 @@ export default function DefenseDecisions({ battlefieldCopy, setBattlefieldCopy }
                       className='inset-shadow-button rounded-sm p-1 bg-amber-300 text-gray-900 border-2 hover:cursor-pointer transition-all mr-2'
                       id='defend-with-button'
                       aria-label='defend-with-button'
+                      disabled={gameWonBy !== '' ? true : false}
                       onClick={() => {
                         setButtonSound(!buttonSound);
                         // if clicked in a already selected button, unselect it
@@ -137,6 +140,7 @@ export default function DefenseDecisions({ battlefieldCopy, setBattlefieldCopy }
                       className='inset-shadow-button rounded-sm p-1 bg-red-500 text-gray-900 border-2 hover:cursor-pointer transition-all'
                       id='take-on-hp-button'
                       aria-label='take-on-hp-button'
+                      disabled={gameWonBy !== '' ? true : false}
                       onClick={() => {
                         setButtonSound(!buttonSound);
                         populateDefenseDecisions(null, card);

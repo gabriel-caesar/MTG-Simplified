@@ -78,7 +78,7 @@ export function botDefends(
   setTimeout(() => tapCard(bot, dispatchBot, defender, false, true), 1500);
 
   // defender returns to original size 0.8s later
-  setTimeout(() => setToEnlarge(null), 2000);
+  setTimeout(() => setToEnlarge(''), 2000);
 
   // calculations between attack and toughness power
   const finalCalcDefender =

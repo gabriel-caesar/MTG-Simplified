@@ -15,7 +15,11 @@ export default function Controller({
 
   return (
     <div
-      className={`${(soundControl || themeControl || musicControl) && 'border-t-2'} absolute text-lg font-bold ${appTheme === 'vile' ? 'bg-gray-400' : 'backdrop-blur-lg'} w-40 p-1 border-r-2 border-l-2 border-b-2 rounded-b-sm rounded-bl-sm z-10`}
+      className={`
+        ${(soundControl || themeControl || musicControl) && 'border-t-2'} 
+        ${appTheme === 'vile' ? 'bg-gray-400' : 'backdrop-blur-lg'}
+        absolute text-lg font-bold w-40 p-1 border-r-2 border-l-2 border-b-2 rounded-b-sm rounded-bl-sm z-10
+      `}
       id='controller-container'
     >
       <div className={`${(soundControl || musicControl) ? 'h-15' : themeControl ? 'h-35' : 'h-0'} flex flex-col justify-center items-center transition-all duration-300`}>

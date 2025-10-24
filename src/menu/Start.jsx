@@ -11,15 +11,15 @@ function Start() {
       className='flex flex-col justify-center items-center rounded-sm border-2 py-6 px-12'
       id='startContainer'
     >
-      <h1 className='text-center text-3xl font-bold fontUncial'>
+      <h1 className='text-center text-3xl font-bold fontUncial min-[2000px]:text-5xl'>
         Magic: The Gathering Simplified
       </h1>
-      <p className='text-center text-2xl text-gray-950 font-bold my-8'>
+      <p className='text-center text-2xl text-gray-950 font-bold my-8 min-[2000px]:text-4xl'>
         A simplified version of the famous MTG card game
       </p>
       <button
         id='start-btn'
-        className={`bg-amber-300 rounded-sm text-3xl font-bold p-2 border-2 transition-all`}
+        className={`bg-amber-300 rounded-sm text-3xl font-bold p-2 border-2 transition-all min-[2000px]:text-5xl`}
         onClick={() => {
           setButtonSound(!buttonSound);
           setStartWebPage(true);

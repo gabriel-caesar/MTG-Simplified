@@ -14,7 +14,7 @@ export default function Graveyard({
   competitor,
   dispatch,
 }) {
-  const { buttonSound, setButtonSound, setCardSound, cardSound } =
+  const { buttonSound, setButtonSound, setCardSound, cardSound, gameWonBy } =
     useContext(globalContext);
   const {
     playerPassedTurn,
@@ -23,6 +23,7 @@ export default function Graveyard({
     setPlayerGraveCard,
     botGraveCard,
     setBotGraveCard,
+    isBotAttacking,
   } = useContext(gameboardContext);
 
   // condition if the graveyard is for Bot
@@ -80,10 +81,9 @@ export default function Graveyard({
             <button
               className={`
                 ${
-                  isBot 
-                    && botGraveCard === card || playerGraveCard === card
-                      ? 'bg-amber-50 border-t-black border-b-black' 
-                      : 'border-t-transparent border-b-transparent'
+                  (isBot && botGraveCard === card) || playerGraveCard === card
+                    ? 'bg-amber-50 border-t-black border-b-black'
+                    : 'border-t-transparent border-b-transparent'
                 }
                 ${playerPassedTurn ? 'hover:cursor-not-allowed' : 'hover:cursor-pointer'}
                 flex w-full justify-between items-center border-t-2 border-b-2  hover:border-b-black
@@ -92,16 +92,21 @@ export default function Graveyard({
               key={index}
               id='graveyard-card-button'
               aria-label='graveyard-card-button'
-              disabled={playerPassedTurn ? true : false}
+              disabled={
+                gameWonBy !== ''
+                  ? true
+                  : playerPassedTurn || isBotAttacking
+                    ? true
+                    : false
+              }
               onClick={() => {
-
                 // if clicked in an already selected card, unselect it
                 if (isBot) {
-                  setBotGraveCard(botGraveCard !== card ? card : '')
-                  setPlayerGraveCard('') // unselect opponent's graveyard card 
+                  setBotGraveCard(botGraveCard !== card ? card : '');
+                  setPlayerGraveCard(''); // unselect opponent's graveyard card
                 } else {
-                  setPlayerGraveCard(playerGraveCard !== card ? card : '')
-                  setBotGraveCard('') // unselect opponent's graveyard card 
+                  setPlayerGraveCard(playerGraveCard !== card ? card : '');
+                  setBotGraveCard(''); // unselect opponent's graveyard card
                 }
 
                 setCardSound(!cardSound);

@@ -27,6 +27,7 @@ export default function GameLog() {
     setOriginalToughness,
     loadSpin,
     setLoadSpin,
+    setGameState,
   } = useContext(gameboardContext);
   const {
     battlePrep,
@@ -38,7 +39,6 @@ export default function GameLog() {
     buttonSound,
     setButtonSound,
     setGameWonBy,
-    gameWonBy,
   } = useContext(globalContext);
 
   // used in DefenseDecisions.jsx
@@ -61,8 +61,9 @@ export default function GameLog() {
     <div
       id='game-log-wrapper'
       className={`
-      absolute bg-gray-900 rounded-sm justify-center items-center border-2 overflow-hidden transition-all duration-300
-      ${expandLog ? 'top-75 w-180 right-105 h-80 z-10' : 'top-83.5 right-155 w-80 h-[27px] z-3'}
+      bg-gray-900 rounded-sm justify-center items-center border-2
+      overflow-hidden transition-all duration-300
+      ${expandLog ? 'w-180 h-80' : 'w-80 h-[27px]'}
       ${appTheme === 'vile' ? 'border-gray-400' : 'border-black'} 
     `}
     >
@@ -124,7 +125,8 @@ export default function GameLog() {
                   setExpandLog,
                   expandLog,
                   setGameWonBy,
-                  gameWonBy
+                  setGameState,
+                  gameTurn,
                 );
 
                 // bot is not attacking anymore up to this point
@@ -175,7 +177,7 @@ export default function GameLog() {
         <div
           id='game-state-log'
           aria-label='game-state-log'
-          className={`p-2 text-amber-400 text-lg font-bold overflow-y-auto overflow-x-hidden h-73`}
+          className={`p-2 text-amber-400 text-lg font-bold overflow-y-auto overflow-x-hidden h-73 pb-30`}
         >
           <DefenseDecisions
             battlefieldCopy={battlefieldCopy}

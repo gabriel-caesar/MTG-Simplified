@@ -139,7 +139,11 @@ export default function MainMenu({ setBattleStarts, setBattlePrep, soundFXVolume
   return (
     <div>
       <div
-        className={`relative z-0 flex justify-center items-end ${deckSelection || deckDetails ? 'h-160' : 'h-120'}`}
+        className={`
+          relative z-0 flex justify-center items-end 
+          min-[2000px]:scale-165 min-[2000px]:translate-y-40
+          ${deckSelection || deckDetails ? 'h-160' : 'h-120'}
+        `}
         id='wrapper-for-chains'
         style={{
           animation: liftWoodenSign // tells the code to lift up or drag the wooden sign down
@@ -168,7 +172,12 @@ export default function MainMenu({ setBattleStarts, setBattlePrep, soundFXVolume
         )}
 
         <div
-          className={`myContainer absolute -z-1 ${deckSelection || deckDetails ? 'top-0 right-65' : 'top-0 right-9'}`}
+          className={`
+            myContainer absolute -z-1 
+            ${deckSelection || deckDetails 
+              ? 'top-0 right-65' 
+              : 'top-0 right-1/2 translate-x-1/2'}
+          `}
           id='vertical-chains'
         ></div>
       </div>

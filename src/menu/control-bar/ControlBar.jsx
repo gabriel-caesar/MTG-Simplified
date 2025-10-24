@@ -17,9 +17,18 @@ export default function ControlBar({
   const [soundControl, setSoundControl] = useState(false);
 
   return (
-    <div className='absolute top-5 left-6 z-10'>
+    <div 
+      className='
+        min-[2000px]:scale-125 min-[2000px]:top-14 min-[2000px]:left-10 
+        absolute top-9 left-1 z-10
+      '
+    >
       <nav
-        className={`relative flex justify-around items-center border-r-2 border-t-2 border-l-2 p-1 w-40 ${appTheme === 'vile' ? 'bg-gray-400' : 'backdrop-blur-lg'} rounded-t-sm rounded-tl-sm`}
+        className={`
+          relative flex justify-around items-center border-r-2 border-t-2 
+          border-l-2 p-1 w-40 rounded-t-sm rounded-tl-sm
+          ${appTheme === 'vile' ? 'bg-gray-400' : 'backdrop-blur-lg'}
+        `}
         id='control-nav-bar'
       >
         <button

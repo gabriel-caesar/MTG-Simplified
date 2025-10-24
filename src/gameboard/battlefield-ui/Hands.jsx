@@ -1,7 +1,7 @@
 import { IoMdArrowDropdown, IoMdArrowDropup } from 'react-icons/io';
 import { GiBroadsword, GiMountaintop } from 'react-icons/gi';
 import { MdOutlineStar } from 'react-icons/md';
-import { useContext, useState } from 'react';
+import { useContext, useEffect, useState } from 'react';
 import { FaGripfire } from 'react-icons/fa';
 import { globalContext } from '../../contexts/global-context.js';
 import CardPreview from '../cards/CardPreview.jsx';
@@ -23,15 +23,25 @@ export default function Hands({ competitor, dispatch }) {
     setToEnlarge,
     isPlayerAttacking,
     isBotAttacking,
+    gameTurn,
   } = useContext(gameboardContext);
   const { setButtonSound, buttonSound, cardSound, setCardSound, gameWonBy } =
     useContext(globalContext);
+
+  useEffect(() => {
+    const playerTurn = gameTurn % 2 !== 0;
+    if (!isBotAttacking && playerTurn && !isBot) {
+      setOpenHands(true);
+    } else {
+      setOpenHands(false);
+    }
+  }, [gameTurn])
 
   return (
     <div
       className={`
         ${competitor.deck_name === 'Angel Army' ? 'angel-deck' : competitor.deck_name === 'Vile Force' ? 'vile-deck' : 'human-deck'} 
-        ${!isBot && openHands ? 'top-1' : !isBot && !openHands && 'top-78.5'}
+        ${!isBot && openHands ? 'bottom-0' : !isBot && !openHands && '-bottom-77.5'}
         ${isBot && openHands ? 'top-0' : isBot && !openHands && '-top-77.5'}
         ${isBot ? 'rounded-br-sm' : 'rounded-tr-sm'}
         absolute w-80 h-85.5 flex flex-col border-r-2 transition-all z-15
