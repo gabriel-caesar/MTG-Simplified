@@ -3,7 +3,7 @@ import { GiBroadsword, GiMountaintop } from 'react-icons/gi';
 import { gameboardContext } from '../../contexts/gameboard-context.js';
 import { globalContext } from '../../contexts/global-context.js';
 import { MdOutlineStar } from 'react-icons/md';
-import { useContext } from 'react';
+import { useContext, useEffect, useRef } from 'react';
 import { FaGripfire } from 'react-icons/fa';
 import CardPreview from '../cards/CardPreview.jsx';
 import '../../css/scroll_bars.css';
@@ -14,7 +14,7 @@ export default function Graveyard({
   competitor,
   dispatch,
 }) {
-  const { buttonSound, setButtonSound, setCardSound, cardSound, gameWonBy } =
+  const { buttonSound, setButtonSound, setCardSound, cardSound, gameWonBy, gameTurn } =
     useContext(globalContext);
   const {
     playerPassedTurn,
@@ -29,6 +29,48 @@ export default function Graveyard({
   // condition if the graveyard is for Bot
   const isBot = competitor.name === 'Bot';
 
+  // graveyard ref to unselect it whenever player clicks out of the card area 
+  const graveyardRef = useRef(null);
+
+  // card ref to unselect it whenever player clicks out of the card area 
+  const cardRef = useRef(null);
+
+  // graveyard closes when bot is attacking
+  useEffect(() => {
+    setOpenGraveyard(false);
+  }, [isBotAttacking, gameTurn]);
+
+  // unpreview a card if the drawer closes
+  useEffect(() => {
+    if (!openGraveyard && isBot) {
+      setBotGraveCard('')
+    } else if (!openGraveyard && !isBot) {
+      setPlayerGraveCard('')
+    }
+  }, [openGraveyard]);
+
+  // handles the mouse click off the card area, so it will close it
+  useEffect(() => {
+
+    const handleClickOff = e => {
+      if (
+        cardRef.current &&
+        graveyardRef.current &&
+        !cardRef.current.contains(e.target) &&
+        !graveyardRef.current.contains(e.target)) {
+        setPlayerGraveCard('');
+        setBotGraveCard('');
+      }
+    }
+
+    window.addEventListener('click', handleClickOff);
+
+    return () => {
+      window.removeEventListener('click', handleClickOff);
+    };
+
+  }, [botGraveCard, playerGraveCard]);
+  
   return (
     <div
       className={`
@@ -37,6 +79,7 @@ export default function Graveyard({
         flex flex-col w-80 h-70 border-r-2 relative z-15
       `}
       id={`${competitor.name}GraveyardContainer`}
+      ref={graveyardRef}
     >
       <span
         className={`
@@ -177,6 +220,7 @@ export default function Graveyard({
           competitor={competitor}
           dispatch={dispatch}
           isGraveyard={true}
+          cardRef={cardRef}
         />
       )}
     </div>

@@ -1,5 +1,4 @@
-import { useContext, useEffect, useState } from 'react';
-import { gameboardContext } from '../contexts/gameboard-context.js';
+import { useContext, useState } from 'react';
 import { globalContext } from '../contexts/global-context.js';
 import Graveyard from './battlefield-ui/Graveyard.jsx';
 import ManaBar from './battlefield-ui/ManaBar.jsx';
@@ -9,15 +8,10 @@ import HP from './battlefield-ui/HP.jsx';
 
 export default // players battlefield component
 function Player() {
-  const { player, dispatchPlayer, gameTurn } = useContext(globalContext);
-  const { isBotAttacking } = useContext(gameboardContext);
+  const { player, dispatchPlayer } = useContext(globalContext);
 
   // state that opens and closes the graveyard/hp container
   const [openGraveyard, setOpenGraveyard] = useState(false);
-
-  useEffect(() => {
-    setOpenGraveyard(false);
-  }, [gameTurn])
 
   return (
     <>

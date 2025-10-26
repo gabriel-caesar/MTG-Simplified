@@ -1,15 +1,15 @@
-import { useContext } from 'react';
-import { globalContext } from '../contexts/global-context.js';
+import { activateAllManas, isEnoughMana } from '../gameplay-actions/mana.js';
 import { gameboardContext } from '../contexts/gameboard-context.js';
-import { isEnoughMana } from '../gameplay-actions/mana.js';
-import { tapCard } from '../gameplay-actions/tap-cards.js';
+import { globalContext } from '../contexts/global-context.js';
 import { botCardToAttack } from '../gameplay-actions/bot.js';
+import { tapCard } from '../gameplay-actions/tap-cards.js';
+import LoadingSpinner from './LoadingSpinner.jsx';
+import { useContext } from 'react';
 import {
   deployCreatureOrSpell,
   deployOneMana,
   deployPriority,
 } from '../gameplay-actions/deploy-cards.js';
-import LoadingSpinner from './LoadingSpinner.jsx';
 
 export default function PassTurnButton() {
   const {
@@ -66,16 +66,15 @@ export default function PassTurnButton() {
     const hasUnactivatedMana = bot.mana_bar.some(
       (mana) => !mana.activated && !mana.used
     );
-    if (hasUnactivatedMana) {
-      const updatedManaBar = bot.mana_bar.map((mana) => ({
-        ...mana,
-        activated: !mana.used ? true : mana.activated,
-      }));
 
-      dispatchBot({
-        type: 'deploy_mana',
-        payload: updatedManaBar,
-      });
+    // default value is the bot's mana bar, otherwise, 
+    // the updated mana bar from the activateAllManas()
+    let updatedManaBar = bot.mana_bar;
+
+    if (hasUnactivatedMana) {
+
+      // activates all manas and return a fresh updated mana bar
+      updatedManaBar = activateAllManas(bot, dispatchBot)
 
       // wait for bot object to be updated
       setTimeout(() => {
@@ -85,7 +84,7 @@ export default function PassTurnButton() {
     }
 
     // (enoughManaToDeploy === true) if bot has sufficient mana
-    isEnoughMana(bot, dispatchBot);
+    isEnoughMana(bot, dispatchBot, updatedManaBar);
 
     setTimeout(() => {
       // filter the current cards that can be deployed

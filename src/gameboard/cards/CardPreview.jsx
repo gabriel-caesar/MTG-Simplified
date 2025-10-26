@@ -12,6 +12,7 @@ export default function CardPreview({
   competitor,
   dispatch,
   isGraveyard = false,
+  cardRef = null,
 }) {
   // context API
   const {
@@ -42,6 +43,7 @@ export default function CardPreview({
       `}
       id='cardPreviewContainer'
       aria-label='cardPreviewContainer'
+      ref={cardRef || null}
     >
       <span className='rounded-t-sm w-full flex justify-between items-center px-1'>
         <h1

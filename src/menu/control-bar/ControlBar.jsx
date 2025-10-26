@@ -1,5 +1,5 @@
 import { Volume2, Palette, Headphones, HeadphoneOff } from 'lucide-react';
-import { useContext, useState } from 'react';
+import { useContext, useEffect, useRef, useState } from 'react';
 import { globalContext } from '../../contexts/global-context.js';
 import Controller from './Controller';
 
@@ -16,12 +16,38 @@ export default function ControlBar({
   const [musicControl, setMusicControl] = useState(false);
   const [soundControl, setSoundControl] = useState(false);
 
+  // refs to handle click off
+  const controlBarRef = useRef(null);
+
+  // handles the mouse click off the control bar area, so it will close it
+  useEffect(() => {
+
+    const handleClickOff = e => {
+      if (
+        controlBarRef.current &&
+        !controlBarRef.current.contains(e.target)) {
+        setThemeControl(false)
+        setMusicControl(false)
+        setSoundControl(false)
+      }
+    }
+
+    window.addEventListener('click', handleClickOff);
+
+    return () => {
+      window.removeEventListener('click', handleClickOff);
+    };
+
+  }, [themeControl, musicControl, soundControl])
+
   return (
     <div 
       className='
         min-[2000px]:scale-125 min-[2000px]:top-14 min-[2000px]:left-10 
         absolute top-9 left-1 z-10
       '
+      id='control-bar-wrapper'
+      ref={controlBarRef}
     >
       <nav
         className={`

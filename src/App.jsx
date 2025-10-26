@@ -216,60 +216,82 @@ function App() {
   };
 
   return (
-    <main
-      className='mainContainerImage relative transition-all w-200 h-20 overflow-hidden'
-      style={{
-        // depending on what state appTheme is, the theme changes
-        backgroundImage:
-          appTheme === 'forest'
-            ? `url('/UI_themes/gameboard-forest.png')`
-            : appTheme === 'vile'
-              ? `url('/UI_themes/gameboard-underworld.png')`
-              : appTheme === 'heaven' &&
-                `url('/UI_themes/gameboard-heaven.png')`,
-        boxShadow: battlePrep
-          ? 'inset 0 0 80px 50px #000'
-          : gameWonBy === 'Bot'
-            ? 'inset 0 0 380px 100px #290000'
-            : gameWonBy === player.name && gameWonBy !== ''
-              ? 'inset 0 0 380px 80px #a68d02'
-              : leaveBattlefield
-                ? 'inset 0 0 380px 250px #000'
-                : 'inset 0 0 1px 1px #000',
-      }}
-    >
-      <globalContext.Provider value={contextValues}>
-        {startWebPage ? ( // this flag determines if game can or cannot produce sound as the user first interact with the website
-          <>
-            <ControlBar
-              soundFXVolumeController={soundFXVolumeController}
-              themeSongVolumeController={themeSongVolumeController}
-              setSoundFXVolumeController={setSoundFXVolumeController}
-              setThemeSongVolumeController={setThemeSongVolumeController}
-            />
+    <> 
+      <div
+        id='blank-screen'
+        className='
+          w-full h-screen bg-gray-900 items-center justify-center flex-col
+          flex p-2 min-[918px]:hidden 
+        '
+      >
 
-            {battleStarts ? ( // this flag determines if player should be inside the gameboard or main menu UI
-              <Gameboard
-                setBattleStarts={setBattleStarts}
-                setLeaveBattlefield={setLeaveBattlefield}
-                setPlayMainTheme={setPlayMainTheme}
-                playMainTheme={playMainTheme}
-              />
-            ) : (
-              <MainMenu
-                setBattleStarts={setBattleStarts}
-                setBattlePrep={setBattlePrep}
+        <h1 className='fontUncial text-2xl text-amber-300 text-center mb-6'>
+          This game doesn't support small device displays
+        </h1>
+
+        <p className='text-amber-300/60 text-md text-center'>
+          Try turning your device or use a desktop/laptop
+        </p>
+
+      </div>
+      <main
+        className='
+          mainContainerImage relative transition-all overflow-hidden hidden
+          min-[918px]:flex
+        '
+        style={{
+          // depending on what state appTheme is, the theme changes
+          backgroundImage:
+            appTheme === 'forest'
+              ? `url('/UI_themes/gameboard-forest.png')`
+              : appTheme === 'vile'
+                ? `url('/UI_themes/gameboard-underworld.png')`
+                : appTheme === 'heaven' &&
+                  `url('/UI_themes/gameboard-heaven.png')`,
+          boxShadow: battlePrep
+            ? 'inset 0 0 80px 50px #000'
+            : gameWonBy === 'Bot'
+              ? 'inset 0 0 380px 100px #290000'
+              : gameWonBy === player.name && gameWonBy !== ''
+                ? 'inset 0 0 380px 80px #a68d02'
+                : leaveBattlefield
+                  ? 'inset 0 0 380px 250px #000'
+                  : 'inset 0 0 1px 1px #000',
+        }}
+      >
+        <globalContext.Provider value={contextValues}>
+          {startWebPage ? ( // this flag determines if game can or cannot produce sound as the user first interact with the website
+            <>
+              <ControlBar
                 soundFXVolumeController={soundFXVolumeController}
+                themeSongVolumeController={themeSongVolumeController}
+                setSoundFXVolumeController={setSoundFXVolumeController}
+                setThemeSongVolumeController={setThemeSongVolumeController}
               />
-            )}
-          </>
-        ) : (
-          <div className='flex justify-center items-center h-screen'>
-            <Start />
-          </div>
-        )}
-      </globalContext.Provider>
-    </main>
+
+              {battleStarts ? ( // this flag determines if player should be inside the gameboard or main menu UI
+                <Gameboard
+                  setBattleStarts={setBattleStarts}
+                  setLeaveBattlefield={setLeaveBattlefield}
+                  setPlayMainTheme={setPlayMainTheme}
+                  playMainTheme={playMainTheme}
+                />
+              ) : (
+                <MainMenu
+                  setBattleStarts={setBattleStarts}
+                  setBattlePrep={setBattlePrep}
+                  soundFXVolumeController={soundFXVolumeController}
+                />
+              )}
+            </>
+          ) : (
+            <div className='flex justify-center items-center h-screen'>
+              <Start />
+            </div>
+          )}
+        </globalContext.Provider>
+      </main>
+    </>
   );
 }
 

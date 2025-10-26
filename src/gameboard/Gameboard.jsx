@@ -145,7 +145,7 @@ export default function Gameboard({
   // every time player clicks a card to preview it,
   // the code calculates if there is enough mana to deploy it
   useEffect(() => {
-    isEnoughMana(player, dispatchPlayer);
+    isEnoughMana(player, dispatchPlayer, player.mana_bar);
 
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [cardBeingClicked]);

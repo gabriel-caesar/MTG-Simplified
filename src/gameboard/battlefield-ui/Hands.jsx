@@ -1,7 +1,7 @@
 import { IoMdArrowDropdown, IoMdArrowDropup } from 'react-icons/io';
 import { GiBroadsword, GiMountaintop } from 'react-icons/gi';
 import { MdOutlineStar } from 'react-icons/md';
-import { useContext, useEffect, useState } from 'react';
+import { useContext, useEffect, useRef, useState } from 'react';
 import { FaGripfire } from 'react-icons/fa';
 import { globalContext } from '../../contexts/global-context.js';
 import CardPreview from '../cards/CardPreview.jsx';
@@ -14,6 +14,12 @@ export default function Hands({ competitor, dispatch }) {
 
   // condition if the Hands is for Bot
   const isBot = competitor.name === 'Bot';
+
+  // card ref to unselect it whenever player clicks out of the card area
+  const cardRef = useRef(null);
+
+  // hands ref to unselect it whenever player clicks out of the card area 
+  const handsRef = useRef(null);
 
   // context APIs
   const {
@@ -28,6 +34,7 @@ export default function Hands({ competitor, dispatch }) {
   const { setButtonSound, buttonSound, cardSound, setCardSound, gameWonBy } =
     useContext(globalContext);
 
+  // hands drawer closes if the bot is attacking of if player passes the turn
   useEffect(() => {
     const playerTurn = gameTurn % 2 !== 0;
     if (!isBotAttacking && playerTurn && !isBot) {
@@ -35,7 +42,28 @@ export default function Hands({ competitor, dispatch }) {
     } else {
       setOpenHands(false);
     }
-  }, [gameTurn])
+  }, [gameTurn]);
+
+  // handles the mouse click off the card area, so it will close it
+  useEffect(() => {
+
+    const handleClickOff = e => {
+      if (
+        cardRef.current &&
+        handsRef.current &&
+        !cardRef.current.contains(e.target) &&
+        !handsRef.current.contains(e.target)) {
+        setCardBeingClicked('');
+      }
+    }
+
+    window.addEventListener('click', handleClickOff);
+
+    return () => {
+      window.removeEventListener('click', handleClickOff);
+    };
+
+  }, [cardBeingClicked])
 
   return (
     <div
@@ -47,6 +75,7 @@ export default function Hands({ competitor, dispatch }) {
         absolute w-80 h-85.5 flex flex-col border-r-2 transition-all z-15
       `}
       id={`${competitor.name}HandsContainer`}
+      ref={handsRef}
     >
       <span
         className={`
@@ -165,6 +194,7 @@ export default function Hands({ competitor, dispatch }) {
           card={cardBeingClicked}
           competitor={competitor}
           dispatch={dispatch}
+          cardRef={cardRef}
         />
       )}
     </div>

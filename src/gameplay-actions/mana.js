@@ -1,6 +1,6 @@
 // calculates if there is enough amount of mana activated
 // for creatures or spells to be deployed
-export function isEnoughMana(competitor, dispatch) {
+export function isEnoughMana(competitor, dispatch, updatedManaBar) {
   // player or bot (limiting battlefield for 6 cards max)
   if (competitor.mana_bar.length > 0 && competitor.battlefield.length <= 5) {
     const updatedHands = competitor.hands.map((cs) => {
@@ -25,7 +25,7 @@ export function isEnoughMana(competitor, dispatch) {
           finalManaCost = colorMana.length;
         }
         // final amount of activated manas in numbers
-        const activatedManas = competitor.mana_bar.filter(
+        const activatedManas = updatedManaBar.filter(
           (mana) => mana.activated && !mana.used
         ).length;
 
@@ -67,6 +67,10 @@ export function activateMana(card, index, competitor, dispatch) {
     type: 'deploy_mana',
     payload: updatedManaBar,
   });
+
+  // we return it so isEnoughMana() uses the most up to date mana_bar
+  // array and keep deployable and not deployable cards in sync
+  return updatedManaBar
 }
 
 // activates all manas at once
@@ -79,7 +83,12 @@ export function activateAllManas(competitor, dispatch) {
   dispatch({
     type: 'deploy_mana',
     payload: updatedManaBar,
+    
   });
+
+  // we return it so isEnoughMana() uses the most up to date mana_bar
+  // array and keep deployable and not deployable cards in sync
+  return updatedManaBar
 }
 
 // deactivates all manas at once
@@ -93,4 +102,8 @@ export function deactivateAllManas(competitor, dispatch) {
     type: 'deploy_mana',
     payload: updatedManaBar,
   });
+
+  // we return it so isEnoughMana() uses the most up to date mana_bar
+  // array and keep deployable and not deployable cards in sync
+  return updatedManaBar
 }

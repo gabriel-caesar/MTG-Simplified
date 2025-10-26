@@ -8,8 +8,8 @@ import {
 import { globalContext } from '../../contexts/global-context.js';
 import { gameboardContext } from '../../contexts/gameboard-context.js';
 import { SiElement } from 'react-icons/si';
-import { GiEvilBook } from 'react-icons/gi';
 import { IoMdClose } from 'react-icons/io';
+import { PiStarFourFill } from 'react-icons/pi';
 
 export default function ManaBar({ competitor, dispatch }) {
   return (
@@ -72,9 +72,12 @@ function WideScreen({ competitor, dispatch }) {
             );
             setManaSound(!manaSound);
             if (hasUnactivatedMana) {
-              activateAllManas(competitor, dispatch);
+              const updatedManabar = activateAllManas(competitor, dispatch);
+              console.log(updatedManabar)
+              isEnoughMana(competitor, dispatch, updatedManabar)
             } else {
-              deactivateAllManas(competitor, dispatch);
+              const updatedManabar = deactivateAllManas(competitor, dispatch);
+              isEnoughMana(competitor, dispatch, updatedManabar)
             }
           }}
         >
@@ -114,8 +117,8 @@ function WideScreen({ competitor, dispatch }) {
               aria-label='mana-btn'
               onClick={() => {
                 if (!isBot) {
-                  activateMana(card, index, competitor, dispatch);
-                  isEnoughMana(competitor, dispatch); // updates if there is enough mana for cards in hand
+                  const updatedManaBar = activateMana(card, index, competitor, dispatch);
+                  isEnoughMana(competitor, dispatch, updatedManaBar); // updates if there is enough mana for cards in hand
                   setManaSound(!manaSound);
                 }
               }}
@@ -192,10 +195,22 @@ function NarrowScreen({ competitor, dispatch }) {
         id="mana-count"
         className={`
           ${isBot ? 'rounded-bl-md border-t-0 border-r-0 items-end' : 'rounded-tl-md border-b-0 border-r-0 items-end'}
-          bg-gradient-to-bl from-blue-700 to-gray-900 text-3xl font-bold border-2
+          bg-gradient-to-bl from-blue-700 to-gray-900 text-3xl font-bold border-2 overflow-hidden
           transition-all duration-400 text-amber-400 p-1 h-8 flex justify-center
         `}
       >
+        <p 
+          className={`
+            transition-all duration-600 text-sm mr-1
+            ${
+              openManaBar === competitor.name
+                ? 'opacity-100'
+                : 'opacity-0 absolute pointer-events-none'
+            } 
+          `}
+        >
+          Available
+        </p>
         {availabeManas}
       </div>
 
@@ -205,11 +220,11 @@ function NarrowScreen({ competitor, dispatch }) {
           ${isBot ? 'rounded-b-md border-t-0' : 'rounded-t-md border-b-0'}
           ${
             openManaBar !== competitor.name
-              ? 'hover:cursor-pointer hover:brightness-80 w-15'
-              : 'w-130'
+              ? 'hover:cursor-pointer hover:brightness-80 w-15 justify-center overflow-hidden'
+              : 'w-130 justify-start overflow-x-auto overflow-y-hidden'
           }
-          p-1 border-2 border-amber-400 transition-all duration-300 relative h-12
-          bg-gradient-to-bl from-blue-700 to-gray-900 flex items-center justify-center
+          p-1 border-2 border-amber-400 transition-all duration-300 relative h-12  
+          bg-gradient-to-bl from-blue-700 to-gray-900 flex items-center 
         `}
         onClick={() => {
           setOpenManaBar(competitor.name);
@@ -261,8 +276,8 @@ function NarrowScreen({ competitor, dispatch }) {
               aria-label='mana-btn'
               onClick={() => {
                 if (!isBot) {
-                  activateMana(card, index, competitor, dispatch);
-                  isEnoughMana(competitor, dispatch); // updates if there is enough mana for cards in hand
+                  const updatedManaBar = activateMana(card, index, competitor, dispatch);
+                  isEnoughMana(competitor, dispatch, updatedManaBar); // updates if there is enough mana for cards in hand
                   setManaSound(!manaSound);
                 }
               }}
@@ -289,29 +304,7 @@ function NarrowScreen({ competitor, dispatch }) {
             </button>
           ))
         )}
-
-        <button 
-          id="close-mana-bar"
-          aria-label="close-mana-bar"
-          onClick={(e) => {
-            e.stopPropagation();
-            setOpenManaBar('');
-          }}
-          className={`
-            text-2xl text-amber-500 bg-gray-900 absolute border-2 rounded-sm
-            hover:cursor-pointer hover:bg-gray-700 transition-all
-            ${!isBot ? 'bottom-12.5 right-0' : 'top-12.5 left-0'}
-            ${
-              openManaBar === competitor.name
-                ? 'opacity-100'
-                : 'opacity-0 absolute pointer-events-none'
-            } 
-          `}
-        >
-          <IoMdClose />
-        </button>
-
-        <GiEvilBook
+        <PiStarFourFill
           className={`
             text-3xl text-amber-500 transition-all duration-400
             ${
@@ -323,15 +316,55 @@ function NarrowScreen({ competitor, dispatch }) {
         />
       </div>
       <div 
-        id="activated-mana-count"
-        className={`
-          ${isBot ? 'rounded-br-md border-t-0 border-l-0 items-end' : 'rounded-tr-md border-b-0 border-l-0 items-end'}
-          bg-gradient-to-bl from-red-700 to-gray-900 text-3xl font-bold border-2
-          transition-all duration-400 text-amber-400 p-1 h-8 flex justify-center
-        `}
+        id="activated-mana-close-bar-wrapper"
+        className='flex flex-col'
       >
-        {activatedManas}
+        <button 
+          id="close-mana-bar"
+          aria-label="close-mana-bar"
+          onClick={(e) => {
+            e.stopPropagation();
+            setOpenManaBar('');
+          }}
+          className={`
+            text-2xl text-amber-500 bg-gray-900 border-2 rounded-sm w-fit
+            hover:cursor-pointer hover:bg-gray-700 transition-all ml-1
+            ${isBot ? 'order-1 mt-1' : 'mb-1'}
+            ${
+              openManaBar === competitor.name
+                ? 'opacity-100'
+                : 'opacity-0 absolute pointer-events-none'
+            } 
+          `}
+        >
+          <IoMdClose />
+        </button>
+
+        <div 
+          id="activated-mana-count"
+          className={`
+            ${isBot ? 'rounded-br-md border-t-0 border-l-0 items-end' : 'rounded-tr-md border-b-0 border-l-0 items-end order-1'}
+            bg-gradient-to-bl from-red-700 to-gray-900 text-3xl font-bold border-2
+            transition-all duration-400 text-amber-400 p-1 h-8 flex justify-center overflow-hidden
+          `}
+        >
+          {activatedManas}
+          <p 
+            className={`
+              transition-all duration-600 text-sm ml-1
+              ${
+                openManaBar === competitor.name
+                  ? 'opacity-100'
+                  : 'opacity-0 absolute pointer-events-none'
+              } 
+            `}
+          >
+            Activated
+          </p>
+        </div>
+        
       </div>
+      
       {!isBot && (
         <button
           className={`
@@ -354,9 +387,11 @@ function NarrowScreen({ competitor, dispatch }) {
             );
             setManaSound(!manaSound);
             if (hasUnactivatedMana) {
-              activateAllManas(competitor, dispatch);
+              const updatedManabar = activateAllManas(competitor, dispatch);
+              isEnoughMana(competitor, dispatch, updatedManabar)
             } else {
-              deactivateAllManas(competitor, dispatch);
+              const updatedManabar = deactivateAllManas(competitor, dispatch);
+              isEnoughMana(competitor, dispatch, updatedManabar)
             }
           }}
         >

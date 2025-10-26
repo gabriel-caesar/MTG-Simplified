@@ -128,13 +128,18 @@ export function deployOneMana(competitor, dispatch) {
   // searches the that mana index inside the hands array
   const manaIndex = competitor.hands.indexOf(manaToBeDeployed);
 
-  // splice it out from the hands array
-  competitor.hands.splice(manaIndex, 1); // mutating player.hands
+  // updated hands without the mana that was just deployed
+  const updatedHands = competitor.hands.map((c, i) => {
+    if (manaIndex === i) {
+      return
+    }
+    return c
+  }).filter(c => c !== undefined);
 
   // update the player's hands through an action
   dispatch({
     type: 'update_hands',
-    payload: competitor.hands,
+    payload: updatedHands,
   });
 
   // send the selected mana to the mana bar

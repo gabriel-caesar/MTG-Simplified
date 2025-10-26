@@ -47,7 +47,6 @@ export default function Card({ competitor, dispatch }) {
 
     const handleClickOff = e => {
       if (cardRef.current && !cardRef.current.contains(e.target)) {
-        console.log('AAAAAAAAAAAAAA')
         setToEnlarge('');
       }
     }
@@ -73,7 +72,7 @@ export default function Card({ competitor, dispatch }) {
         }
         ${
           toEnlarge === card.instanceId
-            ? `z-16 w-80 large border-8 ${!isBot ? '-top-1/2' : 'top-10'} hover:cursor-default`
+            ? `z-16 w-80 large border-8 ${!isBot ? '-top-1/2' : 'top-1/2'} hover:cursor-default`
             : `${isPlayerAttacking || isBotAttacking ? 'hover:cursor-not-allowed' : 'hover:cursor-pointer'} border-4 w-40 small top-0`
         }
         ${(card.attack || card.defend) && 'creatureTurn'}
@@ -208,7 +207,7 @@ export default function Card({ competitor, dispatch }) {
                       ${
                         card.summoningSickness || card.attackPhaseSickness
                           ? 'hover:cursor-not-allowed hover:bg-red-900 hover:text-neutral-200 hover:border-red-900'
-                          : 'hover:cursor-pointer hover:bg-gray-900 hover:text-amber-400 hover:border-gray-900 '
+                          : 'hover:cursor-pointer hover:bg-gray-900 hover:text-amber-400 hover:border-gray-900 active:brightness-70'
                       }
                       border-2 border-transparent h-8 transition-all bg-transparent font-bold rounded-l-sm w-22
                     `}
