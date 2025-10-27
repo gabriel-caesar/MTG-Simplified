@@ -10,6 +10,7 @@ import MainMenu from './menu/MainMenu.jsx';
 import Start from './menu/Start.jsx';
 import Gameboard from './gameboard/Gameboard.jsx';
 import './css/app.css';
+import './css/legendary.css'
 
 function App() {
   const [player, dispatchPlayer] = useReducer(playerReducer, competitorObject); // player state manager
@@ -236,8 +237,7 @@ function App() {
       </div>
       <main
         className='
-          mainContainerImage relative transition-all overflow-hidden hidden
-          min-[918px]:flex
+          mainContainerImage relative transition-all overflow-hidden flex
         '
         style={{
           // depending on what state appTheme is, the theme changes

@@ -141,7 +141,7 @@ export default function MainMenu({ setBattleStarts, setBattlePrep, soundFXVolume
       <div
         className={`
           relative z-0 flex justify-center items-end 
-          min-[2000px]:scale-165 min-[2000px]:translate-y-40
+          min-[2000px]:scale-200 min-[2000px]:translate-y-50
           ${deckSelection || deckDetails ? 'h-160' : 'h-120'}
         `}
         id='wrapper-for-chains'

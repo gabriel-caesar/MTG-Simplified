@@ -31,13 +31,17 @@ export default function CardPreview({
   return (
     <div
       className={`
-        ${card.color[0] === 'W' ? 'white-card-background text-black' : 'black-card-background text-amber-200'} 
+        ${
+          card.color[0] === 'W'
+            ? 'white-card-background text-black'
+            : 'black-card-background text-amber-200'
+        } 
         ${
           isGraveyard && isBot
             ? 'top-10 right-80'
             : isGraveyard && !isBot
-              ? '-top-76 right-80'
-              : '-top-60 left-80'
+            ? '-top-76 right-80'
+            : '-top-60 left-80'
         }
         absolute flex flex-col justify-start items-center rounded-2xl p-2 w-90 h-140 shadowing border-10 border-black
       `}
@@ -47,7 +51,9 @@ export default function CardPreview({
     >
       <span className='rounded-t-sm w-full flex justify-between items-center px-1'>
         <h1
-          className={`${card.color[0] === 'W' ? 'text-black' : 'text-amber-200'} font-bold text-lg text-center `}
+          className={`${
+            card.color[0] === 'W' ? 'text-black' : 'text-amber-200'
+          } font-bold text-lg text-center `}
         >
           {card.name}
         </h1>
@@ -80,7 +86,9 @@ export default function CardPreview({
       </div>
 
       <div
-        className={`absolute ${card.type.match(/land/i) ? 'opacity-80' : 'opacity-10'} text-9xl bottom-25`}
+        className={`absolute ${
+          card.type.match(/land/i) ? 'opacity-80' : 'opacity-10'
+        } text-9xl bottom-25`}
         id='colorSymbol'
         aria-label='colorSymbol'
       >
@@ -92,7 +100,11 @@ export default function CardPreview({
       </div>
 
       <div
-        className={`my-2 border-4 ${card.color[0] === 'W' ? 'white-card-desc text-black' : 'black-card-desc text-amber-200'} font-bold text-lg p-2 w-80 h-50`}
+        className={`my-2 border-4 ${
+          card.color[0] === 'W'
+            ? 'white-card-desc text-black'
+            : 'black-card-desc text-amber-200'
+        } font-bold text-lg p-2 w-80 h-50`}
         id='cardDescription'
         aria-label='cardDescription'
       >
@@ -111,8 +123,8 @@ export default function CardPreview({
                   ? 'radialGradient hover:cursor-pointer'
                   : 'bg-gradient-to-b from-blue-950 to-gray-500 hover:cursor-not-allowed'
                 : card.enoughManaToDeploy
-                  ? 'radialGradient hover:cursor-pointer'
-                  : 'bg-gradient-to-b from-blue-950 to-gray-500 hover:cursor-not-allowed'
+                ? 'radialGradient hover:cursor-pointer'
+                : 'bg-gradient-to-b from-blue-950 to-gray-500 hover:cursor-not-allowed'
             }`}
           id='deploy-btn'
           aria-label='deploy-btn'
@@ -122,13 +134,19 @@ export default function CardPreview({
                 ? false
                 : true
               : card.enoughManaToDeploy
-                ? false
-                : true
+              ? false
+              : true
           }
           onClick={() => {
             // clicking command to deploy a card
             if (card.type.match(/land/i)) {
-              deployOneMana(competitor, dispatch);
+              deployOneMana(
+                competitor,
+                dispatch,
+                gameState,
+                setGameState,
+                gameTurn
+              );
               setOneManaPerTurn(false); // limit of one mana deployed per turn
             } else {
               deployCreatureOrSpell(

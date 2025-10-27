@@ -1,5 +1,6 @@
 import { tapUsedManas } from './tap-cards.js';
 import { uniqueId } from '../deck-management/utils.js';
+import { gameStateManager, gameStateUpdater } from './game-state-manager.js';
 
 // handles the deployment of creatures/spells
 export function deployCreatureOrSpell(
@@ -26,81 +27,26 @@ export function deployCreatureOrSpell(
       deployedOnTurn: gameTurn,
       instanceId: uniqueId(),
     };
-    // splice card out of the competitor's hands
-    competitor.hands.splice(cardSelectedIndex, 1);
+
+    // updated hands array without the card to be deployed
+    const updatedHands = competitor.hands.map((c, i) => {
+      if (i === cardSelectedIndex) {
+        return
+      } else {
+        return c
+      }
+    }).filter(c => c !== undefined);
 
     // storing the updated battlefield array in a variable
     const updatedBattlefield = [...competitor.battlefield, cardToBeDeployed];
-    // if the competitor reached the full battlefield capacity
-    const maxBattlefieldCap = updatedBattlefield.length === 6;
 
-    // placeholder for the deploy state
-    let turnState = null;
-    const isThereState = gameState.some(
-      (state) => state.owner === competitor.name && state.turn === gameTurn
-    );
-
-    if (!isThereState) {
-      // if there is no state yet created for this turn and competitor
-      // creating a log state for cards being deployed
-      turnState = {
-        turn: gameTurn,
-        log: [],
-        owner: competitor.name,
-        id: uniqueId(),
-      };
-    } else {
-      // if there is a state, find it
-      turnState = gameState.find(
-        (state) => state.owner === competitor.name && state.turn === gameTurn
-      );
-    }
-
-    // pushing the message obj to the state log
-    turnState.log.unshift({
-      id: uniqueId(),
-      type: 'Deploy creature',
-      details: {
-        creature: card,
-      },
-    });
-
-    if (maxBattlefieldCap) {
-      turnState.log.unshift({
-        id: uniqueId(),
-        type: 'Battlefield cap',
-      });
-    }
-
-    // why overcomplicate this, right? I ran into the asynchronous problem with React batching updates
-    // and making botPlays(), which is an expensive call stack, work with old gameState data, so
-    // now I will update the state with this idea and return the uptaded gameState with the parent function
-    // and when botPlays() call itself again in the call stack, it will have the most up to date gameState
-    // appending one more log to the existing turnState, therefore not duplicating a state bubble in the game log
-    const gameStateUpdater = prev => {
-      if (isThereState) {
-        // if there is already a turnState
-        // filter the already existent and outdated turnState
-        // and then append a brand new and updated turnState
-        const updatedGameState = prev.filter(
-          (state) => state.id !== turnState.id
-        );
-        return [turnState, ...updatedGameState];
-      } else {
-        // if it's creating a brand new state
-        // brand new turnState being created
-        return [turnState, ...prev];
-      }
-    }
-
-    const updatedGameState = gameStateUpdater(gameState);
-
-    setGameState(updatedGameState);
+    // this function will return a brand new or an updated already existent game state
+    let turnState = gameStateManager(gameState, gameTurn, competitor);
 
     // send an action to update competitor's hands
     dispatch({
       type: 'update_hands',
-      payload: competitor.hands,
+      payload: updatedHands,
     });
 
     // send an action to include card to be deployed in the battlefield
@@ -112,6 +58,41 @@ export function deployCreatureOrSpell(
     // tap manas used
     tapUsedManas(card, dispatch, competitor);
 
+    // placeholder to be changed if turnState is not null
+    let updatedGameState = gameState;
+
+    // pushing the message obj to the state log
+    if (turnState) {
+      turnState.log.unshift({
+        id: uniqueId(),
+        type: card.power && card.toughness ? 'Deploy creature' : 'Deploy spell',
+        details: {
+          creature: card,
+        },
+      });
+
+      // if the competitor reached the full battlefield capacity
+      const maxBattlefieldCap = updatedBattlefield.length === 6;
+      if (maxBattlefieldCap) {
+        turnState.log.unshift({
+          id: uniqueId(),
+          type: 'Battlefield cap',
+        });
+      }
+
+      // updating the game state
+      updatedGameState = gameStateUpdater(
+        gameState,
+        competitor,
+        turnState,
+        gameState,
+        gameTurn
+      );
+      setGameState(updatedGameState);
+    } else {
+      console.error(`Something went wrong with turnState.`);
+    }
+
     return updatedGameState;
   } else {
     return;
@@ -119,7 +100,22 @@ export function deployCreatureOrSpell(
 }
 
 // handles the deployment of mana
-export function deployOneMana(competitor, dispatch) {
+export function deployOneMana(
+  competitor,
+  dispatch,
+  gameState,
+  setGameState,
+  gameTurn
+) {
+  // this function will return a brand new or an updated already existent game state
+  let turnState = gameStateManager(gameState, gameTurn, competitor);
+  console.log('\n')
+  console.log('-----------------')
+  console.log('turnState:', turnState)
+  console.log('gameTurn:', gameTurn)
+  console.log('competitor:', competitor.name)
+  console.log('-----------------')
+
   // searches for a single mana card
   const manaToBeDeployed = competitor.hands.find((handCard) =>
     handCard.type.match(/land/i)
@@ -129,12 +125,14 @@ export function deployOneMana(competitor, dispatch) {
   const manaIndex = competitor.hands.indexOf(manaToBeDeployed);
 
   // updated hands without the mana that was just deployed
-  const updatedHands = competitor.hands.map((c, i) => {
-    if (manaIndex === i) {
-      return
-    }
-    return c
-  }).filter(c => c !== undefined);
+  const updatedHands = competitor.hands
+    .map((c, i) => {
+      if (manaIndex === i) {
+        return;
+      }
+      return c;
+    })
+    .filter((c) => c !== undefined);
 
   // update the player's hands through an action
   dispatch({
@@ -147,6 +145,28 @@ export function deployOneMana(competitor, dispatch) {
     type: 'deploy_mana',
     payload: [...competitor.mana_bar, manaToBeDeployed],
   });
+
+  // prepending the mana log into the game log
+  if (turnState) {
+    turnState.log.unshift({
+      id: uniqueId(),
+      type: 'Deploy mana',
+      details: {
+        mana: manaToBeDeployed,
+      },
+    });
+
+    // updating the game state
+    const updatedGameState = gameStateUpdater(
+      gameState,
+      competitor,
+      turnState,
+      gameState
+    );
+    setGameState(updatedGameState);
+  } else {
+    console.error('Something went wrong with turnState');
+  }
 }
 
 export function deployPriority(deployableCards) {

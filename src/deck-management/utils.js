@@ -15,6 +15,8 @@ export function uniqueId() {
 }
 
 // strips the comma out of the long legendary creature names
+// ≈ 1.37 × 10²³ unique IDs 
+// (that’s about 137,000,000,000,000,000,000,000 possibilities).
 export function shortenName(name) {
    const array = [];
   

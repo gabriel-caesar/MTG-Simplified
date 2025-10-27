@@ -2,7 +2,7 @@ import { playerDefends } from '../../gameplay-actions/player-defends.js';
 import { gameboardContext } from '../../contexts/gameboard-context.js';
 import { globalContext } from '../../contexts/global-context.js';
 import { Expand, Shrink } from 'lucide-react';
-import { useContext, useEffect, useState } from 'react';
+import { useContext, useEffect, useRef, useState } from 'react';
 import { GiHuntingHorn } from 'react-icons/gi';
 import DefenseDecisions from './DefenseDecisions.jsx';
 import LogMessages from './LogMessages.jsx';
@@ -47,6 +47,9 @@ export default function GameLog() {
   // mind and we want to preserve the animation for when the log closes
   const [battlefieldCopy, setBattlefieldCopy] = useState(player.battlefield);
 
+  // references the game log container
+  const logRef = useRef(null);
+
   // if bot is attacking when turn is passed over, expand the gamelog
   // for the user to defend and shrink any battlefield card
   useEffect(() => {
@@ -57,8 +60,28 @@ export default function GameLog() {
     }
   }, [isBotAttacking]);
 
+  // handles the mouse click off the log area, so it will close it
+  useEffect(() => {
+
+    const handleClickOff = e => {
+      if (
+        logRef.current &&
+        !logRef.current.contains(e.target)) {
+        setExpandLog(false);
+      }
+    }
+
+    window.addEventListener('click', handleClickOff);
+
+    return () => {
+      window.removeEventListener('click', handleClickOff);
+    };
+
+  }, [expandLog])
+
   return (
     <div
+      ref={logRef}
       id='game-log-wrapper'
       className={`
       bg-gray-900 rounded-sm justify-center items-center border-2
@@ -101,7 +124,8 @@ export default function GameLog() {
             absolute right-0 bottom-0 h-[24px] flex items-center justify-center px-1 ${!battlePrep && 'hover:cursor-pointer'}
             transition-all border-r-transparent rounded-tr-sm border-l-2 border-gray-900 w-fit
           `}
-          onClick={async () => {
+          onClick={async (e) => {
+            e.stopPropagation();
             if (!battlePrep) {
               // after the battle horn finishes blowing
               setButtonSound(!buttonSound);

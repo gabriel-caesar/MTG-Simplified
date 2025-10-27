@@ -1,10 +1,9 @@
-import { useContext, useState } from 'react';
 import { gameboardContext } from '../../contexts/gameboard-context';
-import { GiBroadsword, GiCrossedSwords } from 'react-icons/gi';
 import { CiSquareMinus, CiSquarePlus } from 'react-icons/ci';
 import { globalContext } from '../../contexts/global-context';
-import { TbPlayCardStar } from 'react-icons/tb';
 import { IoFileTrayFull } from 'react-icons/io5';
+import { useContext, useState } from 'react';
+import '../../css/legendary.css'
 
 export default function LogMessages() {
   const { gameState, setGameState } = useContext(gameboardContext);
@@ -51,13 +50,21 @@ export default function LogMessages() {
               aria-label='log-container'
               >
                 <h2 
-                  className='text-lg flex items-center text-amber-100'
+                  className='text-lg flex items-center justify-center text-amber-100'
                   id='log-description'
                   aria-label='log-description'
                 >
                   {messageObj.type === 'Take damage on HP' ? (
                     <>
-                      <GiBroadsword className='mr-2' />
+                      <span
+                        className='
+                          text-lg text-amber-500 
+                          rounded-sm border-2 p-1 mr-2 
+                          flex justify-items-center
+                        '
+                      >
+                        <i class='ms ms-power-mtga ms-shadow'></i>
+                      </span>
                       <span className={`${state.owner !== 'Bot' ? 'text-blue-400' : 'text-red-400'} mr-2`}>
                         {state.owner}
                       </span>
@@ -69,7 +76,15 @@ export default function LogMessages() {
                     </>
                   ) : messageObj.type === 'Creature clash' ? (
                     <>
-                      <GiCrossedSwords className='mr-2' />
+                      <span
+                        className='
+                          text-lg text-amber-500 
+                          rounded-sm border-2 p-1 mr-2 
+                          flex justify-items-center
+                        '
+                      >
+                        <i class='ms ms-counter-pin ms-shadow'></i>
+                      </span>
                       <span className={`${state.owner !== 'Bot' ? 'text-blue-400' : 'text-red-400'} mr-2`}>
                         {messageObj.details.defender.name}
                       </span>
@@ -80,7 +95,65 @@ export default function LogMessages() {
                     </>
                   ) : messageObj.type === 'Deploy creature' ? (
                     <>
-                      <TbPlayCardStar className='mr-2' />
+                      <span 
+                        className={`
+                          ${messageObj.details.creature.legendary ? 'text-green-500' : 'text-amber-500 '}
+                          rounded-sm border-2 p-1 mr-2 
+                          flex justify-items-center text-lg
+                        `}
+                      >
+                        <i class='ms ms-creature ms-shadow'></i>
+                      </span>
+                      <span className={`${state.owner !== 'Bot' ? 'text-blue-400' : 'text-red-500'} mr-2`}>
+                        {state.owner}
+                      </span>
+                        deployed
+                      <span className={`${messageObj.details.creature.legendary ? 'legendary-shimmer' : 'text-amber-500 '} mx-2 flex`}>
+                        {messageObj.details.creature.name}
+                      </span>
+                    </>
+                  ) : messageObj.type === 'Battlefield cap' ? (
+                    <>
+                      <IoFileTrayFull className='mr-2' />
+                      <span className={`${state.owner !== 'Bot' ? 'text-blue-400' : 'text-red-500'} mr-2`}>
+                        {state.owner}
+                      </span>
+                        reached its full battlefield capacity
+                    </>
+                  ) : messageObj.type === 'Deploy mana' ? (
+                    <>
+                      <span 
+                        className='
+                          text-lg text-amber-500 
+                          rounded-sm border-2 p-1 mr-2 
+                          flex justify-items-center
+                        '
+                      >
+                        {messageObj.details.mana.color.some(x => x === 'W') ? (
+                          <i class='ms ms-w ms-shadow'></i>
+                        ) : (
+                          <i class='ms ms-b ms-shadow'></i>
+                        )}
+                      </span>
+                      <span className={`${state.owner !== 'Bot' ? 'text-blue-400' : 'text-red-500'} mr-2`}>
+                        {state.owner}
+                      </span>
+                        deployed
+                      <span className={`text-amber-400 mx-2 flex`}>
+                        {messageObj.details.mana.name}
+                      </span>
+                    </>
+                  ) : messageObj.type === 'Deploy spell' && (
+                    <>
+                      <span 
+                        className={`
+                          text-amber-500 text-lg
+                          rounded-sm border-2 p-1 mr-2 
+                          flex justify-items-center 
+                        `}
+                      >
+                        <i class='ms ms-sorcery ms-shadow'></i>
+                      </span>
                       <span className={`${state.owner !== 'Bot' ? 'text-blue-400' : 'text-red-500'} mr-2`}>
                         {state.owner}
                       </span>
@@ -88,14 +161,6 @@ export default function LogMessages() {
                       <span className={`text-amber-400 mx-2 flex`}>
                         {messageObj.details.creature.name}
                       </span>
-                    </>
-                  ) : messageObj.type === 'Battlefield cap' && (
-                    <>
-                      <IoFileTrayFull className='mr-2' />
-                      <span className={`${state.owner !== 'Bot' ? 'text-blue-400' : 'text-red-500'} mr-2`}>
-                        {state.owner}
-                      </span>
-                        reached its full battlefield capacity
                     </>
                   )}
                   

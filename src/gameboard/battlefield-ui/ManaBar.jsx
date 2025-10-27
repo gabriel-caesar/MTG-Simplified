@@ -9,7 +9,6 @@ import { globalContext } from '../../contexts/global-context.js';
 import { gameboardContext } from '../../contexts/gameboard-context.js';
 import { SiElement } from 'react-icons/si';
 import { IoMdClose } from 'react-icons/io';
-import { PiStarFourFill } from 'react-icons/pi';
 
 export default function ManaBar({ competitor, dispatch }) {
   return (
@@ -304,16 +303,23 @@ function NarrowScreen({ competitor, dispatch }) {
             </button>
           ))
         )}
-        <PiStarFourFill
+        <span
           className={`
-            text-3xl text-amber-500 transition-all duration-400
+            text-4xl text-amber-500 transition-all duration-400
+            flex justify-items-center
             ${
               openManaBar !== competitor.name
                 ? 'opacity-100'
                 : 'opacity-0 absolute pointer-events-none'
             }
           `}
-        />
+        >
+          {competitor.deck_name !== 'Vile Force' ? (
+            <i class='ms ms-w ms-shadow'></i>
+          ) : (
+            <i class='ms ms-b ms-shadow'></i>
+          )}
+        </span>
       </div>
       <div 
         id="activated-mana-close-bar-wrapper"

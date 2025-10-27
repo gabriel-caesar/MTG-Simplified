@@ -29,7 +29,14 @@
   }
 
   .mainContainerImage {
-    display: hidden;
+    display: none;
+  }
+}
+
+/* tailwind didn't work, so I did it manually */
+@media (max-width: 918px) {
+  .mainContainerImage {
+    display: none;
   }
 }
 

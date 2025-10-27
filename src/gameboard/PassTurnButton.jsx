@@ -52,7 +52,7 @@ export default function PassTurnButton() {
     // if there is mana in bot's hands and bot didn't deploy one mana yet, deploy it
     const isMana = bot.hands.find((card) => card.type.match(/land/i));
     if (isMana && !hasDeployedMana) {
-      deployOneMana(bot, dispatchBot);
+      deployOneMana(bot, dispatchBot, gameState, setGameState, gameTurn);
 
       // wait for bot object to be updated
       setTimeout(() => {
@@ -62,19 +62,18 @@ export default function PassTurnButton() {
       return;
     }
 
-    // activate all unused and deactivated manas
+    // are there any manas available to activate
     const hasUnactivatedMana = bot.mana_bar.some(
       (mana) => !mana.activated && !mana.used
     );
 
-    // default value is the bot's mana bar, otherwise, 
+    // default value is the bot's mana bar, otherwise,
     // the updated mana bar from the activateAllManas()
     let updatedManaBar = bot.mana_bar;
 
     if (hasUnactivatedMana) {
-
       // activates all manas and return a fresh updated mana bar
-      updatedManaBar = activateAllManas(bot, dispatchBot)
+      updatedManaBar = activateAllManas(bot, dispatchBot);
 
       // wait for bot object to be updated
       setTimeout(() => {
@@ -204,11 +203,12 @@ export default function PassTurnButton() {
   }
 
   // reset competitor for a new turn
-  function resetPlayerForNewTurn(competitor, dispatch, attackPhase = false) { // attackPhase argument is only valid for the player
-    
+  function resetPlayerForNewTurn(competitor, dispatch, attackPhase = false) {
+    // attackPhase argument is only valid for the player
+
     // closes the narrow screen mana bar
     setOpenManaBar('');
-    
+
     // reset the permission to deploy one mana
     // per turn only when competitor is the player
     if (competitor.name !== 'Bot') setOneManaPerTurn(true);
@@ -231,11 +231,15 @@ export default function PassTurnButton() {
         return {
           ...card,
           defend: false, // untap cards
-          // if there wasn't any creature attacking, 
+          // if there wasn't any creature attacking,
           // untap player's attacking creature from the previous turn
-          attack: attackPhase ? false : competitor.name === 'Bot' ? false : card.attack, 
+          attack: attackPhase
+            ? false
+            : competitor.name === 'Bot'
+            ? false
+            : card.attack,
           // if attackPhase is true, turn off attackPhaseSickness
-          attackPhaseSickness: attackPhase ? false : card.attackPhaseSickness, 
+          attackPhaseSickness: attackPhase ? false : card.attackPhaseSickness,
           summoningSickness: card.summoningSickness
             ? false
             : card.summoningSickness,
@@ -316,7 +320,11 @@ export default function PassTurnButton() {
         active:bg-amber-600
         rounded-sm text-lg font-bold p-2 border-2 inset-shadow-button transition-colors 
         ${toEnlarge === '' || toEnlarge === null ? 'z-5' : 'z-3'}
-        ${playerPassedTurn || isBotAttacking || isPlayerAttacking ? 'bg-gray-500' : 'bg-amber-300'}
+        ${
+          playerPassedTurn || isBotAttacking || isPlayerAttacking
+            ? 'bg-gray-500'
+            : 'bg-amber-300'
+        }
       `}
       id='pass-turn-btn'
       aria-label='pass-turn-btn'
