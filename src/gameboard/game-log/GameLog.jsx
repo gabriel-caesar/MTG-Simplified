@@ -144,6 +144,14 @@ export default function GameLog() {
                 if (expandLog) setEndGameLog(false);
               }
 
+              // in taller screens, game log can be clickable
+              // due to the wooden sign not covering it, so
+              // I disable the opening button, leaving only
+              // the shrink button working
+              if (!expandLog && gameWonBy) {
+                return
+              }
+
               if (isBotAttacking) {
                 // player defends if bot's attacking
 

@@ -47,7 +47,7 @@ export default function Card({ competitor, dispatch }) {
   useEffect(() => {
 
     const handleClickOff = e => {
-      if (cardRef.current && !cardRef.current.contains(e.target)) {
+      if (cardRef.current && !cardRef.current.contains(e.target) && toEnlarge !== '') {
         setToEnlarge('');
       }
     }

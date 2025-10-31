@@ -86,7 +86,13 @@ export default function LogMessages() {
                         {messageObj.totalDamage}
                       </span>
                       of damage and was left with
-                      <span className={`${messageObj.competitorHP <= 10 ? 'text-red-500' : 'text-green-500'} fontUncial ml-2 flex`}>
+                      <span
+                        className={`${
+                          messageObj.competitorHP <= 10
+                            ? 'text-red-500'
+                            : 'text-green-500'
+                        } fontUncial ml-2 flex`}
+                      >
                         {messageObj.competitorHP}
                       </span>
                       hp
@@ -104,7 +110,9 @@ export default function LogMessages() {
                       </span>
                       <span
                         className={`${
-                          state.owner !== 'Bot'
+                          messageObj.details.defender.legendary
+                            ? 'legendary-shimmer-log'
+                            : state.owner !== 'Bot'
                             ? 'text-blue-400'
                             : 'text-red-500'
                         } mr-2`}
@@ -112,7 +120,15 @@ export default function LogMessages() {
                         {messageObj.details.defender.name}
                       </span>
                       defended against
-                      <span className={`mx-2 flex ${state.owner === 'Bot' ? 'text-blue-400' : 'text-red-500'}`}>
+                      <span
+                        className={`mx-2 flex ${
+                          messageObj.details.attacker.legendary
+                            ? 'legendary-shimmer-log'
+                            : state.owner === 'Bot'
+                            ? 'text-blue-400'
+                            : 'text-red-500'
+                        }`}
+                      >
                         {messageObj.details.attacker.name}
                       </span>
                     </>
@@ -229,91 +245,76 @@ export default function LogMessages() {
                         {messageObj.details.creature.name}
                       </span>
                     </>
-                  ) : (
-                    messageObj.type === 'Creature attack' ? (
-                      <>
-                        <span
-                          className='
+                  ) : messageObj.type === 'Creature attack' ? (
+                    <>
+                      <span
+                        className='
                           text-lg text-amber-500 
                           rounded-sm border-2 p-1 mr-2 
                           flex justify-items-center
                         '
-                        >
-                          <i class='ms ms-power-mtga ms-shadow'></i>
-                        </span>
-                        <span
-                          className={`${
-                            state.owner !== 'Bot'
-                              ? 'text-blue-400'
-                              : 'text-red-500'
-                          } mr-2`}
-                        >
-                          {state.owner}
-                        </span>
-                        attacked with
-                        <span className='mx-2 flex'>
-                          {messageObj.details.attackingCreatures
-                            .slice(0, 2)
-                            .map((creature, index, arr) => {
-                              const isLast = index === arr.length - 1;
-                              const isSecondToLast = index === arr.length - 2;
-                              const creatureName = creature.legendary
-                                ? shortenName(creature.name)
-                                : creature.name;
+                      >
+                        <i class='ms ms-power-mtga ms-shadow'></i>
+                      </span>
+                      <span
+                        className={`${
+                          state.owner !== 'Bot'
+                            ? 'text-blue-400'
+                            : 'text-red-500'
+                        } mr-2`}
+                      >
+                        {state.owner}
+                      </span>
+                      attacked with
+                      <span className='mx-2 flex'>
+                        {messageObj.details.attackingCreatures
+                          .slice(0, 2)
+                          .map((creature, index, arr) => {
+                            const isLast = index === arr.length - 1;
+                            const isSecondToLast = index === arr.length - 2;
+                            const creatureName = creature.legendary
+                              ? shortenName(creature.name)
+                              : creature.name;
 
-                              if (
-                                isLast &&
-                                messageObj.details.attackingCreatures.length > 2
-                              )
-                                return (
-                                  <div key={index} className='flex'>
-                                    <p
-                                      className={`text-xl text-red-500 ${
-                                        creature.legendary
-                                          ? 'legendary-shimmer-log-log'
-                                          : 'text-red-500'
-                                      }`}
-                                    >
-                                      {creatureName}
-                                    </p>
-                                    <span className='text-amber-100 mx-1'>
-                                      {' '}
-                                      and others...
-                                    </span>
-                                  </div>
-                                );
-
-                              if (isLast)
-                                return (
+                            if (
+                              isLast &&
+                              messageObj.details.attackingCreatures.length > 2
+                            )
+                              return (
+                                <div key={index} className='flex'>
                                   <p
-                                    key={index}
                                     className={`text-xl text-red-500 ${
                                       creature.legendary
-                                        ? 'legendary-shimmer-log'
+                                        ? 'legendary-shimmer-log-log'
                                         : 'text-red-500'
                                     }`}
                                   >
                                     {creatureName}
                                   </p>
-                                );
-                              if (isSecondToLast && messageObj.details.attackingCreatures.length === 2)
-                                return (
-                                  <div key={index} className='flex'>
-                                    <p
-                                      className={`text-xl text-red-500 ${
-                                        creature.legendary
-                                          ? 'legendary-shimmer-log'
-                                          : 'text-red-500'
-                                      }`}
-                                    >
-                                      {creatureName}
-                                    </p>
-                                    <span className='text-amber-100 mx-2'>
-                                      and
-                                    </span>{' '}
-                                  </div>
-                                );
+                                  <span className='text-amber-100 mx-1'>
+                                    {' '}
+                                    and others...
+                                  </span>
+                                </div>
+                              );
 
+                            if (isLast)
+                              return (
+                                <p
+                                  key={index}
+                                  className={`text-xl text-red-500 ${
+                                    creature.legendary
+                                      ? 'legendary-shimmer-log'
+                                      : 'text-red-500'
+                                  }`}
+                                >
+                                  {creatureName}
+                                </p>
+                              );
+                            if (
+                              isSecondToLast &&
+                              messageObj.details.attackingCreatures.length === 2
+                            )
                               return (
                                 <div key={index} className='flex'>
                                   <p
@@ -325,36 +326,52 @@ export default function LogMessages() {
                                   >
                                     {creatureName}
                                   </p>
-                                  <span className='text-amber-100 mr-2'>,</span>
+                                  <span className='text-amber-100 mx-2'>
+                                    and
+                                  </span>{' '}
                                 </div>
                               );
-                            })}
-                        </span>
-                      </>
-                    ) : (
-                     messageObj.type === 'Game won' && (
+
+                            return (
+                              <div key={index} className='flex'>
+                                <p
+                                  className={`text-xl text-red-500 ${
+                                    creature.legendary
+                                      ? 'legendary-shimmer-log'
+                                      : 'text-red-500'
+                                  }`}
+                                >
+                                  {creatureName}
+                                </p>
+                                <span className='text-amber-100 mr-2'>,</span>
+                              </div>
+                            );
+                          })}
+                      </span>
+                    </>
+                  ) : (
+                    messageObj.type === 'Game won' && (
                       <>
-                      <span
-                        className={`
+                        <span
+                          className={`
                           text-green-500 text-lg
                           rounded-sm border-2 p-1 mr-2 
                           flex justify-items-center 
                         `}
-                      >
-                        <i class='ms ms-planeswalker ms-shadow'></i>
-                      </span>
-                      <span
-                        className={`${
-                          messageObj.winner !== 'Bot'
-                            ? 'text-blue-400'
-                            : 'text-red-500'
-                        } mr-2`}
-                      >
-                        {messageObj.winner}
-                      </span>
-                      won the game
-                    </>
-                     )
+                        >
+                          <i class='ms ms-planeswalker ms-shadow'></i>
+                        </span>
+                        <span
+                          className={`${
+                            messageObj.winner !== 'Bot'
+                              ? 'text-blue-400'
+                              : 'text-red-500'
+                          } mr-2`}
+                        >
+                          {messageObj.winner}
+                        </span>
+                        won the game
+                      </>
                     )
                   )}
                 </h2>
