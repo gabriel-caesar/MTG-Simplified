@@ -60,7 +60,8 @@ export default function DefendersWindow({
                   className='
                   flex justify-between items-center p-1 w-full border-2 h-10 rounded-md border-transparent hover:cursor-pointer hover:border-t-gray-900 hover:border-b-gray-900 [&>*:not(:last-child)]:mb-2 transition-all
                 '
-                  onClick={() => {
+                  onClick={(e) => {
+                    e.stopPropagation();
                     setButtonSound(!buttonSound);
                     populateDefenseDecisions(creature, attacker);
                   }}

@@ -28,6 +28,9 @@ export default function GameLog() {
     loadSpin,
     setLoadSpin,
     setGameState,
+    gameState,
+    setEndGameLog,
+    endGameLog,
   } = useContext(gameboardContext);
   const {
     battlePrep,
@@ -38,6 +41,7 @@ export default function GameLog() {
     appTheme,
     buttonSound,
     setButtonSound,
+    gameWonBy,
     setGameWonBy,
   } = useContext(globalContext);
 
@@ -66,12 +70,14 @@ export default function GameLog() {
     const handleClickOff = e => {
       if (
         logRef.current &&
-        !logRef.current.contains(e.target)) {
+        !logRef.current.contains(e.target) && !endGameLog) {
         setExpandLog(false);
       }
     }
 
-    window.addEventListener('click', handleClickOff);
+    if (!isBotAttacking) {
+      window.addEventListener('click', handleClickOff);
+    }
 
     return () => {
       window.removeEventListener('click', handleClickOff);
@@ -99,17 +105,19 @@ export default function GameLog() {
         aria-label='game-log-container'
       >
         <h1 className='fontUncial text-center'>
-          {battlePrep
-            ? 'The battle horn is blown...'
-            : isBotAttacking && !expandLog
-              ? 'Defending...'
-              : isBotAttacking
-                ? 'Bot is attacking, choose your defense!'
-                : isPlayerAttacking
-                  ? 'Attack Phase'
-                  : !playerPassedTurn
-                    ? `${player.name}'s turn`
-                    : `Bot's turn`}
+          {gameWonBy 
+            ? 'Game over' 
+            : battlePrep
+              ? 'The battle horn is blown...'
+              : isBotAttacking && !expandLog
+                ? 'Defending...'
+                : isBotAttacking
+                  ? 'Bot is attacking, choose your defense!'
+                  : isPlayerAttacking
+                    ? 'Attack Phase'
+                    : !playerPassedTurn
+                      ? `${player.name}'s turn`
+                      : `Bot's turn`}
         </h1>
         <button
           className={`
@@ -131,6 +139,11 @@ export default function GameLog() {
               setButtonSound(!buttonSound);
               setToEnlarge(''); // shrinks enlarged card if there is any
 
+              if (gameWonBy) {
+                // if it's opened, close it
+                if (expandLog) setEndGameLog(false);
+              }
+
               if (isBotAttacking) {
                 // player defends if bot's attacking
 
@@ -150,6 +163,7 @@ export default function GameLog() {
                   expandLog,
                   setGameWonBy,
                   setGameState,
+                  gameState,
                   gameTurn,
                 );
 

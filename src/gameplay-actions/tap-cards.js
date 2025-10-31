@@ -1,4 +1,6 @@
+import { uniqueId } from '../deck-management/utils';
 import { botDefends } from './bot';
+import { gameStateManager, gameStateUpdater } from './game-state-manager';
 
 // when competitor decides to attack/defend with a card
 export function tapCard(
@@ -75,7 +77,8 @@ export function playerAttacks(
   gameWonBy,
   setGameWonBy,
   setGameState,
-  gameState
+  gameState,
+  gameTurn
 ) {
   // if who's attacking is Bot
   const isBot = attacker.name === 'Bot';
@@ -83,27 +86,42 @@ export function playerAttacks(
   // tapping attacking card
   const updatedAttackingCard = tapCard(attacker, attackerDispatch, card, true, false);
 
-  // placeholder for the deploy state
-  // let turnState = null;
-  // const isThereState = gameState.some(
-  //   (state) => state.owner === competitor.name && state.turn === gameTurn
-  // );
+  // checking if there is a game log state for the current turn
+  const turnState = gameStateManager(gameState, gameTurn, attacker);
 
-  // if (!isThereState) {
-  //   // if there is no state yet created for this turn and competitor
-  //   // creating a log state for cards being deployed
-  //   turnState = {
-  //     turn: gameTurn,
-  //     log: [],
-  //     owner: competitor.name,
-  //     id: uniqueId(),
-  //   };
-  // } else {
-  //   // if there is a state, find it
-  //   turnState = gameState.find(
-  //     (state) => state.owner === competitor.name && state.turn === gameTurn
-  //   );
-  // }
+  // placeholder
+  let updatedGameState = gameState;
+
+  if (turnState) {
+
+    // if an attack log exists, update it instead of adding a duplicate
+    const existingAttackLog = turnState.log.find(l => l.type === 'Creature attack');
+    if (existingAttackLog) {
+      turnState.log = turnState.log.map((l) =>
+        l.type === 'Creature attack'
+          ? { ...l, details: { ...l.details, attackingCreatures: [ ...l.details.attackingCreatures, updatedAttackingCard ] } }
+          : l
+      );
+    } else {
+      turnState.log = [
+        {
+          id: uniqueId(),
+          type: 'Creature attack',
+          details: { attackingCreatures: [updatedAttackingCard] },
+        },
+        ...turnState.log,
+      ];
+    }
+    
+    // updating the game state
+    updatedGameState = gameStateUpdater(
+      gameState,
+      turnState,
+    );
+    setGameState(updatedGameState);
+  } else {
+    console.error(`Turn state not found for turn ${newTurn}.`);
+  }
 
   // bot defends
   if (!isBot)
@@ -115,8 +133,10 @@ export function playerAttacks(
       attackerDispatch,
       setToEnlarge,
       setOriginalToughness, 
-      gameWonBy, 
-      setGameWonBy
+      updatedGameState,
+      setGameState,
+      setGameWonBy,
+      gameTurn
     );
 }
 

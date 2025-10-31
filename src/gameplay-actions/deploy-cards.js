@@ -83,10 +83,7 @@ export function deployCreatureOrSpell(
       // updating the game state
       updatedGameState = gameStateUpdater(
         gameState,
-        competitor,
         turnState,
-        gameState,
-        gameTurn
       );
       setGameState(updatedGameState);
     } else {
@@ -109,12 +106,6 @@ export function deployOneMana(
 ) {
   // this function will return a brand new or an updated already existent game state
   let turnState = gameStateManager(gameState, gameTurn, competitor);
-  console.log('\n')
-  console.log('-----------------')
-  console.log('turnState:', turnState)
-  console.log('gameTurn:', gameTurn)
-  console.log('competitor:', competitor.name)
-  console.log('-----------------')
 
   // searches for a single mana card
   const manaToBeDeployed = competitor.hands.find((handCard) =>
@@ -159,11 +150,13 @@ export function deployOneMana(
     // updating the game state
     const updatedGameState = gameStateUpdater(
       gameState,
-      competitor,
       turnState,
-      gameState
     );
     setGameState(updatedGameState);
+    
+    // returning the most up to date game state so it 
+    // gets incremented along the recursive botPlays() calls
+    return updatedGameState;
   } else {
     console.error('Something went wrong with turnState');
   }

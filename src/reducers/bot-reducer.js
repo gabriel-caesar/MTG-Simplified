@@ -1,7 +1,7 @@
 // reducer function to purely change state (player)
 export default function botReducer(state, action) {
   switch (action.type) {
-    case 'create-player': // creates a brand new instance of player
+    case 'create-player': // creates a brand new instance of player 
       return {
         name: 'Bot',
         deck_name: '',
@@ -9,7 +9,7 @@ export default function botReducer(state, action) {
         deck_current_cards: 21,
         hands: [],
         mana_bar: [],
-        hp: 20,
+        hp: 1,
         battlefield: [],
         graveyard: [],
       };

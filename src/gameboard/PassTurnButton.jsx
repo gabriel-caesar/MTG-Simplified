@@ -4,12 +4,17 @@ import { globalContext } from '../contexts/global-context.js';
 import { botCardToAttack } from '../gameplay-actions/bot.js';
 import { tapCard } from '../gameplay-actions/tap-cards.js';
 import LoadingSpinner from './LoadingSpinner.jsx';
-import { useContext } from 'react';
+import { useContext, useState } from 'react';
 import {
   deployCreatureOrSpell,
   deployOneMana,
   deployPriority,
 } from '../gameplay-actions/deploy-cards.js';
+import {
+  gameStateManager,
+  gameStateUpdater,
+} from '../gameplay-actions/game-state-manager.js';
+import { uniqueId } from '../deck-management/utils.js';
 
 export default function PassTurnButton() {
   const {
@@ -22,6 +27,8 @@ export default function PassTurnButton() {
     setGameTurn,
     gameTurn,
     botRef,
+    playerRef,
+    botAttackingCards,
     setBotAttackingCards,
     isBotAttacking,
     setIsBotAttacking,
@@ -42,21 +49,48 @@ export default function PassTurnButton() {
     dispatchBot,
     setButtonSound,
     buttonSound,
+    gameWonBy,
   } = useContext(globalContext);
+
+  // defense mode for when the bot is under 10 of hp 
+  // and the player has creatures in his battlefield
+  const [defenseMode, setDefenseMode] = useState(false);
 
   // how many cards are allowed to be on the battlefield for each player
   const BATTLEFIELD_CARD_CAP = 6;
 
   // bot decisions recursive function
-  function botPlays(bot, hasDeployedMana = false, newTurn, gameState) {
+  function botPlays(bot, hasDeployedMana = false, newTurn, gameState, defenseMode) {
+    // will skip attack decisions if defense mode is on
+    // this placeholder will reflect the updated defense mode for the recursive calls
+    let updatedDefenseMode = defenseMode;
+    // condition checker if there still are creatures in the player's battlefield
+    const playerBattlefieldCreatures = player.battlefield.filter(c => c.power && c.toughness);
+
+    if (botRef.current.hp <= 10 && playerBattlefieldCreatures.length > 0) {
+      updatedDefenseMode = true;
+      setDefenseMode(updatedDefenseMode);
+    } else {
+      updatedDefenseMode = false;
+      setDefenseMode(updatedDefenseMode);
+    };
+
     // if there is mana in bot's hands and bot didn't deploy one mana yet, deploy it
     const isMana = bot.hands.find((card) => card.type.match(/land/i));
     if (isMana && !hasDeployedMana) {
-      deployOneMana(bot, dispatchBot, gameState, setGameState, gameTurn);
+      // returning the most up to date game state so it
+      // gets incremented along the recursive calls
+      const updatedGameState = deployOneMana(
+        bot,
+        dispatchBot,
+        gameState,
+        setGameState,
+        newTurn
+      );
 
       // wait for bot object to be updated
       setTimeout(() => {
-        botPlays(botRef.current, true, newTurn, gameState);
+        botPlays(botRef.current, true, newTurn, updatedGameState, updatedDefenseMode);
       }, 2000);
 
       return;
@@ -77,7 +111,7 @@ export default function PassTurnButton() {
 
       // wait for bot object to be updated
       setTimeout(() => {
-        botPlays(botRef.current, hasDeployedMana, newTurn, gameState);
+        botPlays(botRef.current, hasDeployedMana, newTurn, gameState, updatedDefenseMode);
       }, 2000);
       return;
     }
@@ -101,15 +135,16 @@ export default function PassTurnButton() {
       );
 
       // base condition, where there are no attackable cards left on the battlefield
-      if (attackableCards.length === 0) {
+      if (attackableCards.length === 0 || defenseMode) {
         // base condition, where there are no deployable cards left
         if (
           deployableCards.length === 0 ||
           botRef.current.battlefield.length === BATTLEFIELD_CARD_CAP
         ) {
           // if bot is attacking, turn the state true
-          if (botRef.current.battlefield.some((c) => c.attack))
+          if (botRef.current.battlefield.some((c) => c.attack)) {
             setIsBotAttacking(true);
+          }
           setGameTurn((prev) => prev + 1); // updates game turn count
           setPlayerPassedTurn(false); // end bot turn (passes turn)
           resetPlayerForNewTurn(
@@ -130,7 +165,8 @@ export default function PassTurnButton() {
       const cardToDeploy = deployPriority(deployableCards);
 
       // Step 6: Cards to attack with priority system
-      const cardToAttack = botCardToAttack(attackableCards);
+      // will get skipped if defense mode is on
+      const cardToAttack = !defenseMode ? botCardToAttack(attackableCards, defenseMode) : null;
 
       if (cardToDeploy && botRef.current.battlefield.length <= 5) {
         // if there is a card to deploy and battlefield space, call this function
@@ -145,9 +181,9 @@ export default function PassTurnButton() {
 
         // // wait for bot object to be updated
         setTimeout(() => {
-          botPlays(botRef.current, hasDeployedMana, newTurn, updatedGameState);
+          botPlays(botRef.current, hasDeployedMana, newTurn, updatedGameState, updatedDefenseMode);
         }, 2000);
-      } else if (cardToAttack) {
+      } else if (cardToAttack) { // will get skipped if defense mode is on
         // else if was added in order to prevent dispatch overlap,
         // which was disabling the bot's ability to deploy creatures
         // due to event loop and mess up of the call stack under the hood
@@ -161,12 +197,52 @@ export default function PassTurnButton() {
           false
         );
 
-        // appending the most updated card that's attacking inside the array
-        setBotAttackingCards((prev) => [...prev, updatedAttackingCard]);
+        // placeholder
+        let updatedBotAttackingCards = botAttackingCards;
 
-        // // wait for bot object to be updated
+        // appending the most updated card that's attacking inside the array
+        setBotAttackingCards((prev) => {
+          updatedBotAttackingCards = [...prev, updatedAttackingCard];
+          return updatedBotAttackingCards
+        });
+
+        // checking if there is a game log state for the current turn
+        const turnState = gameStateManager(gameState, newTurn, botRef.current);
+
+        if (turnState) {
+
+          // if an attack log exists, update it instead of adding a duplicate
+          const existingAttackLog = turnState.log.find(l => l.type === 'Creature attack');
+          if (existingAttackLog) {
+            turnState.log = turnState.log.map((l) =>
+              l.type === 'Creature attack'
+                ? { ...l, details: { ...l.details, attackingCreatures: updatedBotAttackingCards } }
+                : l
+            );
+          } else {
+            turnState.log = [
+              {
+                id: uniqueId(),
+                type: 'Creature attack',
+                details: { attackingCreatures: updatedBotAttackingCards },
+              },
+              ...turnState.log,
+            ];
+          }
+          
+          // updating the game state
+          const updatedGameState = gameStateUpdater(
+            gameState,
+            turnState,
+          );
+          setGameState(updatedGameState);
+        } else {
+          console.error(`Turn state not found for turn ${newTurn}.`);
+        }
+
+        // wait for bot object to be updated
         setTimeout(() => {
-          botPlays(botRef.current, hasDeployedMana, newTurn, gameState);
+          botPlays(botRef.current, hasDeployedMana, newTurn, gameState, updatedDefenseMode);
         }, 200);
       }
     }, 100);
@@ -198,7 +274,7 @@ export default function PassTurnButton() {
 
     // bot plays
     setTimeout(() => {
-      botPlays(botRef.current, false, newTurn, gameState);
+      botPlays(botRef.current, false, newTurn, gameState, defenseMode);
     }, 100);
   }
 
@@ -321,7 +397,7 @@ export default function PassTurnButton() {
         rounded-sm text-lg font-bold p-2 border-2 inset-shadow-button transition-colors 
         ${toEnlarge === '' || toEnlarge === null ? 'z-5' : 'z-3'}
         ${
-          playerPassedTurn || isBotAttacking || isPlayerAttacking
+          playerPassedTurn || isBotAttacking || isPlayerAttacking || gameWonBy
             ? 'bg-gray-500'
             : 'bg-amber-300'
         }
@@ -329,15 +405,15 @@ export default function PassTurnButton() {
       id='pass-turn-btn'
       aria-label='pass-turn-btn'
       disabled={
-        playerPassedTurn || isBotAttacking || isPlayerAttacking ? true : false
+        playerPassedTurn || isBotAttacking || isPlayerAttacking || gameWonBy ? true : false
       }
     >
       {playerPassedTurn ||
       isPlayerAttacking ||
       (isBotAttacking && !expandLog) ? (
         <LoadingSpinner />
-      ) : (
-        'Pass Turn'
+      ) :  (
+        gameWonBy ? 'Game over' : 'Pass Turn'
       )}
     </button>
   );

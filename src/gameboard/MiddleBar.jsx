@@ -18,13 +18,13 @@ export default function MiddleBar({
     battlePrep,
   } = useContext(globalContext);
 
-  const { toEnlarge } = useContext(gameboardContext)
+  const { toEnlarge, endGameLog } = useContext(gameboardContext)
 
   return (
     <div
       id='middle-bar-separator'
       className={`
-        ${toEnlarge === '' || toEnlarge === null ? 'z-5' : 'z-3'}
+        ${endGameLog ? 'z-20' : toEnlarge === '' || toEnlarge === null ? 'z-5' : 'z-3'}
         ${battlePrep ? 'justify-center' : 'justify-between'}
         w-full absolute top-1/2 -translate-y-1/2
         flex items-center 
@@ -67,7 +67,7 @@ function SettingsButton({
 
   return (
     <button
-      className='active:bg-amber-300/60 z-3 bg-amber-300 rounded-sm text-3xl font-bold p-2 border-2 transition-all inset-shadow-button'
+      className={`active:bg-amber-300/60 z-3 rounded-sm text-3xl font-bold p-2 border-2 transition-all inset-shadow-button ${gameWonBy ? 'bg-gray-500' : 'bg-amber-300'}`}
       id='settings-btn'
       aria-label='settings-btn'
       disabled={gameWonBy !== '' ? true : false}

@@ -106,7 +106,8 @@ export default function DefenseDecisions({ battlefieldCopy, setBattlefieldCopy }
                       aria-label='reset-defendant-button'
                       className='ml-2 inset-shadow-button rounded-sm p-1 bg-amber-300 text-gray-900 border-2 hover:cursor-pointer transition-all mr-2'
                       disabled={gameWonBy !== '' ? true : false}
-                      onClick={() => {
+                      onClick={(e) => {
+                        e.stopPropagation();
                         setButtonSound(!buttonSound);
                         undoDefendant(card, playerDefenseDecisions.find(
                           (obj) => obj.attackerInstanceId === card.instanceId

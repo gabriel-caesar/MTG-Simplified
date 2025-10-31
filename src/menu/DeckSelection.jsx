@@ -22,7 +22,7 @@ export default function DeckSelection({ player, goBack, handleDeckSelection }) {
         id='decksWrapper'
       >
         <div
-          className='active:opacity-50 border-2 flex flex-col justify-start w-50 h-55 bg-blue-200 rounded-sm transition-colors relative'
+          className='active:brightness-50 border-2 flex flex-col justify-start w-50 h-55 bg-blue-200 rounded-sm transition-all relative'
           id='angel-deck-box'
           onClick={() => {
             setButtonSound(!buttonSound);
@@ -45,7 +45,7 @@ export default function DeckSelection({ player, goBack, handleDeckSelection }) {
         </div>
 
         <div
-          className='active:opacity-50 border-2 flex flex-col justify-start w-50 h-55 bg-blue-200 rounded-sm transition-colors relative'
+          className='active:brightness-50 border-2 flex flex-col justify-start w-50 h-55 bg-blue-200 rounded-sm transition-all relative'
           id='human-deck-box'
           onClick={() => {
             setButtonSound(!buttonSound);
@@ -68,7 +68,7 @@ export default function DeckSelection({ player, goBack, handleDeckSelection }) {
         </div>
 
         <div
-          className='active:opacity-50 border-2 flex flex-col justify-start mr-1.5 w-50 h-55 bg-blue-200 rounded-sm transition-colors relative'
+          className='active:brightness-50 border-2 flex flex-col justify-start mr-1.5 w-50 h-55 bg-blue-200 rounded-sm transition-all relative'
           id='vile-deck-box'
           onClick={() => {
             setButtonSound(!buttonSound);
@@ -93,7 +93,7 @@ export default function DeckSelection({ player, goBack, handleDeckSelection }) {
 
       <button
         id='back-btn'
-        className={`active:opacity-50 bg-amber-300 rounded-sm text-3xl font-bold p-2 border-2 transition-colors mt-8`}
+        className={`active:brightness-50 bg-amber-300 rounded-sm text-3xl font-bold p-2 border-2 transition-all mt-8`}
         onClick={() => {
           setButtonSound(!buttonSound);
           goBack(true, false);

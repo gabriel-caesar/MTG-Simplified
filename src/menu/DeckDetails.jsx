@@ -103,7 +103,7 @@ export default function DeckDetails({ deck, goBack, toBattle }) {
       <div className='flex items-center justify-center mt-4' id='btn-wrapper'>
         <button
           id='back-btn'
-          className={`active:opacity-50 bg-amber-300 rounded-sm text-3xl font-bold p-2 border-2 transition-colors mr-4`}
+          className={`active:brightness-50 bg-amber-300 rounded-sm text-3xl font-bold p-2 border-2 transition-colors mr-4`}
           onClick={() => {
             setButtonSound(!buttonSound);
             goBack(false, true);
@@ -113,7 +113,7 @@ export default function DeckDetails({ deck, goBack, toBattle }) {
         </button>
         <button
           id='back-btn'
-          className={`active:opacity-50 bg-amber-300 rounded-sm text-3xl font-bold p-2 border-2 transition-colors`}
+          className={`active:brightness-50 bg-amber-300 rounded-sm text-3xl font-bold p-2 border-2 transition-colors`}
           onClick={() => {
             setButtonSound(!buttonSound);
             toBattle(deck);

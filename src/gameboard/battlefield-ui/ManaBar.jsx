@@ -1,4 +1,4 @@
-import { useContext, useEffect, useState } from 'react';
+import { useContext, useEffect, useRef, useState } from 'react';
 import {
   isEnoughMana,
   activateMana,
@@ -65,18 +65,18 @@ function WideScreen({ competitor, dispatch }) {
               ? true
               : false
           }
-          onClick={() => {
+          onClick={(e) => {
+            e.stopPropagation();
             const hasUnactivatedMana = competitor.mana_bar.some(
               (mana) => !mana.activated && !mana.used
             );
             setManaSound(!manaSound);
             if (hasUnactivatedMana) {
               const updatedManabar = activateAllManas(competitor, dispatch);
-              console.log(updatedManabar)
-              isEnoughMana(competitor, dispatch, updatedManabar)
+              isEnoughMana(competitor, dispatch, updatedManabar);
             } else {
               const updatedManabar = deactivateAllManas(competitor, dispatch);
-              isEnoughMana(competitor, dispatch, updatedManabar)
+              isEnoughMana(competitor, dispatch, updatedManabar);
             }
           }}
         >
@@ -114,9 +114,15 @@ function WideScreen({ competitor, dispatch }) {
               }`}
               id='mana-btn'
               aria-label='mana-btn'
-              onClick={() => {
+              onClick={(e) => {
+                e.stopPropagation();
                 if (!isBot) {
-                  const updatedManaBar = activateMana(card, index, competitor, dispatch);
+                  const updatedManaBar = activateMana(
+                    card,
+                    index,
+                    competitor,
+                    dispatch
+                  );
                   isEnoughMana(competitor, dispatch, updatedManaBar); // updates if there is enough mana for cards in hand
                   setManaSound(!manaSound);
                 }
@@ -162,27 +168,48 @@ function NarrowScreen({ competitor, dispatch }) {
   // how many unsed and unactivated manas there are
   const [availabeManas, setAvailableManas] = useState(0);
 
+  // references the mana bar container
+  const manaBarRef = useRef(null);
+
   // updating the available and activated mana states promptly
   useEffect(() => {
+    const available = competitor.mana_bar
+      .map((mana) => {
+        if (!mana.activated && !mana.used) return mana;
+      })
+      .filter((x) => x !== undefined);
 
-    const available = competitor.mana_bar.map(mana => {
-      if (!mana.activated && !mana.used) return mana
-    }).filter(x => x !== undefined);
-
-    const activated = competitor.mana_bar.map(mana => {
-      if (mana.activated) return mana
-    }).filter(x => x !== undefined);
+    const activated = competitor.mana_bar
+      .map((mana) => {
+        if (mana.activated) return mana;
+      })
+      .filter((x) => x !== undefined);
 
     setActivatedManas(activated.length);
     setAvailableManas(available.length);
+  }, [competitor.mana_bar]);
 
-  }, [competitor.mana_bar])
+  // handles the mouse click off the mana bar area, so it will close it
+  useEffect(() => {
+    const handleClickOff = (e) => {
+      if (manaBarRef.current && !manaBarRef.current.contains(e.target)) {
+        setOpenManaBar(false);
+      }
+    };
+
+    window.addEventListener('click', handleClickOff);
+
+    return () => {
+      window.removeEventListener('click', handleClickOff);
+    };
+  }, [openManaBar]);
 
   // condition if the manabar is for Bot
   const isBot = competitor.name === 'Bot';
 
   return (
     <div
+      ref={manaBarRef}
       id='mana-bar-wrapper-narrow-screen'
       className={`
         ${!isBot ? 'bottom-0 items-end' : 'top-0 items-start'} 
@@ -190,15 +217,19 @@ function NarrowScreen({ competitor, dispatch }) {
         absolute left-1/2 -translate-x-1/2 xl:hidden flex
       `}
     >
-      <div 
-        id="mana-count"
+      <div
+        id='mana-count'
         className={`
-          ${isBot ? 'rounded-bl-md border-t-0 border-r-0 items-end' : 'rounded-tl-md border-b-0 border-r-0 items-end'}
+          ${
+            isBot
+              ? 'rounded-bl-md border-t-0 border-r-0 items-end'
+              : 'rounded-tl-md border-b-0 border-r-0 items-end'
+          }
           bg-gradient-to-bl from-blue-700 to-gray-900 text-3xl font-bold border-2 overflow-hidden
           transition-all duration-400 text-amber-400 p-1 h-8 flex justify-center
         `}
       >
-        <p 
+        <p
           className={`
             transition-all duration-600 text-sm mr-1
             ${
@@ -225,7 +256,8 @@ function NarrowScreen({ competitor, dispatch }) {
           p-1 border-2 border-amber-400 transition-all duration-300 relative h-12  
           bg-gradient-to-bl from-blue-700 to-gray-900 flex items-center 
         `}
-        onClick={() => {
+        onClick={(e) => {
+          e.stopPropagation();
           setOpenManaBar(competitor.name);
         }}
       >
@@ -273,9 +305,15 @@ function NarrowScreen({ competitor, dispatch }) {
                 `}
               id='mana-btn'
               aria-label='mana-btn'
-              onClick={() => {
+              onClick={(e) => {
+                e.stopPropagation();
                 if (!isBot) {
-                  const updatedManaBar = activateMana(card, index, competitor, dispatch);
+                  const updatedManaBar = activateMana(
+                    card,
+                    index,
+                    competitor,
+                    dispatch
+                  );
                   isEnoughMana(competitor, dispatch, updatedManaBar); // updates if there is enough mana for cards in hand
                   setManaSound(!manaSound);
                 }
@@ -321,13 +359,10 @@ function NarrowScreen({ competitor, dispatch }) {
           )}
         </span>
       </div>
-      <div 
-        id="activated-mana-close-bar-wrapper"
-        className='flex flex-col'
-      >
-        <button 
-          id="close-mana-bar"
-          aria-label="close-mana-bar"
+      <div id='activated-mana-close-bar-wrapper' className='flex flex-col'>
+        <button
+          id='close-mana-bar'
+          aria-label='close-mana-bar'
           onClick={(e) => {
             e.stopPropagation();
             setOpenManaBar('');
@@ -346,16 +381,20 @@ function NarrowScreen({ competitor, dispatch }) {
           <IoMdClose />
         </button>
 
-        <div 
-          id="activated-mana-count"
+        <div
+          id='activated-mana-count'
           className={`
-            ${isBot ? 'rounded-br-md border-t-0 border-l-0 items-end' : 'rounded-tr-md border-b-0 border-l-0 items-end order-1'}
+            ${
+              isBot
+                ? 'rounded-br-md border-t-0 border-l-0 items-end'
+                : 'rounded-tr-md border-b-0 border-l-0 items-end order-1'
+            }
             bg-gradient-to-bl from-red-700 to-gray-900 text-3xl font-bold border-2
             transition-all duration-400 text-amber-400 p-1 h-8 flex justify-center overflow-hidden
           `}
         >
           {activatedManas}
-          <p 
+          <p
             className={`
               transition-all duration-600 text-sm ml-1
               ${
@@ -368,9 +407,8 @@ function NarrowScreen({ competitor, dispatch }) {
             Activated
           </p>
         </div>
-        
       </div>
-      
+
       {!isBot && (
         <button
           className={`
@@ -387,24 +425,24 @@ function NarrowScreen({ competitor, dispatch }) {
               ? true
               : false
           }
-          onClick={() => {
+          onClick={(e) => {
+            e.stopPropagation();
             const hasUnactivatedMana = competitor.mana_bar.some(
               (mana) => !mana.activated && !mana.used
             );
             setManaSound(!manaSound);
             if (hasUnactivatedMana) {
               const updatedManabar = activateAllManas(competitor, dispatch);
-              isEnoughMana(competitor, dispatch, updatedManabar)
+              isEnoughMana(competitor, dispatch, updatedManabar);
             } else {
               const updatedManabar = deactivateAllManas(competitor, dispatch);
-              isEnoughMana(competitor, dispatch, updatedManabar)
+              isEnoughMana(competitor, dispatch, updatedManabar);
             }
           }}
         >
           <SiElement />
         </button>
       )}
-
     </div>
   );
 }

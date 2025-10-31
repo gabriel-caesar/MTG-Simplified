@@ -1,9 +1,10 @@
 import { useContext } from 'react';
 import { globalContext } from '../../contexts/global-context';
+import { gameboardContext } from '../../contexts/gameboard-context';
 
-export default function GameWonBySign({ liftWoodenSign, handleQuit}) {
-
+export default function GameWonBySign({ liftWoodenSign, handleQuit }) {
   const { buttonSound, setButtonSound, gameWonBy } = useContext(globalContext);
+  const { setEndGameLog, setExpandLog } = useContext(gameboardContext);
 
   return (
     <div
@@ -20,9 +21,7 @@ export default function GameWonBySign({ liftWoodenSign, handleQuit}) {
     >
       <div
         className='absolute w-100 h-60 top-50 z-6 flex flex-col justify-center items-center'
-        id={`${
-          gameWonBy !== 'Bot' ? 'victoryWoodenSign' : 'defeatWoodenSign'
-        }`}
+        id={`${gameWonBy !== 'Bot' ? 'victoryWoodenSign' : 'defeatWoodenSign'}`}
       >
         <h1
           className='text-amber-400 text-2xl fontUncial mt-10'
@@ -35,15 +34,20 @@ export default function GameWonBySign({ liftWoodenSign, handleQuit}) {
         </h1>
 
         <button
-          className='active:opacity-50 bg-amber-300 rounded-sm text-lg my-2 font-bold px-2 w-60 border-2 transition-colors inset-shadow-button'
+          className='active:brightness-50 bg-amber-300 rounded-sm text-lg my-2 font-bold px-2 w-60 border-2 transition-colors inset-shadow-button'
           id='open-log-button'
           aria-label='open-log-button'
+          onClick={() => {
+            setButtonSound(!buttonSound);
+            setEndGameLog(true);
+            setExpandLog(true)
+          }}
         >
           Open Game Log
         </button>
 
         <button
-          className='active:opacity-50 bg-amber-300 rounded-sm text-lg font-bold px-2 w-60 border-2 transition-colors inset-shadow-button'
+          className='active:brightness-50 bg-amber-300 rounded-sm text-lg font-bold px-2 w-60 border-2 transition-colors inset-shadow-button'
           id='return-menu-button'
           aria-label='return-menu-button'
           onClick={() => {
@@ -56,5 +60,5 @@ export default function GameWonBySign({ liftWoodenSign, handleQuit}) {
       </div>
       <div className='absolute -top-50' id='vertical-chains'></div>
     </div>
-  )
+  );
 }

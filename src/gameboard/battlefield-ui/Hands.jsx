@@ -48,12 +48,18 @@ export default function Hands({ competitor, dispatch }) {
   useEffect(() => {
 
     const handleClickOff = e => {
+
+      // will close only the card preview
       if (
         cardRef.current &&
         handsRef.current &&
         !cardRef.current.contains(e.target) &&
         !handsRef.current.contains(e.target)) {
         setCardBeingClicked('');
+      }
+
+      if (handsRef.current && !handsRef.current.contains(e.target)) {
+        setOpenHands(false);
       }
     }
 
@@ -63,7 +69,7 @@ export default function Hands({ competitor, dispatch }) {
       window.removeEventListener('click', handleClickOff);
     };
 
-  }, [cardBeingClicked])
+  }, [cardBeingClicked, openHands])
 
   return (
     <div
@@ -83,7 +89,8 @@ export default function Hands({ competitor, dispatch }) {
           active:opacity-50 bg-gray-900 absolute h-8.5 flex items-center justify-center right-0 border-2 border-black text-amber-400 text-2xl hover:cursor-pointer hover:bg-amber-400 hover:text-black transition-colors
         `}
         id='drawer-knob'
-        onClick={() => {
+        onClick={(e) => {
+          e.stopPropagation()
           if (!isPlayerAttacking) {
             // if player is attacking disable the button
             setButtonSound(!buttonSound);
@@ -142,7 +149,8 @@ export default function Hands({ competitor, dispatch }) {
                     ? true
                     : false
               }
-              onClick={() => {
+              onClick={(e) => {
+                e.stopPropagation()
                 // if clicked in an already selected card, unselect it
                 setCardBeingClicked(cardBeingClicked !== card ? card : '');
                 setCardSound(!cardSound);

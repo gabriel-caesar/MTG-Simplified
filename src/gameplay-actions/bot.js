@@ -1,3 +1,5 @@
+import { gameStateManager, gameStateUpdater } from './game-state-manager';
+import { uniqueId } from '../deck-management/utils';
 import { tapCard } from './tap-cards';
 
 // when player attacks, this function is triggered
@@ -8,11 +10,17 @@ export function botDefends(
   player,
   dispatchPlayer,
   setToEnlarge,
-  setOriginalToughness, 
-  gameWonBy, 
-  setGameWonBy
+  setOriginalToughness,
+  gameState,
+  setGameState,
+  setGameWonBy,
+  gameTurn,
+  
 ) {
+  // better readability
   const battlefield = bot.battlefield;
+  // this function will return a brand new or an updated already existent game state
+  let turnState = gameStateManager(gameState || [], gameTurn, bot);
 
   // checking for existing regular creatures
   const areRegularCreatures = battlefield.some(
@@ -32,7 +40,14 @@ export function botDefends(
   // priority conditions
   if (areRegularCreatures) {
     const toughnessValues = battlefield
-      .filter((c) => c.toughness && !c.legendary && !c.attack && !c.defend && !c.summoningSickness)
+      .filter(
+        (c) =>
+          c.toughness &&
+          !c.legendary &&
+          !c.attack &&
+          !c.defend &&
+          !c.summoningSickness
+      )
       .map((c) => c.toughness);
 
     toughest = toughnessValues.length > 0 ? Math.max(...toughnessValues) : null;
@@ -43,7 +58,14 @@ export function botDefends(
       );
   } else if (areLegendaryCreatures) {
     const toughnessValues = battlefield
-      .filter((c) => c.toughness && c.legendary && !c.attack && !c.defend && !c.summoningSickness)
+      .filter(
+        (c) =>
+          c.toughness &&
+          c.legendary &&
+          !c.attack &&
+          !c.defend &&
+          !c.summoningSickness
+      )
       .map((c) => c.toughness);
 
     toughest = toughnessValues.length > 0 ? Math.max(...toughnessValues) : null;
@@ -62,11 +84,79 @@ export function botDefends(
         payload: updatedBotHP,
       });
 
+      // game state placeholder
+      let updatedGameState = gameState;
+
+      if (turnState) {
+
+        // if there is already a bot damage log
+        const existingAttackLog = turnState.log.find(l => l.type === 'Take damage on HP');
+
+        // attacker card details -- to be considered in a later patch --
+        const attackerCardDetails = {
+          name: attackerCard.name,
+          power: attackerCard.power,
+          toughness: attackerCard.toughness,
+          instanceId: attackerCard.instanceId,
+        }
+
+        // add to details
+        if (existingAttackLog) {
+          turnState.log = turnState.log.map((l) =>
+            // update the totalDamage
+            l.type === 'Take damage on HP'
+              ? { 
+                ...l,
+                totalDamage: parseInt(l.totalDamage) + parseInt(attackerCard.power),
+                competitorHP: updatedBotHP,
+                details: [ ...l.details, attackerCardDetails ] ,
+              }
+              : l
+          );
+        } else { // populate totalDamage and details from scratch
+          turnState.log = [
+            {
+              id: uniqueId(),
+              type: 'Take damage on HP',
+              totalDamage: attackerCard.power,
+              competitorHP: updatedBotHP,
+              details: [attackerCardDetails],
+            },
+            ...turnState.log,
+          ];
+        }
+
+        // updating the game state
+        updatedGameState = gameStateUpdater(
+          gameState,
+          turnState,
+        );
+        setGameState(updatedGameState);
+
+      }
+
       // if player killed bot
       if (updatedBotHP <= 0) {
         setGameWonBy(player.name);
+        turnState.log = [
+          {
+            id: uniqueId(),
+            type: 'Game won',
+            winner: player.name,
+            competitorHP: updatedBotHP,
+          },
+          ...turnState.log
+        ]
+
+        // updating the game state
+        updatedGameState = gameStateUpdater(
+          gameState,
+          turnState,
+        );
+        setGameState(updatedGameState);
         return; // terminate function execution
       }
+
     }, 2000);
     return;
   }
@@ -157,6 +247,26 @@ export function botDefends(
       ]);
     }
 
+    // if there is a defender card, we register the creature clash
+    turnState.log = [
+      {
+        id: uniqueId(),
+        type: 'Creature clash',
+        details: {
+          attacker: attackerCard,
+          defender: defender,
+        }
+      },
+      ...turnState.log,
+    ]
+
+    // updating the game state
+    const updatedGameState = gameStateUpdater(
+      gameState,
+      turnState,
+    );
+    setGameState(updatedGameState);
+
     // dispatching the update
     dispatchBot({
       type: 'card_died',
@@ -218,7 +328,9 @@ export function botCardToAttack(attackableCards) {
 
   if (legendaryCreatures.length > 0) {
     // take the max out of an array full of legendary creature power values
-    const legendaryPower = Math.max(...legendaryCreatures.map((card) => Number(card.power)));
+    const legendaryPower = Math.max(
+      ...legendaryCreatures.map((card) => Number(card.power))
+    );
 
     // find that most powerful legendary creature
     mostPowerfulLegendaryCreature = legendaryCreatures.find(
@@ -230,15 +342,19 @@ export function botCardToAttack(attackableCards) {
   const regularCreatures = attackableCards.filter(
     (card) => card.type.match(/creature/i) && !card.legendary
   );
-  
+
   if (regularCreatures.length > 0) {
     // take the max out of an array full of regular creature power values
-    const creaturePower = Math.max(...regularCreatures.map(card => Number(card.power)));
+    const creaturePower = Math.max(
+      ...regularCreatures.map((card) => Number(card.power))
+    );
 
     // find that most powerful regular creature
-    mostPowerfulCreature = regularCreatures.find(creature => creature.power == creaturePower);
+    mostPowerfulCreature = regularCreatures.find(
+      (creature) => creature.power == creaturePower
+    );
   }
-  
+
   // Priority 3: Spells
   const spells = attackableCards.filter(
     (card) => !card.type.match(/creature/i) && !card.type.match(/land/i)

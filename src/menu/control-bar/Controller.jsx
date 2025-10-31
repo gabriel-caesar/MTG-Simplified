@@ -22,8 +22,16 @@ export default function Controller({
       `}
       id='controller-container'
     >
-      <div className={`${(soundControl || musicControl) ? 'h-15' : themeControl ? 'h-35' : 'h-0'} flex flex-col justify-center items-center transition-all duration-300`}>
-        <div className={`${musicControl ? 'opacity-100' : 'opacity-0 absolute -top-100'} transition-all duration-900`}>
+      <div
+        className={`${
+          soundControl || musicControl ? 'h-15' : themeControl ? 'h-35' : 'h-0'
+        } flex flex-col justify-center items-center transition-all duration-300`}
+      >
+        <div
+          className={`${
+            musicControl ? 'opacity-100' : 'opacity-0 absolute -top-100'
+          } transition-all duration-900`}
+        >
           <p className='fontCizel text-center'>Music Volume</p>
           <input
             type='range'
@@ -31,13 +39,18 @@ export default function Controller({
             max='1'
             step='0.01'
             value={themeSongVolumeController}
-            onChange={(e) =>
-              setThemeSongVolumeController(parseFloat(e.target.value))
-            }
+            onChange={(e) => {
+              e.stopPropagation();
+              setThemeSongVolumeController(parseFloat(e.target.value));
+            }}
           />
         </div>
 
-        <div className={`${soundControl ? 'opacity-100' : 'opacity-0 absolute -top-100'} transition-all duration-900`}>
+        <div
+          className={`${
+            soundControl ? 'opacity-100' : 'opacity-0 absolute -top-100'
+          } transition-all duration-900`}
+        >
           <p className='fontCizel text-center'>Sound Volume</p>
           <input
             type='range'
@@ -45,17 +58,23 @@ export default function Controller({
             max='1'
             step='0.01'
             value={soundFXVolumeController}
-            onChange={(e) =>
-              setSoundFXVolumeController(parseFloat(e.target.value))
-            }
+            onChange={(e) => {
+              e.stopPropagation();
+              setSoundFXVolumeController(parseFloat(e.target.value));
+            }}
           />
         </div>
 
-        <div className={`${themeControl ? 'opacity-100' : 'opacity-0 absolute -top-100'} transition-all duration-900`}>
+        <div
+          className={`${
+            themeControl ? 'opacity-100' : 'opacity-0 absolute -top-100'
+          } transition-all duration-900`}
+        >
           <p className='text-center fontCizel'>Themes</p>
 
           <button
-            onClick={() => {
+            onClick={(e) => {
+              e.stopPropagation();
               setButtonSound(!buttonSound);
               setAppTheme('forest');
             }}
@@ -64,7 +83,8 @@ export default function Controller({
             Forest
           </button>
           <button
-            onClick={() => {
+            onClick={(e) => {
+              e.stopPropagation();
               setButtonSound(!buttonSound);
               setAppTheme('vile');
             }}
@@ -73,7 +93,8 @@ export default function Controller({
             Vile
           </button>
           <button
-            onClick={() => {
+            onClick={(e) => {
+              e.stopPropagation();
               setButtonSound(!buttonSound);
               setAppTheme('heaven');
             }}

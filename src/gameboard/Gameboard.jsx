@@ -25,6 +25,9 @@ export default function Gameboard({
     bot,
     gameWonBy,
     setGameWonBy,
+    startWebPage,
+    soundFXVolumeController,
+    setSoundFXVolumeController,
   } = useContext(globalContext);
 
   // opens the menu from clicking the cog button
@@ -93,6 +96,12 @@ export default function Gameboard({
   // opens the mana bar for the narrow screen mana bar
   const [openManaBar, setOpenManaBar] = useState('');
 
+  // shows the game log when the games end if toggled on
+  const [endGameLog, setEndGameLog] = useState(false);
+
+  // stores the enlarging battlefield card sound effect
+  const toEnlargeSoundRef = useRef(null);
+
   // function to reverse the component to deck selection
   function handleQuit() {
     setLiftWoodenSign(liftWoodenSign ? false : true); // lift the wooden sign
@@ -150,7 +159,20 @@ export default function Gameboard({
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [cardBeingClicked]);
 
+  // plays a sound when a card from the battlefield gets enlarged
+  useEffect(() => {
+    toEnlargeSoundRef.current = new Audio(`../../soundfxs/${toEnlarge ? 'to-shrink-sound' : 'to-enlarge-sound'}.mp3`);
+
+    if (toEnlargeSoundRef.current.volume && startWebPage) {
+      toEnlargeSoundRef.current.volume = battlePrep ? 0 : soundFXVolumeController;
+      toEnlargeSoundRef.current.currentTime = 0;
+      toEnlargeSoundRef.current.play();
+    }
+  }, [toEnlarge])
+
   const values = {
+    endGameLog,
+    setEndGameLog,
     expandLog,
     setExpandLog,
     cardBeingClicked,
@@ -168,6 +190,7 @@ export default function Gameboard({
     gameTurn,
     setGameTurn,
     botRef,
+    playerRef,
     botAttackingCards,
     setBotAttackingCards,
     playerDefenseDecisions,

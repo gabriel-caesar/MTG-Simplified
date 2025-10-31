@@ -59,7 +59,8 @@ export default function ControlBar({
       >
         <button
           className={`${musicControl ? 'border-black' : 'border-transparent'} active:opacity-50 hover:cursor-pointer border-2 rounded-sm hover:text-gray-300 hover:border-black p-1 transition-colors`}
-          onClick={() => {
+          onClick={(e) => {
+            e.stopPropagation();
             setButtonSound(!buttonSound);
             setMusicControl(!musicControl);
             setThemeControl(false);
@@ -70,7 +71,8 @@ export default function ControlBar({
         </button>
         <button
           className={`${themeControl ? 'border-black' : 'border-transparent'} active:opacity-50 hover:cursor-pointer border-2 rounded-sm hover:text-gray-300 hover:border-black p-1 transition-colors`}
-          onClick={() => {
+          onClick={(e) => {
+            e.stopPropagation();
             setButtonSound(!buttonSound);
             setThemeControl(!themeControl);
             setMusicControl(false);
@@ -81,7 +83,8 @@ export default function ControlBar({
         </button>
         <button
           className={`${soundControl ? 'border-black' : 'border-transparent'} active:opacity-50 hover:cursor-pointer border-2 rounded-sm hover:text-gray-300  hover:border-black p-1 transition-colors`}
-          onClick={() => {
+          onClick={(e) => {
+            e.stopPropagation();
             setButtonSound(!buttonSound);
             setSoundControl(!soundControl);
             setThemeControl(false);

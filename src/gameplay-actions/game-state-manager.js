@@ -26,21 +26,15 @@ export function gameStateManager(gameState, gameTurn, competitor) {
   return turnState;
 }
 
-// why overcomplicate this, right? I ran into the asynchronous problem with React batching updates
-// and making botPlays(), which is an expensive call stack, work with old gameState data, so
-// now I will update the state with this idea and return the uptaded gameState with the parent function
-// and when botPlays() call itself again in the call stack, it will have the most up to date gameState
-// appending one more log to the existing turnState, therefore not duplicating a state bubble in the game log
+// updates the turn state with new logs
 export function gameStateUpdater(
   prev,
-  competitor,
   turnState,
-  gameState,
-  gameTurn
 ) {
-  // is there an existing state already?
-  const isThereState = gameState.some(
-    (state) => state.owner === competitor.name && state.turn === gameTurn
+
+  // checking for the existing state
+  const isThereState = prev.some(
+    (state) => state.id === turnState.id
   );
 
   if (isThereState) {

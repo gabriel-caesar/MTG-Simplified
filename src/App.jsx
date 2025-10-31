@@ -214,6 +214,8 @@ function App() {
     allDecks,
     gameWonBy,
     setGameWonBy,
+    soundFXVolumeController,
+    setSoundFXVolumeController,
   };
 
   return (

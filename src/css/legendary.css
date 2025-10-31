@@ -1,16 +1,32 @@
 .legendary-shimmer {
-    font-style: bold;
-    background: linear-gradient(
-        to right, #1E90FF, #8A2BE2, #0A0A0A, #FFD700
-    );
-    background-size: 200%;
-    background-clip: text;
-    -webkit-text-fill-color: transparent;
-    animation: shimmer 2s linear infinite;
+  font-style: bold;
+  background: linear-gradient(to right, #1e90ff, #8a2be2, #0a0a0a, #ffd700);
+  background-size: 200%;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+  animation: shimmer 2s linear infinite;
+}
+
+.legendary-shimmer-log {
+  font-style: bold;
+  background: linear-gradient(
+    to right,
+    #ff005e,
+    #ff9900,
+    #ffee00,
+    #33ff00,
+    #00ffff,
+    #0077ff,
+    #cc00ff
+  );
+  background-size: 200%;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+  animation: shimmer 2s linear infinite;
 }
 
 @keyframes shimmer {
-    to {
-        background-position: 200%
-    }
+  to {
+    background-position: 200%;
+  }
 }

@@ -21,6 +21,7 @@ export default function Card({ competitor, dispatch }) {
     setLoadSpin,
     gameState,
     setGameState,
+    gameTurn
   } = useContext(gameboardContext);
 
   // button sound for when the attack menu is opened
@@ -237,7 +238,8 @@ export default function Card({ competitor, dispatch }) {
                           gameWonBy,
                           setGameWonBy,
                           setGameState,
-                          gameState
+                          gameState,
+                          gameTurn
                         )
                       : '';
 

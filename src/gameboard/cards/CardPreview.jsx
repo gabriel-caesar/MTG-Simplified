@@ -137,7 +137,8 @@ export default function CardPreview({
               ? false
               : true
           }
-          onClick={() => {
+          onClick={(e) => {
+            e.stopPropagation()
             // clicking command to deploy a card
             if (card.type.match(/land/i)) {
               deployOneMana(

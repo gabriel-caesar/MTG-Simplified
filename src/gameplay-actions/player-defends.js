@@ -1,4 +1,5 @@
 import { uniqueId } from '../deck-management/utils';
+import { gameStateManager, gameStateUpdater } from './game-state-manager';
 
 export async function playerDefends(
   bot,
@@ -13,6 +14,7 @@ export async function playerDefends(
   expandLog,
   setGameWonBy,
   setGameState,
+  gameState,
   gameTurn,
 ) {
   const defenderCards = battlefieldCopy // has defend props
@@ -38,7 +40,7 @@ export async function playerDefends(
   }));
 
   // this will show in the Game Log Messages representing the combat state
-  const combatState = { turn: gameTurn, log: [], owner: player.name, id: uniqueId() }
+  const turnState = gameStateManager(gameState, gameTurn, player)
 
   // this loop calculates what card dies or still lives after battle
   for (let i = 0; i < defenderCards.length; i++) {
@@ -54,17 +56,20 @@ export async function playerDefends(
       (c) => c.instanceId === defenderReference.instanceId
     );
 
-    // populating combatState
+    // populating turnState
     const attacker = attackerReference;
     const defender = defenderReference;
-    combatState.log.push({
-      id: uniqueId(),
-      type: 'Creature clash',
-      details: {
-        attacker: attacker,
-        defender: defender,
-      }
-    })
+    turnState.log = [
+      {
+        id: uniqueId(),
+        type: 'Creature clash',
+        details: {
+          attacker: attacker,
+          defender: defender,
+        }
+      },
+      ...turnState.log,
+    ]
 
     const playerCardCalc =
       playerBattlefieldCopy[defenderIndex].toughness -
@@ -124,6 +129,7 @@ export async function playerDefends(
     (c) => c.toughness > 0 || !c.type.match(/creature/i)
   );
 
+
   // if at the moment of the current player defending phase
   // there are attacking sickness on any creature, include them in the update
   if (
@@ -176,17 +182,21 @@ export async function playerDefends(
         updatedPlayerHP = player.hp - totalDamage;
 
         // storing the HP damage to be shown in the game log
-        combatState.log.push({
-          id: uniqueId(),
-          type: 'Take damage on HP',
-          totalDamage: totalDamage,
-          details: botAttackingCards.map(card => ({
-            name: card.name,
-            power: card.power,
-            toughness: card.toughness,
-            instanceId: card.instanceId,
-          }))
-        });
+        turnState.log = [
+          {
+            id: uniqueId(),
+            type: 'Take damage on HP',
+            totalDamage: totalDamage,
+            competitorHP: updatedPlayerHP,
+            details: botAttackingCards.map(card => ({
+              name: card.name,
+              power: card.power,
+              toughness: card.toughness,
+              instanceId: card.instanceId,
+            }))
+          },
+          ...turnState.log
+        ]
 
         // update the HP minus damage
         dispatchPlayer({
@@ -195,12 +205,32 @@ export async function playerDefends(
         });
       }
 
-      // updating the state by any means
-      setGameState(prev => [ combatState, ...prev ]);
+      // updating the game state
+      const updatedGameState = gameStateUpdater(
+        gameState,
+        turnState,
+      );
+      setGameState(updatedGameState);
 
       // if bot killed player
       if (updatedPlayerHP !== null && updatedPlayerHP <= 0) {
-        setGameWonBy('Bot')
+        setGameWonBy('Bot');
+        turnState.log = [
+          {
+            id: uniqueId(),
+            type: 'Game won',
+            winner: 'Bot',
+            competitorHP: updatedBotHP,
+          },
+          ...turnState.log
+        ]
+
+        // updating the game state
+        updatedGameState = gameStateUpdater(
+          gameState,
+          turnState,
+        );
+        setGameState(updatedGameState);
         return; // terminate function execution
       }
 
@@ -219,6 +249,7 @@ export async function playerDefends(
           updatedGraveyard: updatedPlayerGraveyard,
         },
       });
+
 
       resolve({ completed: true });
     }, 3000);
