@@ -46,6 +46,8 @@ Main things to consider is that the game works on top of Reducers and Context AP
 ---
 
 ### Deck management
+For this project I used the **Scryfall** API that contains all cards informations from MTG and provides an URL which I could dynamically change its endpoint to get the cards info through json objects.  
+**Scryfall** website link: https://scryfall.com/
 
   - **Deck creation**: All three decks are initially plain json objects with the card names and quantities. Out of this data the `App.jsx` component calls the `createDeck()` function on mount with the `useEffect()` hook.
 
