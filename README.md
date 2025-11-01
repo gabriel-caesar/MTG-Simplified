@@ -22,18 +22,16 @@ Since this is a simplified version of the amazing MTG game, I will explain some 
   > Although there are spells to be deployed, you unfortunately can't cast them. I will add this functionally in the far future. However creatures attack and defend normally as you would expect. 
 
 - ### Attack and defense phase
-  > Here is where it really got simplified. Since there is no perks (such as haste, trample, etc...) and no spells to be cast, there won't be decision windows throughout the attack and defense phases. When choosing to attack, the bot side will always turn all the cards it can before the user can decide which one to defend, however for the player side, the bot competitor will defend each card that is being turned to attack as the user chooses it.
+  > Here is where it really got simplified. Since there are no perks (such as haste, trample, etc...) and no spells to be cast, there won't be decision windows throughout the attack and defense phases. When choosing to attack, the bot side will always turn all the cards it can before the user can decide which one to defend, however for the player side, the bot competitor will defend each card that is being turned to attack as the user chooses it.
 
 - ### Winning
-  > Whoever get the opponent under 20 hit points win the battle.
+  > Whoever gets the opponent under 20 hit points wins the battle.
 
   <br></br>
 
 
 ## Code
 In this section I will summarize a little bit the game engine (fancy...) I have come up with.
-
-This game doesn't use routing since at the moment I started coding it, I was really unfamiliar with, however it worked really well.
 
 Main things to consider is that the game works on top of Reducers and Context APIs:
   - **Reducer**: takes care of the player and bot states, providing dispatch functions with payloads to create the competitor object, update the competitor's hands, deck, mana bar, battlefield, cards, hp and turns.
@@ -47,10 +45,23 @@ Main things to consider is that the game works on top of Reducers and Context AP
 
 ---
 
+### Deck management
+
+  - **Deck creation**: All three decks are initially plain json objects with the card names and quantities. Out of this data the `App.jsx` component calls the `createDeck()` function on mount with the `useEffect()` hook.
+
+  - **Card fetching**: the function `fetchCard()` is then called within `createDeck()` to fetch each deck card from **Scryfall**'s API by card name. As the function fetches the card from the API, it also adds additional properties to the creature and spell cards, such as `attack`, `defend`, `cast` and `enoughManaToDeploy`.
+
+  - **Drawing cards and deck final set up**: finally `drawSevenCards()` function is called within the `App.jsx` component when the player chooses a deck to play and `battlePrep` is false (which means the battle horn finished being blown).  
+  Since until now the deck didn't become 21 cards yet, the `openDeckObject()` function will be called to turn the deck returned from `createDeck()`, which at the current moment has 9 cards only, to 21 cards by looping through each card's quantity. Once this step is done, then `drawSevenCards()` function finishes drawing 7 cards for each competitor and update their decks through a dispatch function.
+
+  <br></br>
+
+---
+
 ### Bot algorithm
 This algorithm was based fully in recursive loops. Its main function is `botPlays()` inside `PassTurnButton.jsx` component at the **line 63**. I tried migrating this function to the `bot.js` file which is inside the `gameplay-actions` directory, but since it depends so much on different states, I ended up just leaving it there. As I said earlier, since this function lives inside the pass turn button component, it is easy to guess that bot starts playing as soon as the player passes its turn foward, let me guide you through some steps I programmed it to go through:
 
-  - The function receives **5 different** arguments (`bot`, `hasDeployedMana`, `newTurn`, `gameState`, `defenseMode`) and they are getting updated every loop.
+  - The function receives **5 different** arguments (`bot`, `hasDeployedMana`, `newTurn`, `gameState`, `defenseMode`).
   
   - Note that I will be ordering loops as we progress in the function logic, but in reality the bot can skip some choices if they are impossible to make at the moment or were already done.
 
@@ -60,7 +71,7 @@ This algorithm was based fully in recursive loops. Its main function is `botPlay
 
   - In the **second loop**, the bot checks if there are unactivated manas, calling `activateAllManas()` to activate all of the activatable manas and then recursively calls `botPlays()` again with an updated bot state value.
 
-  - In the **third loop**, the bot starts calling `isEnoughMana()` to check what cards in its hands are deployable and stores it in the variable `deployableCards`. Then it filters out what cards from its battlefield can attack and stores it in the variable `attackableCards`. Afterwards, the bot proceeds to check the base condition which is two levels of conditions: 
+  - In the **third loop**, the bot starts by calling `isEnoughMana()` to check what cards in its hands are deployable and stores it in the variable `deployableCards`. Then it filters out what cards from its battlefield can attack and stores it in the variable `attackableCards`. Afterwards, the bot proceeds to check the base condition which is two levels of conditions: 
     1. **First condition**: if there is no cards to attack with **or** defense mode is active.
     2. **Second condition**: if the first condition passes, the algorithm checks if the bot ran out of cards to deploy **or** the battlefield reached its full capacity of cards (6).
  
@@ -70,7 +81,7 @@ This algorithm was based fully in recursive loops. Its main function is `botPlay
   - In the **fourth loop**, the bot will check if `cardToAttack` is valid and call the `tapCard()` function that will tap the `cardToAttack`'s object and return it freshly modified (as `updatedAttackingCard`) so it doesn't get lost in React's batch updates. Now, `botAttackingCards`, which is an array with all attacking cards of that turn, gets updated with the new card that's attacking.  
   Lastly the `gameState` is updated, recording that the bot attacked with a card and the bot recursively calls `botPlays()` again checking for the base condition.
 
-  - In the **fifth loop**, the bot, for simplicity sake, satisfies all base conditions, so if there are attacking cards in its battlefield, the `isBotAttacking` state is turned **true**, which then when the turn is passed, that state will give the player ability to choose a defense against that attack. Afterwards, the game turn is updated, the turn is passed over and the opponent gets reset for the its new turn.
+  - In the **fifth loop**, the bot, for simplicity sake, satisfies all base conditions, so if there are attacking cards in its battlefield, the `isBotAttacking` state is turned **true**, which then when the turn is passed, that state will give the player ability to choose a defense against that attack. Afterwards, the game turn is updated, the turn is passed over and the opponent gets reset for its new turn.
 
   <br></br>
 
@@ -116,10 +127,11 @@ This algorithm was based fully in recursive loops. Its main function is `botPlay
 
   - **Deploying mana**: the player is able to check the cards in its hands by playing with the `Hands.jsx` drawer component which contains all 7 cards drawn from the start of the game. Whenever the player clicks one mana to inspect it, the `CardPreview.jsx` component pops up, showing dynamically all the details of that mana, including the **Deploy Card** button that, if clicked, will call the `deployOneMana()` function that will update the player's `mana_bar` property with the new deployed mana. Also, the state `oneManaPerTurn` will be toggled to true, preventing the player to deploy more than one mana in that specific turn.
 
-  - **Deploying a creature or spell**: the player is able to deploy a creature or spell just as deploying mana, however the **Deploy Card** button would be unresponsive if the `mana_cost` of the card being previewed is not satisfied. So firstly, the player needs to activate the mana by toggling its manas from its mana bar which they are nothing but button elements rendered out of the `mana_bar` property from the competitor's object in the `ManaBar.jsx` component. Once the card's `mana_cost` is satisfied, the **Deploy Card** button will respond to its purpose and call the `deployCreatureOrSpell()` function which will update the player's `battlefield` with the creature or spell that was deployed.  
-  Also, a really important change that I came up with is the `attackPhaseSickness` property for all player's creatures and spells that are deployed. It works like the `summoningSickness` prop but is always turned off when the next bot attack phase ends. This is needed because, since the player defends in his turn and the bot passes the turn so the player can defend, all creatures that the player deployed in its previous turn would not be **sick** anymore, therefore they would be able to defend right away. So, `attackPhaseSickness` balances it off and keeps true with the MTG original rules.
+  - **Deploying a creature or spell**: the player is able to deploy a creature or spell just as deploying mana, however the **Deploy Card** button would be unresponsive if the `mana_cost` of the card being previewed is not satisfied. So firstly, the player needs to activate some manas by toggling them from its mana bar which they are nothing but button elements rendered out of the `mana_bar` property from the competitor's object in the `ManaBar.jsx` component. Once the card's `mana_cost` is satisfied, the **Deploy Card** button will respond to its purpose and call the `deployCreatureOrSpell()` function which will update the player's `battlefield` with the creature or spell that was deployed.  
+  Also, a really important change that I came up with is the `attackPhaseSickness` property for all player's creatures and spells that are deployed. It works like the `summoningSickness` prop but it's always turned off when the next bot attack phase ends. This is needed because, since the player defends in his turn and the bot passes the turn so the player can defend, all creatures that the player deployed in its previous turn would not be **sick** anymore, therefore they would be able to defend right away. So, `attackPhaseSickness` balances it off and keeps true with the MTG original rules.
 
   - **Attacking with a creature**: as from the original MTG game, recent deployed creatures have summoning sickness which in the card's object is named as `summoningSickness` and is always true as it is first deployed. As the competitor is reset, the summoning sickness fades away and the card is ready to attack, so the `playerAttacks()` function is called from the `Card.jsx` component and the attacking card gets its `attack` property toggled to true. In the front-end, any card with its `attack` or `defend` properties toggled to true, will be turned to 180deg. Once the player attacks with the card, bot instantly defends with the `botDefends()` function (more on that later).
+    > The `botDefends()` function: when fired, if there are creatures available to defend, it will prioritize regular creatures over the legendary ones and will always get the toughest one. Once it determines the defender, the game log gets updated with it, calculations are done to check which card died (if any creature died, they will be sent to the graveyard) and original toughness values are stored for future reset.
 
   - **Defending against bot attacks**: as the bot passes the turn, the game expands the **Game Log** automatically and is fed with the `botAttackingCards` state, that is nothing more than all bot's attacking cards. So with that material, the **Game Log** can render all the attacking cards from bot and provide the player with two options: **Defend with** and **Take on HP**.  
   If the player chooses the first option, the `DefenseDecisions.jsx` window will pop up with all cards that are able to defend that attack and whenever a defendant is chosen and the **Defend** button is clicked, the `playerDefends()` function is called and the defendant defends against the attacker. The second option will take the damage on the player's HP through a `take_damage_on_hp` dispatch function from the reducer.
