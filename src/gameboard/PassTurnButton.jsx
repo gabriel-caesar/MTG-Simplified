@@ -166,7 +166,7 @@ export default function PassTurnButton() {
 
       // Step 6: Cards to attack with priority system
       // will get skipped if defense mode is on
-      const cardToAttack = !defenseMode ? botCardToAttack(attackableCards, defenseMode) : null;
+      const cardToAttack = !defenseMode ? botCardToAttack(attackableCards) : null;
 
       if (cardToDeploy && botRef.current.battlefield.length <= 5) {
         // if there is a card to deploy and battlefield space, call this function
