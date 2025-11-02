@@ -1,5 +1,7 @@
 # Magic: The Gathering Simplified
 
+**Demo video**: https://www.youtube.com/watch?v=gsKFKFzA6_A
+
 **Game link**: https://mtg-simplified.vercel.app/
 
 **Repo**: https://github.com/gabriel-caesar/MTG-Simplified

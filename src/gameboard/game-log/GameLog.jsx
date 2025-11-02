@@ -166,6 +166,7 @@ export default function GameLog() {
                   setOriginalToughness,
                   playerDefenseDecisions,
                   botAttackingCards,
+                  setBotAttackingCards,
                   battlefieldCopy,
                   setExpandLog,
                   expandLog,
@@ -173,6 +174,9 @@ export default function GameLog() {
                   setGameState,
                   gameState,
                   gameTurn,
+                  setIsBotAttacking,
+                  setPlayerDefenseDecisions,
+                  setLoadSpin
                 );
 
                 // bot is not attacking anymore up to this point

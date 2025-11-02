@@ -9,6 +9,7 @@ export async function playerDefends(
   setOriginalToughness,
   playerDefenseDecisions,
   botAttackingCards,
+  setBotAttackingCards,
   battlefieldCopy,
   setExpandLog,
   expandLog,
@@ -16,6 +17,9 @@ export async function playerDefends(
   setGameState,
   gameState,
   gameTurn,
+  setIsBotAttacking,
+  setPlayerDefenseDecisions,
+  setLoadSpin,
 ) {
   const defenderCards = battlefieldCopy // has defend props
     .filter((c) => c.defend) // we need to find the defendant cards
@@ -206,7 +210,7 @@ export async function playerDefends(
       }
 
       // updating the game state
-      const updatedGameState = gameStateUpdater(
+      let updatedGameState = gameStateUpdater(
         gameState,
         turnState,
       );
@@ -214,13 +218,22 @@ export async function playerDefends(
 
       // if bot killed player
       if (updatedPlayerHP !== null && updatedPlayerHP <= 0) {
+
+        // this clears the game log ui if the player wants to see it
+        setLoadSpin(false);
+        setIsBotAttacking(false);
+        setBotAttackingCards([]);
+        setPlayerDefenseDecisions([]);
+
+        // sets the game winner
         setGameWonBy('Bot');
+
         turnState.log = [
           {
             id: uniqueId(),
             type: 'Game won',
             winner: 'Bot',
-            competitorHP: updatedBotHP,
+            competitorHP: updatedPlayerHP,
           },
           ...turnState.log
         ]
