@@ -9,7 +9,7 @@ export default function playerReducer(state, action) {
         deck_current_cards: 21,
         hands: [],
         mana_bar: [],
-        hp: 1,
+        hp: 20,
         battlefield: [],
         graveyard: [],
       };
