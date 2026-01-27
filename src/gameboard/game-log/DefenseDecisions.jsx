@@ -1,18 +1,20 @@
-import { gameboardContext } from '../../contexts/gameboard-context';
-import { globalContext } from '../../contexts/global-context';
-import { useContext, useState } from 'react';
 import '../../css/gameboard.css';
+
 import DefendersWindow from './DefendersWindow';
+
+import { soundContext, globalContext, gameboardContext } from '../../contexts/contexts';
+import { useContext, useState } from 'react';
 import { Undo2 } from 'lucide-react';
 
 export default function DefenseDecisions({ battlefieldCopy, setBattlefieldCopy }) {
+  const { setButtonSound, buttonSound } = useContext(soundContext);
+  const { gameWonBy } = useContext(globalContext);
   const {
     botAttackingCards,
     playerDefenseDecisions,
     setPlayerDefenseDecisions,
     gameTurn,
   } = useContext(gameboardContext);
-  const { setButtonSound, buttonSound, gameWonBy } = useContext(globalContext);
   
   const [openDefendersWindow, setOpenDefendersWindow] = useState('');
 

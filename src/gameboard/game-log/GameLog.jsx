@@ -1,14 +1,15 @@
-import { playerDefends } from '../../gameplay-actions/player-defends.js';
-import { gameboardContext } from '../../contexts/gameboard-context.js';
-import { globalContext } from '../../contexts/global-context.js';
-import { Expand, Shrink } from 'lucide-react';
-import { useContext, useEffect, useRef, useState } from 'react';
-import { GiHuntingHorn } from 'react-icons/gi';
-import DefenseDecisions from './DefenseDecisions.jsx';
-import LogMessages from './LogMessages.jsx';
-import LoadingSpinner from '../LoadingSpinner.jsx';
 import '../../css/gameboard.css';
 import '../../css/pulse.css';
+
+import DefenseDecisions from './DefenseDecisions.jsx';
+import LoadingSpinner from '../LoadingSpinner.jsx';
+import LogMessages from './LogMessages.jsx';
+
+import { gameboardContext, globalContext, soundContext } from '../../contexts/contexts.js';
+import { useContext, useEffect, useRef, useState } from 'react';
+import { Expand, Shrink } from 'lucide-react';
+import { playerDefends } from '../../gameplay-actions/player-defends.js';
+import { GiHuntingHorn } from 'react-icons/gi';
 
 export default function GameLog() {
   const {
@@ -39,11 +40,11 @@ export default function GameLog() {
     bot,
     dispatchBot,
     appTheme,
-    buttonSound,
-    setButtonSound,
     gameWonBy,
     setGameWonBy,
   } = useContext(globalContext);
+
+  const { buttonSound, setButtonSound } = useContext(soundContext)
 
   // used in DefenseDecisions.jsx
   // this will act as a copy to not necessarily turn the defend prop from the

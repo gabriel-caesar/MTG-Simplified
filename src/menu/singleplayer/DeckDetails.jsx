@@ -1,17 +1,17 @@
 import { GiBookmarklet, GiBroadsword, GiMountaintop } from 'react-icons/gi';
-import { globalContext } from '../contexts/global-context.js';
+import { soundContext } from '../../contexts/contexts.js';
 import { MdOutlineStar } from 'react-icons/md';
 import { FaGripfire } from 'react-icons/fa';
 import { useContext } from 'react';
 
 // shows deck details for the selected deck
 export default function DeckDetails({ deck, goBack, toBattle }) {
-  const { setButtonSound, buttonSound } = useContext(globalContext);
+  const { setButtonSound, buttonSound } = useContext(soundContext);
 
   return (
     <div
       id='deckDetailsContainer'
-      className='w-230 h-135 flex flex-col justify-start items-center'
+      className='wooden-sign-bg w-230 h-135 flex flex-col justify-start items-center'
     >
       <h1 className='text-center text-3xl mt-15 mb-8 text-amber-400 fontUncial'>
         {deck.name} Details
@@ -103,7 +103,7 @@ export default function DeckDetails({ deck, goBack, toBattle }) {
       <div className='flex items-center justify-center mt-4' id='btn-wrapper'>
         <button
           id='back-btn'
-          className={`active:brightness-50 bg-amber-300 rounded-sm text-3xl font-bold p-2 border-2 transition-colors mr-4`}
+          className='active:brightness-50 bg-amber-300 rounded-sm text-3xl font-bold p-2 border-2 transition-all mr-4 button-shadow hover:cursor-pointer hover:brightness-50'
           onClick={() => {
             setButtonSound(!buttonSound);
             goBack(false, true);
@@ -112,8 +112,8 @@ export default function DeckDetails({ deck, goBack, toBattle }) {
           Go back
         </button>
         <button
-          id='back-btn'
-          className={`active:brightness-50 bg-amber-300 rounded-sm text-3xl font-bold p-2 border-2 transition-colors`}
+          id='to-battle-btn'
+          className='active:brightness-50 bg-amber-300 rounded-sm text-3xl font-bold p-2 border-2 transition-all button-shadow hover:cursor-pointer hover:brightness-50'
           onClick={() => {
             setButtonSound(!buttonSound);
             toBattle(deck);

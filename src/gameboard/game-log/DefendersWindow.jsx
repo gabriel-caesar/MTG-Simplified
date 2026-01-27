@@ -1,14 +1,14 @@
-import { useContext } from 'react';
-import { globalContext } from '../../contexts/global-context';
-import { GiBroadsword } from 'react-icons/gi';
+import { soundContext } from '../../contexts/contexts';
 import { MdOutlineStar } from 'react-icons/md';
+import { GiBroadsword } from 'react-icons/gi';
+import { useContext } from 'react';
 
 export default function DefendersWindow({
   attacker,
   populateDefenseDecisions,
   battlefieldCopy,
 }) {
-  const { buttonSound, setButtonSound } = useContext(globalContext);
+  const { buttonSound, setButtonSound } = useContext(soundContext);
 
   return (
     <div

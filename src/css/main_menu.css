@@ -5,7 +5,7 @@
 }
 
 /* chains container */
-.myContainer {
+.chains-img {
   background-image: url('../assets/vertical-chains.png');
   background-repeat: no-repeat;
   background-size: contain;
@@ -14,30 +14,27 @@
   height: 400px;
 }
 
-/* wooden sign greeting container */
-#greetingContainer {
+.wooden-sign-bg {
   background-image: url('../assets/wooden-sign.png');
   background-repeat: no-repeat;
-  background-size: cover;
-  background-position: center;
-  transform: scale(1.3);
-}
-
-/* deck selection wooden sign */
-#deckSelectionContainer {
-  background-image: url('../assets/wooden-sign.png');
-  background-repeat: no-repeat;
-  background-size: cover;
+  background-size: contain;
   background-position: center;
 }
 
-/* deck details wooden sign */
-#deckDetailsContainer {
-  background-image: url('../assets/wooden-sign.png');
+.victory-wooden-sign-bg {
+  background-image: url('../assets/victory-wooden-sign.png');
   background-repeat: no-repeat;
-  background-size: cover;
+  background-size: contain;
   background-position: center;
 }
+
+.defeat-wooden-sign-bg {
+  background-image: url('../assets/defeat-wooden-sign.png');
+  background-repeat: no-repeat;
+  background-size: contain;
+  background-position: center;
+}
+
 
 /* chain bounce animations */
 @keyframes bounce-in {
@@ -69,30 +66,12 @@
   font-family: 'Uncial Antiqua';
 }
 
-/* start button from Start react component */
-#start-btn,
-#back-btn {
+.button-shadow {
   box-shadow: inset 0 0 10px 1px #2c2a05;
 }
 
 #box-shadow {
   box-shadow: inset 0 0 10px 1px #2c2a05;
-}
-
-#start-btn:hover,
-#back-btn:hover {
-  background-color: #bcb419;
-  cursor: pointer;
-}
-
-#start-btn:active,
-#back-btn:active {
-  opacity: 0.5;
-}
-
-#startContainer {
-  box-shadow: inset 0 0 6px 1px #2c2a05;
-  background: radial-gradient(circle, #A65F00 60%, #2c2a05)
 }
 
 /* deck hover animation */

@@ -1,7 +1,8 @@
+import '../css/rotate_spin.css';
+
+import { gameboardContext } from '../contexts/contexts';
 import { LoaderCircle } from 'lucide-react';
 import { useContext } from 'react';
-import { gameboardContext } from '../contexts/gameboard-context';
-import '../css/rotate_spin.css';
 
 export default function LoadingSpinner() {
 

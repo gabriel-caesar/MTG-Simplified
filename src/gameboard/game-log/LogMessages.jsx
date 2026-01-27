@@ -1,18 +1,16 @@
-import { gameboardContext } from '../../contexts/gameboard-context';
-import { globalContext } from '../../contexts/global-context';
-import { CiSquareMinus, CiSquarePlus } from 'react-icons/ci';
-import { shortenName } from '../../deck-management/utils';
-import { IoFileTrayFull } from 'react-icons/io5';
-import { GiCrossedSwords } from 'react-icons/gi';
-import { useContext, useState } from 'react';
 import '../../css/legendary.css';
 
+import { gameboardContext } from '../../contexts/contexts';
+import { GiCrossedSwords } from 'react-icons/gi';
+import { IoFileTrayFull } from 'react-icons/io5';
+import { shortenName } from '../../deck-management/utils';
+import { useContext } from 'react';
+
 export default function LogMessages() {
-  const { gameState, setGameState } = useContext(gameboardContext);
-  const { setButtonSound, buttonSound } = useContext(globalContext);
+  const { gameState } = useContext(gameboardContext);
 
   // used to open the details window of a log
-  const [openLogDetails, setOpenLogDetails] = useState('');
+  // const [openLogDetails, setOpenLogDetails] = useState('');
 
   return gameState.length > 0 ? (
     gameState.map((state) => {
@@ -70,7 +68,7 @@ export default function LogMessages() {
                           flex justify-items-center
                         '
                       >
-                        <i class='ms ms-power-mtga ms-shadow'></i>
+                        <i className='ms ms-power-mtga ms-shadow'></i>
                       </span>
                       <span
                         className={`${
@@ -145,7 +143,7 @@ export default function LogMessages() {
                           flex justify-items-center text-lg
                         `}
                       >
-                        <i class='ms ms-creature ms-shadow'></i>
+                        <i className='ms ms-creature ms-shadow'></i>
                       </span>
                       <span
                         className={`${
@@ -201,9 +199,9 @@ export default function LogMessages() {
                         {messageObj.details.mana.color.some(
                           (x) => x === 'W'
                         ) ? (
-                          <i class='ms ms-w ms-shadow'></i>
+                          <i className='ms ms-w ms-shadow'></i>
                         ) : (
-                          <i class='ms ms-b ms-shadow'></i>
+                          <i className='ms ms-b ms-shadow'></i>
                         )}
                       </span>
                       <span
@@ -229,7 +227,7 @@ export default function LogMessages() {
                           flex justify-items-center 
                         `}
                       >
-                        <i class='ms ms-sorcery ms-shadow'></i>
+                        <i className='ms ms-sorcery ms-shadow'></i>
                       </span>
                       <span
                         className={`${
@@ -254,7 +252,7 @@ export default function LogMessages() {
                           flex justify-items-center
                         '
                       >
-                        <i class='ms ms-power-mtga ms-shadow'></i>
+                        <i className='ms ms-power-mtga ms-shadow'></i>
                       </span>
                       <span
                         className={`${
@@ -359,7 +357,7 @@ export default function LogMessages() {
                           flex justify-items-center 
                         `}
                         >
-                          <i class='ms ms-planeswalker ms-shadow'></i>
+                          <i className='ms ms-planeswalker ms-shadow'></i>
                         </span>
                         <span
                           className={`${

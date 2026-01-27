@@ -50,43 +50,6 @@
   cursor: pointer;
 }
 
-/* chains for the wooden sign */
-#vertical-chains {
-  background-image: url('../assets/vertical-chains.png');
-  background-repeat: no-repeat;
-  background-size: contain;
-  background-position: center;
-  width: 400px;
-  height: 400px;
-}
-
-/* wooden sign */
-#woodenSign {
-  background-image: url('../assets/wooden-sign.png');
-  background-repeat: no-repeat;
-  background-size: cover;
-  background-position: center;
-  transform: scale(1.3);
-}
-
-/* victory wooden sign */
-#victoryWoodenSign {
-  background-image: url('../assets/victory-wooden-sign.png');
-  background-repeat: no-repeat;
-  background-size: cover;
-  background-position: center;
-  transform: scale(1.7);
-}
-
-/* defeat wooden sign */
-#defeatWoodenSign {
-  background-image: url('../assets/defeat-wooden-sign.png');
-  background-repeat: no-repeat;
-  background-size: cover;
-  background-position: center;
-  transform: scale(1.7);
-}
-
 /* shadow box for card preview */
 .shadowing {
   box-shadow: 0 0 10px 2px #353535;

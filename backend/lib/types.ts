@@ -1,0 +1,1 @@
+export type ValidationReturn = { email: string, password: string }

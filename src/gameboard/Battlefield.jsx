@@ -1,6 +1,7 @@
-import { useContext } from 'react';
 import Card from './cards/Card';
-import { gameboardContext } from '../contexts/gameboard-context';
+
+import { gameboardContext } from '../contexts/contexts';
+import { useContext } from 'react';
 
 // battlefield where cards are deployed to
 export default function Battlefield({ competitor, dispatch }) {

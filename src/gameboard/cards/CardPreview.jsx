@@ -1,11 +1,11 @@
+import CardMana from './CardMana';
+
+import { soundContext, gameboardContext } from '../../contexts/contexts.js';
+import { useContext } from 'react';
 import {
   deployOneMana,
   deployCreatureOrSpell,
 } from '../../gameplay-actions/deploy-cards';
-import { gameboardContext } from '../../contexts/gameboard-context.js';
-import { globalContext } from '../../contexts/global-context.js';
-import { useContext } from 'react';
-import CardMana from './CardMana';
 
 export default function CardPreview({
   card,
@@ -24,7 +24,7 @@ export default function CardPreview({
     gameState,
   } = useContext(gameboardContext);
 
-  const { buttonSound, setButtonSound } = useContext(globalContext);
+  const { buttonSound, setButtonSound } = useContext(soundContext);
 
   const isBot = competitor.name === 'Bot';
 

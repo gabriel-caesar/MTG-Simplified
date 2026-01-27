@@ -1,16 +1,16 @@
 import { GiCurlyWing, GiDevilMask, GiVikingShield } from 'react-icons/gi';
-import { globalContext } from '../contexts/global-context.js';
+import { soundContext, globalContext } from '../../contexts/contexts.js';
 import { useContext } from 'react';
 
 // deck selection panel after the user wrote his name on the wooden sign
 export default function DeckSelection({ player, goBack, handleDeckSelection }) {
-  const { angelDeck, resistanceDeck, vileDeck, setButtonSound, buttonSound } =
-    useContext(globalContext);
+  const { angelDeck, resistanceDeck, vileDeck,  } = useContext(globalContext);
+  const { setButtonSound, buttonSound } = useContext(soundContext)
 
   return (
     <div
       id='deckSelectionContainer'
-      className='w-230 h-135 flex flex-col justify-start items-center'
+      className='wooden-sign-bg w-220 h-135 flex flex-col justify-start items-center'
     >
       <h1 className='text-center text-amber-100 text-2xl my-15 font-bold fontUncial'>
         Very well{' '}
@@ -93,7 +93,7 @@ export default function DeckSelection({ player, goBack, handleDeckSelection }) {
 
       <button
         id='back-btn'
-        className={`active:brightness-50 bg-amber-300 rounded-sm text-3xl font-bold p-2 border-2 transition-all mt-8`}
+        className='active:brightness-50 bg-amber-300 rounded-sm text-3xl font-bold p-2 border-2 transition-all mt-8 button-shadow hover:cursor-pointer hover:brightness-50'
         onClick={() => {
           setButtonSound(!buttonSound);
           goBack(true, false);

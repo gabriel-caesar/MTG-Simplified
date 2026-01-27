@@ -1,12 +1,13 @@
-import { IoMdArrowDropdown, IoMdArrowDropup } from 'react-icons/io';
-import { GiBroadsword, GiMountaintop } from 'react-icons/gi';
-import { gameboardContext } from '../../contexts/gameboard-context.js';
-import { globalContext } from '../../contexts/global-context.js';
-import { MdOutlineStar } from 'react-icons/md';
-import { useContext, useEffect, useRef } from 'react';
-import { FaGripfire } from 'react-icons/fa';
-import CardPreview from '../cards/CardPreview.jsx';
 import '../../css/scroll_bars.css';
+
+import CardPreview from '../cards/CardPreview.jsx';
+
+import { soundContext, globalContext, gameboardContext } from '../../contexts/contexts.js';
+import { IoMdArrowDropdown, IoMdArrowDropup } from 'react-icons/io';
+import { useContext, useEffect, useRef } from 'react';
+import { GiBroadsword, GiMountaintop } from 'react-icons/gi';
+import { MdOutlineStar } from 'react-icons/md';
+import { FaGripfire } from 'react-icons/fa';
 
 export default function Graveyard({
   openGraveyard,
@@ -14,8 +15,13 @@ export default function Graveyard({
   competitor,
   dispatch,
 }) {
-  const { buttonSound, setButtonSound, setCardSound, cardSound, gameWonBy, gameTurn } =
-    useContext(globalContext);
+  const { gameWonBy, gameTurn } = useContext(globalContext);
+  const { 
+    buttonSound, 
+    setButtonSound, 
+    setCardSound, 
+    cardSound 
+  } = useContext(soundContext);
   const {
     playerPassedTurn,
     setToEnlarge,

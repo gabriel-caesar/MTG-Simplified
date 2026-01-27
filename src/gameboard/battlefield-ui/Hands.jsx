@@ -1,12 +1,12 @@
+import CardPreview from '../cards/CardPreview.jsx';
+import CardMana from '../cards/CardMana.jsx';
+
+import { soundContext, globalContext, gameboardContext } from '../../contexts/contexts.js';
+import { useContext, useEffect, useRef, useState } from 'react';
 import { IoMdArrowDropdown, IoMdArrowDropup } from 'react-icons/io';
 import { GiBroadsword, GiMountaintop } from 'react-icons/gi';
 import { MdOutlineStar } from 'react-icons/md';
-import { useContext, useEffect, useRef, useState } from 'react';
 import { FaGripfire } from 'react-icons/fa';
-import { globalContext } from '../../contexts/global-context.js';
-import CardPreview from '../cards/CardPreview.jsx';
-import CardMana from '../cards/CardMana.jsx';
-import { gameboardContext } from '../../contexts/gameboard-context.js';
 
 export default function Hands({ competitor, dispatch }) {
   // state that opens and closes the competitor's hands container
@@ -22,6 +22,13 @@ export default function Hands({ competitor, dispatch }) {
   const handsRef = useRef(null);
 
   // context APIs
+  const { gameWonBy } = useContext(globalContext);
+  const { 
+    setButtonSound, 
+    buttonSound, 
+    cardSound, 
+    setCardSound 
+  } = useContext(soundContext);
   const {
     setCardBeingClicked,
     cardBeingClicked,
@@ -31,8 +38,6 @@ export default function Hands({ competitor, dispatch }) {
     isBotAttacking,
     gameTurn,
   } = useContext(gameboardContext);
-  const { setButtonSound, buttonSound, cardSound, setCardSound, gameWonBy } =
-    useContext(globalContext);
 
   // hands drawer closes if the bot is attacking of if player passes the turn
   useEffect(() => {

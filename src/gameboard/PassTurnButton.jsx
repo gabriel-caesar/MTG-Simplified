@@ -1,10 +1,10 @@
+import LoadingSpinner from './LoadingSpinner.jsx';
+
 import { activateAllManas, isEnoughMana } from '../gameplay-actions/mana.js';
-import { gameboardContext } from '../contexts/gameboard-context.js';
-import { globalContext } from '../contexts/global-context.js';
+import { globalContext, gameboardContext, soundContext } from '../contexts/contexts.js';
+import { useContext, useState } from 'react';
 import { botCardToAttack } from '../gameplay-actions/bot.js';
 import { tapCard } from '../gameplay-actions/tap-cards.js';
-import LoadingSpinner from './LoadingSpinner.jsx';
-import { useContext, useState } from 'react';
 import {
   deployCreatureOrSpell,
   deployOneMana,
@@ -27,7 +27,6 @@ export default function PassTurnButton() {
     setGameTurn,
     gameTurn,
     botRef,
-    playerRef,
     botAttackingCards,
     setBotAttackingCards,
     isBotAttacking,
@@ -47,10 +46,10 @@ export default function PassTurnButton() {
     dispatchPlayer,
     bot,
     dispatchBot,
-    setButtonSound,
-    buttonSound,
     gameWonBy,
   } = useContext(globalContext);
+
+  const { setButtonSound, buttonSound } = useContext(soundContext)
 
   // defense mode for when the bot is under 10 of hp 
   // and the player has creatures in his battlefield

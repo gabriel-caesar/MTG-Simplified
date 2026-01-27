@@ -1,14 +1,13 @@
+import { soundContext, gameboardContext, globalContext } from '../../contexts/contexts.js';
 import { useContext, useEffect, useRef, useState } from 'react';
+import { SiElement } from 'react-icons/si';
+import { IoMdClose } from 'react-icons/io';
 import {
   isEnoughMana,
   activateMana,
   activateAllManas,
   deactivateAllManas,
 } from '../../gameplay-actions/mana.js';
-import { globalContext } from '../../contexts/global-context.js';
-import { gameboardContext } from '../../contexts/gameboard-context.js';
-import { SiElement } from 'react-icons/si';
-import { IoMdClose } from 'react-icons/io';
 
 export default function ManaBar({ competitor, dispatch }) {
   return (
@@ -21,9 +20,9 @@ export default function ManaBar({ competitor, dispatch }) {
 
 // displays itself when screen width is at least 1280px
 function WideScreen({ competitor, dispatch }) {
-  // context APIs
-  const { setManaSound, manaSound, gameWonBy } = useContext(globalContext);
   const { playerPassedTurn, isBotAttacking } = useContext(gameboardContext);
+  const { setManaSound, manaSound } = useContext(soundContext)
+  const { gameWonBy } = useContext(globalContext);
 
   // condition if the manabar is for Bot
   const isBot = competitor.name === 'Bot';
@@ -142,9 +141,9 @@ function WideScreen({ competitor, dispatch }) {
 
               <p>
                 {card.color[0] === 'W' ? (
-                  <i class='ms ms-w ms-cost ms-shadow'></i>
+                  <i className='ms ms-w ms-cost ms-shadow'></i>
                 ) : (
-                  <i class='ms ms-b ms-cost ms-shadow'></i>
+                  <i className='ms ms-b ms-cost ms-shadow'></i>
                 )}
               </p>
             </button>
@@ -158,7 +157,8 @@ function WideScreen({ competitor, dispatch }) {
 // displays itself up to 1280px of screen width
 function NarrowScreen({ competitor, dispatch }) {
   // context APIs
-  const { setManaSound, manaSound, gameWonBy } = useContext(globalContext);
+  const { gameWonBy } = useContext(globalContext);
+  const { setManaSound, manaSound } = useContext(soundContext)
   const { playerPassedTurn, isBotAttacking, openManaBar, setOpenManaBar } =
     useContext(gameboardContext);
 
@@ -333,9 +333,9 @@ function NarrowScreen({ competitor, dispatch }) {
 
               <p>
                 {card.color[0] === 'W' ? (
-                  <i class='ms ms-w ms-cost ms-shadow'></i>
+                  <i className='ms ms-w ms-cost ms-shadow'></i>
                 ) : (
-                  <i class='ms ms-b ms-cost ms-shadow'></i>
+                  <i className='ms ms-b ms-cost ms-shadow'></i>
                 )}
               </p>
             </button>
@@ -353,9 +353,9 @@ function NarrowScreen({ competitor, dispatch }) {
           `}
         >
           {competitor.deck_name !== 'Vile Force' ? (
-            <i class='ms ms-w ms-shadow'></i>
+            <i className='ms ms-w ms-shadow'></i>
           ) : (
-            <i class='ms ms-b ms-shadow'></i>
+            <i className='ms ms-b ms-shadow'></i>
           )}
         </span>
       </div>

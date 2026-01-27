@@ -1,17 +1,21 @@
-import { globalContext } from '../../contexts/global-context.js';
+import { soundContext, globalContext } from '../../contexts/contexts.js';
 import { useContext } from 'react';
 
 export default function Controller({
   musicControl,
   themeControl,
   soundControl,
-  themeSongVolumeController,
-  soundFXVolumeController,
-  setThemeSongVolumeController,
-  setSoundFXVolumeController,
 }) {
-  const { buttonSound, setButtonSound, setAppTheme, appTheme } =
-    useContext(globalContext);
+  const { 
+    buttonSound, 
+    setButtonSound, 
+    themeSongVolumeController,
+    soundFXVolumeController,
+    setThemeSongVolumeController,
+    setSoundFXVolumeController, 
+  } = useContext(soundContext);
+
+  const { setAppTheme, appTheme } = useContext(globalContext);
 
   return (
     <div

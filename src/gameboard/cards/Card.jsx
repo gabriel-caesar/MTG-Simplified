@@ -1,13 +1,15 @@
-import { GiCrossedSwords, GiBoltSpellCast } from 'react-icons/gi';
+import '../../css/legendary.css';
+
+import { soundContext, gameboardContext, globalContext } from '../../contexts/contexts.js';
 import { useContext, useEffect, useRef, useState } from 'react';
-import { gameboardContext } from '../../contexts/gameboard-context.js';
-import { globalContext } from '../../contexts/global-context.js';
+import { GiCrossedSwords, GiBoltSpellCast } from 'react-icons/gi';
 import { playerAttacks } from '../../gameplay-actions/tap-cards.js';
 import { shortenName } from '../../deck-management/utils.js';
 import { X } from 'lucide-react';
-import '../../css/legendary.css';
 
 export default function Card({ competitor, dispatch }) {
+  const { buttonSound, setButtonSound } = useContext(soundContext)
+
   // if the player clicks the card to inspect it further
   const {
     toEnlarge,
@@ -24,10 +26,7 @@ export default function Card({ competitor, dispatch }) {
     gameTurn
   } = useContext(gameboardContext);
 
-  // button sound for when the attack menu is opened
   const {
-    buttonSound,
-    setButtonSound,
     bot,
     dispatchBot,
     gameWonBy,

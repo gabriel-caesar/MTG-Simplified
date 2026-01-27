@@ -2,22 +2,18 @@ import '../css/gameboard.css';
 import '../css/scroll_bars.css';
 import '../css/main_menu.css';
 import 'mana-font/css/mana.min.css'; // npm install mana-font for mtg mana icons
-import { useContext, useState, useEffect, useRef } from 'react';
-import { gameboardContext } from '../contexts/gameboard-context.js';
-import { globalContext } from '../contexts/global-context.js';
-import { isEnoughMana } from '../gameplay-actions/mana.js';
+
+import GameWonBySign from './wooden-signs/GameWonBySign.jsx';
 import SettingsSign from './wooden-signs/SettingsSign.jsx';
 import MiddleBar from './MiddleBar.jsx';
 import Player from './Player.jsx';
 import Bot from './Bot.jsx';
-import GameWonBySign from './wooden-signs/GameWonBySign.jsx';
 
-export default function Gameboard({
-  setBattleStarts,
-  setLeaveBattlefield,
-  setPlayMainTheme,
-  playMainTheme,
-}) {
+import { soundContext, gameboardContext, globalContext } from '../contexts/contexts.js';
+import { useContext, useState, useEffect, useRef } from 'react';
+import { isEnoughMana } from '../gameplay-actions/mana.js';
+
+export default function Gameboard() {
   const {
     battlePrep,
     player,
@@ -25,16 +21,21 @@ export default function Gameboard({
     bot,
     gameWonBy,
     setGameWonBy,
-    startWebPage,
-    soundFXVolumeController,
-    setSoundFXVolumeController,
+    setBattleStarts,
+    setLeaveBattlefield,
+    liftWoodenSign,
+    setLiftWoodenSign,
+    toEnlarge,
+    setToEnlarge,
   } = useContext(globalContext);
+
+  const { 
+    setPlayMainTheme, 
+    playMainTheme, 
+  } = useContext(soundContext)
 
   // opens the menu from clicking the cog button
   const [openMenu, setOpenMenu] = useState(false);
-
-  // wooden sign for the menu
-  const [liftWoodenSign, setLiftWoodenSign] = useState(true);
 
   // confirmation state for quiting the game
   const [areYouSureQuit, setAreYouSureQuit] = useState(false);
@@ -81,9 +82,6 @@ export default function Gameboard({
   // reference of player state for the recursive botPlays() function
   const playerRef = useRef(player);
 
-  // what card is being currently enlarged in the battlefield
-  const [toEnlarge, setToEnlarge] = useState('');
-
   // keeps track of turn the game is currently in
   const [gameTurn, setGameTurn] = useState(1);
 
@@ -99,12 +97,9 @@ export default function Gameboard({
   // shows the game log when the games end if toggled on
   const [endGameLog, setEndGameLog] = useState(false);
 
-  // stores the enlarging battlefield card sound effect
-  const toEnlargeSoundRef = useRef(null);
-
   // function to reverse the component to deck selection
   function handleQuit() {
-    setLiftWoodenSign(liftWoodenSign ? false : true); // lift the wooden sign
+    setLiftWoodenSign(!liftWoodenSign); // lift the wooden sign
 
     setTimeout(() => {
       // waiting the wooden sign lift
@@ -139,18 +134,6 @@ export default function Gameboard({
     playerRef.current = player;
   }, [player]);
 
-  // play the chain sound for the greeting container
-  useEffect(() => {
-    const chainSound = new Audio('/soundfxs/chain-drag.mp3');
-    chainSound.volume = 0.3;
-    chainSound.currentTime = 0;
-    chainSound.play();
-    setTimeout(() => {
-      chainSound.pause();
-    }, 1200);
-    // plays the sound if the start button is hit or if the lift sign state changes
-  }, [liftWoodenSign, gameWonBy]);
-
   // every time player clicks a card to preview it,
   // the code calculates if there is enough mana to deploy it
   useEffect(() => {
@@ -158,17 +141,6 @@ export default function Gameboard({
 
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [cardBeingClicked]);
-
-  // plays a sound when a card from the battlefield gets enlarged
-  useEffect(() => {
-    toEnlargeSoundRef.current = new Audio(`../../soundfxs/${toEnlarge ? 'to-shrink-sound' : 'to-enlarge-sound'}.mp3`);
-
-    if (toEnlargeSoundRef.current.volume && startWebPage) {
-      toEnlargeSoundRef.current.volume = battlePrep ? 0 : soundFXVolumeController;
-      toEnlargeSoundRef.current.currentTime = 0;
-      toEnlargeSoundRef.current.play();
-    }
-  }, [toEnlarge])
 
   const values = {
     endGameLog,
@@ -214,27 +186,19 @@ export default function Gameboard({
       {!eraseUI && (
         <>
           {/* Sign is dropped whenever a competitor wins the game */}
-          {gameWonBy !== '' && (
-            <GameWonBySign
-              liftWoodenSign={liftWoodenSign}
-              handleQuit={handleQuit}
-            />
-          )}
+
+          { gameWonBy !== '' && <GameWonBySign handleQuit={handleQuit}/> }
+          
           {/* Will show as soon as player goes to battle */}
           <MiddleBar
-            liftWoodenSign={liftWoodenSign}
-            setLiftWoodenSign={setLiftWoodenSign}
             setOpenMenu={setOpenMenu}
             openMenu={openMenu}
-            handleQuit={handleQuit}
           />
           {!battlePrep && ( // waits for the horn to be fully blown and the dark screen to fade out
             <div className='flex flex-col w-full h-full overflow-hidden'>
               <SettingsSign
                 openMenu={openMenu}
                 setOpenMenu={setOpenMenu}
-                liftWoodenSign={liftWoodenSign}
-                setLiftWoodenSign={setLiftWoodenSign}
                 handleQuit={handleQuit}
                 areYouSureQuit={areYouSureQuit}
                 setAreYouSureQuit={setAreYouSureQuit}

@@ -1,14 +1,11 @@
-import { gameboardContext } from '../contexts/gameboard-context';
-import { globalContext } from '../contexts/global-context';
-import { useContext } from 'react';
-import { Cog } from 'lucide-react';
 import PassTurnButton from './PassTurnButton';
 import GameLog from './game-log/GameLog';
 
+import { soundContext, globalContext, gameboardContext } from '../contexts/contexts';
+import { useContext } from 'react';
+import { Cog } from 'lucide-react';
+
 export default function MiddleBar({
-  handleQuit,
-  liftWoodenSign,
-  setLiftWoodenSign,
   openMenu,
   setOpenMenu,
 }) {
@@ -16,6 +13,8 @@ export default function MiddleBar({
     appTheme, 
     gameWonBy,
     battlePrep,
+    liftWoodenSign,
+    setLiftWoodenSign
   } = useContext(globalContext);
 
   const { toEnlarge, endGameLog } = useContext(gameboardContext)
@@ -37,14 +36,7 @@ export default function MiddleBar({
       ></div>
 
       {/* Render after the horn is blown */}
-      {!battlePrep && (
-        <SettingsButton
-          setLiftWoodenSign={setLiftWoodenSign}
-          liftWoodenSign={liftWoodenSign}
-          setOpenMenu={setOpenMenu}
-          openMenu={openMenu}
-        />
-      )}
+      { !battlePrep && <SettingsButton setOpenMenu={setOpenMenu} openMenu={openMenu} /> }
 
       <GameLog />
 
@@ -57,13 +49,10 @@ export default function MiddleBar({
   );
 }
 
-function SettingsButton({
-  setLiftWoodenSign = { setLiftWoodenSign },
-  liftWoodenSign = { liftWoodenSign },
-  setOpenMenu = { setOpenMenu },
-  openMenu = { openMenu },
-}) {
-  const { setButtonSound, buttonSound, gameWonBy } = useContext(globalContext);
+function SettingsButton({ setOpenMenu = { setOpenMenu }, openMenu = { openMenu } }) {
+
+  const { setButtonSound, buttonSound } = useContext(soundContext);
+  const { gameWonBy, setLiftWoodenSign, liftWoodenSign } = useContext(globalContext);
 
   return (
     <button

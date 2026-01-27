@@ -1,15 +1,20 @@
-import { Volume2, Palette, Headphones, HeadphoneOff } from 'lucide-react';
-import { useContext, useEffect, useRef, useState } from 'react';
-import { globalContext } from '../../contexts/global-context.js';
-import Controller from './Controller';
+import Controller from './Controller.jsx';
 
-export default function ControlBar({
-  soundFXVolumeController,
-  themeSongVolumeController,
-  setSoundFXVolumeController,
-  setThemeSongVolumeController,
-}) {
-  const { appTheme, setButtonSound, buttonSound } = useContext(globalContext);
+import { Volume2, Palette, Headphones, HeadphoneOff, VolumeOff } from 'lucide-react';
+import { useContext, useEffect, useRef, useState } from 'react';
+import { soundContext, globalContext } from '../../contexts/contexts.js';
+
+export default function ControlBar() {
+  const { appTheme } = useContext(globalContext);
+
+  const {
+    buttonSound,
+    setButtonSound, 
+    soundFXVolumeController,
+    themeSongVolumeController,
+    setSoundFXVolumeController,
+    setThemeSongVolumeController,
+  } = useContext(soundContext)
 
   // control bar for sound fxs, music and theme
   const [themeControl, setThemeControl] = useState(false);
@@ -91,7 +96,7 @@ export default function ControlBar({
             setMusicControl(false);
           }}
         >
-          <Volume2 />
+          {soundFXVolumeController === 0 ? <VolumeOff /> : <Volume2 />}
         </button>
       </nav>
 
