@@ -1,7 +1,7 @@
-import { logIn, signUp } from '../controllers/multiplayerController.ts';
+import { logInController, signUpController } from '../controllers/multiplayerController.ts';
 import { Router } from 'express';
 
 export const multiplayerRouter = Router();
 
-multiplayerRouter.post('/signup', signUp);
-multiplayerRouter.post('/login', logIn);
+multiplayerRouter.post('/signup', signUpController);
+multiplayerRouter.post('/login', logInController);

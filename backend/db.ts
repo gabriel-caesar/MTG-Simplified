@@ -27,9 +27,11 @@ export async function connectToDb(): Promise<Db> {
   return db;
 }
 
-export function getDb(): Db {
+export async function getDb(): Promise<Db> {
   if (!db) {
-    throw new Error('Database not initialized. Call connectToDb first.');
+    // If any db instance was returned from getDb(), connect to it from scratch
+    db = await connectToDb();
+    if (!db) throw new Error('Database could not be initialized.');
   }
   return db;
 }

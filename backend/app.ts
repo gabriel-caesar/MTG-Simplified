@@ -31,3 +31,6 @@ app.listen(PORT, (err: unknown) => {
   if (err) throw new Error(`Couldng't start server. ${err}`);
   console.log(`Running the backend, app listening in localhost:${PORT}`);
 });
+
+// Middleware never returns data.
+// Middleware communicates only through side effects (res.something()). 

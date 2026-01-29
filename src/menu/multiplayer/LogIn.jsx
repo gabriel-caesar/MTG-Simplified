@@ -4,6 +4,7 @@ import axios from 'axios';
 import { globalContext, soundContext } from '../../contexts/contexts';
 import { NavLink, useOutletContext } from 'react-router';
 import { useContext, useState } from 'react';
+import { LoaderCircle } from 'lucide-react';
 
 export default function LogIn() {
   const { liftWoodenSign } = useContext(globalContext);
@@ -95,7 +96,7 @@ export default function LogIn() {
               to='/multiplayer'
               id='back-btn'
               aria-label='back-button'
-              className='button-shadow active:brightness-50 bg-amber-100 rounded-sm text-3xl font-bold p-2 border-2 transition-all hover:cursor-pointer hover:brightness-50 text-center w-35' 
+              className='button-shadow active:brightness-50 bg-amber-100 rounded-sm text-3xl font-bold p-2 border-2 transition-all hover:cursor-pointer hover:brightness-50 text-center w-35 h-13' 
               onClick={() => {setChainSound(!chainSound); setButtonSound(!buttonSound)}}
             >
               Back
@@ -104,10 +105,14 @@ export default function LogIn() {
             <button
               id='login-btn'
               aria-label='login-button'
-              className='button-shadow active:brightness-50 bg-amber-300 rounded-sm text-3xl font-bold p-2 border-2 transition-all hover:cursor-pointer hover:brightness-50 text-center w-35' 
-              onClick={() => {setChainSound(!chainSound); setButtonSound(!buttonSound)}}
+              className='button-shadow active:brightness-50 bg-amber-300 rounded-sm text-3xl font-bold p-2 border-2 transition-all hover:cursor-pointer hover:brightness-50 text-center w-35 h-13 flex items-center justify-center' 
+              onClick={() => setButtonSound(!buttonSound)}
             >
-              Log In
+              {isLoading ? (
+                <LoaderCircle className='spin scale-150' />
+              ) : (
+                'Create'
+              )}
             </button>
           </div>
         </form>
