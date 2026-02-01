@@ -133,3 +133,12 @@ export function botReducer(state, action) {
       return state;
   }
 }
+
+export function userReducer(state, action) {
+  switch(action.type) {
+    case 'assign-user':
+      return action.payload
+    default:
+      return state;
+  }
+}

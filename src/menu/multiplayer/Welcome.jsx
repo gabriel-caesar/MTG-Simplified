@@ -46,7 +46,7 @@ export default function Welcome() {
             className='button-shadow active:brightness-50 bg-amber-300 rounded-sm text-3xl font-bold p-2 border-2 transition-all hover:cursor-pointer hover:brightness-50 w-40 text-center'
             onClick={() => {setChainSound(!chainSound); setButtonSound(!buttonSound)}}
             >
-            Log in
+            Log In
           </NavLink>
           <NavLink 
             to='signup'

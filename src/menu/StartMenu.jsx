@@ -4,7 +4,7 @@ import { soundContext, globalContext } from '../contexts/contexts.js';
 import { useContext } from 'react';
 import { NavLink } from 'react-router';
 
-export default function Start() {
+export default function StartMenu() {
   
   const { setStartWebPage } = useContext(globalContext);
   const { 

@@ -5,7 +5,7 @@ import { Db, MongoClient, ServerApiVersion } from 'mongodb';
 const uri: string | undefined = process.env.MONGO_URI;
 
 let client: MongoClient; // MongoDB client
-let db: Db; // Actual database instance
+let db: Db; // Database instance
 
 export async function connectToDb(): Promise<Db> {
 
@@ -29,6 +29,7 @@ export async function connectToDb(): Promise<Db> {
 
 export async function getDb(): Promise<Db> {
   if (!db) {
+    console.log(`\n[Attention - from db.ts] Database not initialized. Initializing it now...\n`)
     // If any db instance was returned from getDb(), connect to it from scratch
     db = await connectToDb();
     if (!db) throw new Error('Database could not be initialized.');

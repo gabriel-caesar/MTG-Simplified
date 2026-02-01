@@ -8,3 +8,6 @@ export const gameboardContext = createContext(null);
 
 // global store for context
 export const globalContext = createContext(null);
+
+// auth context
+export const authContext = createContext(null);

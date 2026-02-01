@@ -1,12 +1,13 @@
 import ErrorDialog from './ErrorDialog';
 import axios from 'axios';
 
-import { globalContext, soundContext } from '../../contexts/contexts';
-import { NavLink, useOutletContext } from 'react-router';
+import { authContext, globalContext, soundContext } from '../../contexts/contexts';
+import { NavLink, redirect, useNavigate, useOutletContext } from 'react-router';
 import { useContext, useState } from 'react';
 import { LoaderCircle } from 'lucide-react';
 
 export default function LogIn() {
+  const { dispatchUser } = useContext(authContext);
   const { liftWoodenSign } = useContext(globalContext);
   const { 
     buttonSound, 
@@ -24,22 +25,32 @@ export default function LogIn() {
   const [formErrors, setFormErrors] = useState(null);
   const [isLoading, setIsLoading] = useState(false);
 
+  const navigate = useNavigate();
+
   function handleSubmit(e) {
     e.preventDefault();
 
     setIsLoading(true);
 
+    // Sending a post request to multiplayer/login route
+    // with the desired form data and expecting that, if
+    // the user got authenticated, credentials like the 
+    // session cookie can be sent back to the client
     axios
-      .post('http://localhost:8080/multiplayer/login', formData)
+      .post('http://localhost:8080/multiplayer/login', formData, { withCredentials: true }) 
       .then((response) => {
-        console.log("Logging from axios' call", `| Success: ${response.data.success}`)
-        if (response.data.success) setFormErrors(null); // Clear errors
+        if (response.data.success) {
+          setFormErrors(null); // Clear errors
+          setFormData({ email: '', password: '' }); // Clears the form data
+          dispatchUser({ type: 'assign-user', payload: response.data.user});
+          navigate('/multiplayer/dashboard'); // Navigate the user to the dashboard
+        }; 
       })
-      .catch((err) => setFormErrors(err.response.data))
+      .catch((err) => {
+        setFormErrors(err.response.data)
+      })
       .finally(() => setIsLoading(false));
   }
-
-
   return ( 
     <>
       <div
@@ -111,7 +122,7 @@ export default function LogIn() {
               {isLoading ? (
                 <LoaderCircle className='spin scale-150' />
               ) : (
-                'Create'
+                'Log In'
               )}
             </button>
           </div>
