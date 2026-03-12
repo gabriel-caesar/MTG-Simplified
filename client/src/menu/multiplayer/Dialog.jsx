@@ -1,9 +1,9 @@
 import { LoaderCircle, X } from 'lucide-react';
 
-export default function ErrorDialog({ response, setResponse, loading }) {
+export default function Dialog({ response, setResponse, loading }) {
   return (
     <div
-      id='error-dialog-container'
+      id='dialog-container'
       className='
         absolute text-gray-300 w-80 top-[5%] opacity-98
         border border-amber-300 rounded-md bg-gray-900 p-4
@@ -24,13 +24,29 @@ export default function ErrorDialog({ response, setResponse, loading }) {
             </button>
             <h2 className='fontUncial text-2xl text-center'>Attention</h2>
             <hr className='border border-amber-300 w-full my-2' />
-            <ul id='error-list' className='text-lg text-red-400 font-bold'>
-              {response.errors ? (
-                response.errors.map((err) => <li key={err}>• {err}</li>)
-              ) : (
-                <p>Something went wrong, try again</p>
-              )}
-            </ul>
+
+            {response.errors ? (
+              <ul id='error-list' className='text-lg text-red-400 font-bold'>
+                {response.errors ? (
+                  response.errors.map((err) => <li key={err}>• {err}</li>)
+                ) : (
+                  <p>Something went wrong, try again</p>
+                )}
+              </ul>
+            ) : (
+              response.notices &&
+              response.notices.map((notice, index) => {
+                return (
+                  <p
+                    key={index}
+                    id='notice-text'
+                    className='text-center text-lg text-amber-300 font-bold'
+                  >
+                    {notice}
+                  </p>
+                );
+              })
+            )}
           </>
         )}
       </div>

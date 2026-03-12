@@ -5,7 +5,7 @@ import { ObjectId } from 'mongodb';
 import { compare } from 'bcryptjs';
 import { getDb } from './db.ts';
 
-import type { User } from './lib/types.ts';
+import type { User } from '../lib/types.ts';
 
 // ### Strategy Configuration ###
 

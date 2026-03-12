@@ -1,9 +1,7 @@
-import mtgFlatLogo from '../../../../assets/mtg-flat-logo.png';
-
 import { BiWorld } from "react-icons/bi";
 import { useState } from 'react';
 
-export default function GlobalChat() {
+export default function ChatsRoot() {
 
   const [chatMessage, setChatMessage] = useState('');
 
@@ -20,8 +18,6 @@ export default function GlobalChat() {
           <BiWorld className='text-2xl'/>
         </span>
       </div>
-
-      <MTGFlatLogo />
 
       <div 
         id="chat-panel"
@@ -54,19 +50,5 @@ export default function GlobalChat() {
       </form>
 
     </>
-  )
-}
-
-function MTGFlatLogo() {
-  return (
-    <div 
-      id='mtg-icon'
-      className='absolute scale-125 left-1/2 -translate-x-1/2 opacity-50 top-1/2 -translate-y-1/2'
-    >
-      <img 
-        src={mtgFlatLogo} 
-        alt='mtg-3d-logo' 
-      />
-    </div>
   )
 }

@@ -1,17 +1,19 @@
+import { NavLink } from 'react-router';
 import { dashboardContext } from '../../../../contexts/contexts'
 import { useContext } from 'react'
+import { useSocket } from '../../../../SocketProvider';
 
 export default function TopBarTab({ contentTab }) {
 
   const { tab, setTab } = useContext(dashboardContext);
 
+  const { connected } = useSocket();
+
   return (
-    <li 
+    <NavLink
+      to={contentTab.text === 'Log out' ? 'logout' : contentTab.text.toLowerCase()}
+      onClick={() => setTab(contentTab.text)}
       id='topbar-tab-content-container'
-      onClick={() => {
-        if (contentTab.action) contentTab.action(); // Log out
-        setTab(contentTab.text)
-      }}
       className={`
         ${tab === contentTab.text 
           ? 'bg-gray-800 scale-110 border-gray-700 hover:brightness-80' 
@@ -34,19 +36,41 @@ export default function TopBarTab({ contentTab }) {
         </span>
       )}
 
-      <p
-        className='text-amber-300'
-        id='tab-text'
-        aria-label='tab-text'
-      >
-        {contentTab.text}
-      </p>
+
+      {contentTab.hover_text === 'View profile' ? (
+        <div
+          id='username-wrapper'
+          className='flex items-center justify-center'
+        >
+          <span
+            className={`${connected ? 'bg-green-600' : 'bg-red-600'} rounded-full w-3 h-3 border border-black mr-1 mt-1`}
+            style={{ boxShadow: 'inset 0 0 1px 1px' }}
+            id='network-status-bubble'
+          />     
+          <p
+            className='text-amber-300'
+            id='tab-text'
+            aria-label='tab-text'
+          >
+            {contentTab.text}     
+          </p>
+        </div>
+      ) : (
+        <p
+          className='text-amber-300'
+          id='tab-text'
+          aria-label='tab-text'
+        >
+          {contentTab.text}     
+        </p>
+      )}
+
       <span 
         id='tab-hover-text'
         className='font-bold border-2 border-gray-700 shadow-lg absolute -bottom-8 rounded-md w-22 text-center bg-gray-800 text-gray-200 opacity-0 group-hover:opacity-100 pointer-events-none transition-all'
       >
         {contentTab.hover_text}
       </span>
-    </li>
+    </NavLink>
   )
 }

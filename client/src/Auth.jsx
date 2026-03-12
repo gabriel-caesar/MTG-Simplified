@@ -19,7 +19,7 @@ export default function Auth({ children }) {
         console.error(err)
         throw new Error(err)
       })
-  }, [])
+  }, []);
 
   const values = { user, dispatchUser };
 

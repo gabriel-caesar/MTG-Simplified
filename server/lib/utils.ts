@@ -3,7 +3,6 @@ import z from 'zod';
 import type {
   ValidationError,
   ValidationFormData,
-  ValidationReturn,
 } from './types.ts';
 
 // Generate a username for a brand new user
@@ -17,7 +16,7 @@ export function generateUsername(email: string): string {
 export function formValidation(
   schema: z.ZodObject,
   formData: ValidationFormData,
-): ValidationReturn | ValidationError {
+): any | ValidationError {
   const validatedFields = schema.safeParse(formData);
 
   if (!validatedFields.success) {
@@ -28,7 +27,7 @@ export function formValidation(
     return { errors: evenFlatter as string[] };
   }
 
-  return validatedFields.data as ValidationReturn;
+  return validatedFields.data as any; // Can return ANY because this function can validate ANY form
 }
 
 // Builds a mock form data object from scratch

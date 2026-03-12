@@ -1,7 +1,7 @@
 import knightAvatar from '../../../../assets/avatars/knight.png'
 
 import { IoChatboxEllipsesOutline, IoLogInOutline } from "react-icons/io5";
-import { GiDungeonGate } from "react-icons/gi";
+import { GiCardBurn, GiDungeonGate } from "react-icons/gi";
 import { authContext } from '../../../../contexts/contexts';
 import { useContext } from 'react';
 
@@ -17,45 +17,32 @@ export default function TopBar() {
 
   const navigate = useNavigate();
 
-  function handleLogOut() {
-    axios
-      .get('http://localhost:8080/multiplayer/logout', { withCredentials: true }) 
-      .then(response => {
-        if (response.data.success) {
-          dispatchUser({ type: 'assign-user', payload: null }); // Nullify user
-          navigate('/multiplayer'); // Redirect user to the multiplayer menu
-        }
-      })
-      .catch(err => {
-        console.error(err);
-        throw new Error(err)
-      })
-  }
-
   const tabContent = [
     {
-      action: null,
       icon: null,
       img: knightAvatar,
       text: user ? user.username : 'Unknown',
       hover_text: 'View profile'
     },
     {
-      action: null,
       icon: IoChatboxEllipsesOutline,
       img: null,
       text: 'Chats',
       hover_text: 'Go to chats'
     },
     {
-      action: null,
       icon: GiDungeonGate,
       img: null,
       text: 'Lobby',
       hover_text: 'Go to lobby'
     },
     {
-      action: handleLogOut,
+      icon: GiCardBurn,
+      img: null,
+      text: 'Decks',
+      hover_text: 'Go to decks'
+    },
+    {
       icon: IoLogInOutline,
       img: null,
       text: 'Log out',

@@ -14,3 +14,6 @@ export const authContext = createContext(null);
 
 // dashboard context
 export const dashboardContext = createContext(null);
+
+// socket context
+export const socketContext = createContext(null);

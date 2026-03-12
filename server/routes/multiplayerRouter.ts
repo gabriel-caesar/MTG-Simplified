@@ -1,5 +1,14 @@
-import { checkAuthController, logOutController, signUpController } from '../controllers/multiplayerController.ts';
-import { authenticationMiddleware, validationMiddleware } from '../middlewares/middlewares.ts';
+import {
+  acceptFriendInvite,
+  addFriendInvite,
+  checkAuthController,
+  logOutController,
+  signUpController,
+} from '../controllers/multiplayerController.ts';
+import {
+  authenticationMiddleware,
+  validationMiddleware,
+} from '../middlewares/middlewares.ts';
 import { Router } from 'express';
 
 export const multiplayerRouter = Router();
@@ -8,10 +17,20 @@ export const multiplayerRouter = Router();
 multiplayerRouter.post('/signup', signUpController);
 
 // Controls the user authentication flow with passport
-multiplayerRouter.post('/login', validationMiddleware, authenticationMiddleware);
+multiplayerRouter.post(
+  '/login',
+  validationMiddleware,
+  authenticationMiddleware,
+);
 
 // Checks if the user is authenticated
-multiplayerRouter.get('/auth', checkAuthController)
+multiplayerRouter.get('/auth', checkAuthController);
 
 // Logs user out
-multiplayerRouter.get('/logout', logOutController)
+multiplayerRouter.get('/logout', logOutController);
+
+// Add a new friend route
+multiplayerRouter.post('/add-friend', addFriendInvite);
+
+// Accept new friend invite
+multiplayerRouter.post('/accept-friend', acceptFriendInvite);

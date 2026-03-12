@@ -1,23 +1,32 @@
-import ErrorDialog from './ErrorDialog';
+import WoodenSign from '../WoodenSign';
+import Dialog from './Dialog';
 import axios from 'axios';
 
-import { authContext, globalContext, soundContext } from '../../contexts/contexts';
-import { NavLink, redirect, useNavigate, useOutletContext } from 'react-router';
-import { useContext, useState } from 'react';
+import {
+  NavLink,
+  useNavigate,
+  useOutletContext,
+  useSearchParams,
+} from 'react-router';
+import {
+  authContext,
+  globalContext,
+  soundContext,
+} from '../../contexts/contexts';
+import { useContext, useEffect, useState } from 'react';
 import { LoaderCircle } from 'lucide-react';
-import WoodenSign from '../WoodenSign';
 
 export default function LogIn() {
   const { dispatchUser } = useContext(authContext);
   const { liftWoodenSign } = useContext(globalContext);
-  const { 
-    buttonSound, 
-    setButtonSound,
-    chainSound,
-    setChainSound,
-   } = useContext(soundContext);
+  const { buttonSound, setButtonSound, chainSound, setChainSound } =
+    useContext(soundContext);
 
   const { Wx, Wy } = useOutletContext(); // wooden sign dimesions
+
+  const navigate = useNavigate();
+
+  const [searchParams, setSearchParams] = useSearchParams();
 
   const [formData, setFormData] = useState({
     email: '',
@@ -25,8 +34,7 @@ export default function LogIn() {
   });
   const [formErrors, setFormErrors] = useState(null);
   const [isLoading, setIsLoading] = useState(false);
-
-  const navigate = useNavigate();
+  const [justRegistered, setJustRegistered] = useState(null);
 
   function handleSubmit(e) {
     e.preventDefault();
@@ -35,24 +43,40 @@ export default function LogIn() {
 
     // Sending a post request to multiplayer/login route
     // with the desired form data and expecting that, if
-    // the user got authenticated, credentials like the 
+    // the user got authenticated, credentials like the
     // session cookie can be sent back to the client
     axios
-      .post('http://localhost:8080/multiplayer/login', formData, { withCredentials: true }) 
+      .post('http://localhost:8080/multiplayer/login', formData, {
+        withCredentials: true,
+      })
       .then((response) => {
         if (response.data.success) {
           setFormErrors(null); // Clear errors
           setFormData({ email: '', password: '' }); // Clears the form data
-          dispatchUser({ type: 'assign-user', payload: response.data.user});
+          dispatchUser({ type: 'assign-user', payload: response.data.user });
           navigate('/multiplayer/dashboard'); // Navigate the user to the dashboard
-        }; 
+        }
       })
       .catch((err) => {
-        setFormErrors(err.response.data)
+        if (!err.response.data)
+          window.alert('An error had occurred, try again later')
+        setFormErrors(err.response.data);
       })
       .finally(() => setIsLoading(false));
   }
-  return ( 
+
+  // User feedback for a fresh registered account
+  useEffect(() => {
+    // Query to check if the user just signed up
+    const registered = searchParams.get('registered');
+    if (registered) {
+      const arr = ['Welcome!', 'Now you can log in with your brand new account.'];
+      setJustRegistered({ notices: arr });
+      searchParams.delete('registered'); // Delete the query
+      setSearchParams(searchParams); // Update the URL
+    }
+  }, [justRegistered]);
+  return (
     <>
       <WoodenSign
         animate={true}
@@ -64,46 +88,64 @@ export default function LogIn() {
           Log in to your account
         </h1>
 
-        <form 
+        <form
           className='flex flex-col justify-center items-center w-1/2'
-          id="login-form"
+          id='login-form'
           onSubmit={handleSubmit}
         >
-          <section id="email-section" className='flex flex-col'>
-            <label htmlFor="email" className='text-amber-300 text-start font-bold text-2xl'>Email</label>
-            <input 
+          <section id='email-section' className='flex flex-col'>
+            <label
+              htmlFor='email'
+              className='text-amber-300 text-start font-bold text-2xl'
+            >
+              Email
+            </label>
+            <input
               value={formData.email}
-              onChange={e => setFormData(prev => ({ ...prev, email: e.target.value }))}
-              type="text" 
-              id='email' 
-              name='email' 
+              onChange={(e) =>
+                setFormData((prev) => ({ ...prev, email: e.target.value }))
+              }
+              type='text'
+              id='email'
+              name='email'
               placeholder='ajani@email.com...'
-              className='bg-gray-900 text-gray-300 p-2 rounded-sm text-3xl font-bold w-full border-1' 
+              className='bg-gray-900 text-gray-300 p-2 rounded-sm text-3xl font-bold w-full border-1'
+              autoFocus
             />
           </section>
 
-          <section id="password-section" className='flex flex-col my-6'>
-            <label htmlFor="password" className='text-amber-300 text-start font-bold text-2xl'>Password</label>
-            <input 
+          <section id='password-section' className='flex flex-col my-6'>
+            <label
+              htmlFor='password'
+              className='text-amber-300 text-start font-bold text-2xl'
+            >
+              Password
+            </label>
+            <input
               value={formData.password}
-              onChange={e => setFormData(prev => ({ ...prev, password: e.target.value }))}
-              type="password" 
-              id='password' 
-              name='password' 
-              placeholder='********' 
-              className='bg-gray-900 text-gray-300 p-2 rounded-sm text-3xl font-bold w-full border-1' 
+              onChange={(e) =>
+                setFormData((prev) => ({ ...prev, password: e.target.value }))
+              }
+              type='password'
+              id='password'
+              name='password'
+              placeholder='********'
+              className='bg-gray-900 text-gray-300 p-2 rounded-sm text-3xl font-bold w-full border-1'
             />
           </section>
-          <div 
+          <div
             id='buttons-container'
             className='flex justify-between items-center w-full p-3'
           >
-            <NavLink 
+            <NavLink
               to='/multiplayer'
               id='back-btn'
               aria-label='back-button'
-              className='button-shadow active:brightness-50 bg-amber-100 rounded-sm text-3xl font-bold p-2 border-2 transition-all hover:cursor-pointer hover:brightness-50 text-center w-35 h-13' 
-              onClick={() => {setChainSound(!chainSound); setButtonSound(!buttonSound)}}
+              className='button-shadow active:brightness-50 bg-amber-100 rounded-sm text-3xl font-bold p-2 border-2 transition-all hover:cursor-pointer hover:brightness-50 text-center w-35 h-13'
+              onClick={() => {
+                setChainSound(!chainSound);
+                setButtonSound(!buttonSound);
+              }}
             >
               Back
             </NavLink>
@@ -111,7 +153,7 @@ export default function LogIn() {
             <button
               id='login-btn'
               aria-label='login-button'
-              className='button-shadow active:brightness-50 bg-amber-300 rounded-sm text-3xl font-bold p-2 border-2 transition-all hover:cursor-pointer hover:brightness-50 text-center w-35 h-13 flex items-center justify-center' 
+              className='button-shadow active:brightness-50 bg-amber-300 rounded-sm text-3xl font-bold p-2 border-2 transition-all hover:cursor-pointer hover:brightness-50 text-center w-35 h-13 flex items-center justify-center'
               onClick={() => setButtonSound(!buttonSound)}
             >
               {isLoading ? (
@@ -124,15 +166,23 @@ export default function LogIn() {
         </form>
       </WoodenSign>
       <VerticalChains liftWoodenSign={liftWoodenSign} />
-      {formErrors && (
-        <ErrorDialog
+
+      {formErrors ? (
+        <Dialog
           loading={isLoading}
           response={formErrors}
           setResponse={setFormErrors}
         />
+      ) : justRegistered && (
+        <Dialog
+          loading={isLoading}
+          response={justRegistered}
+          setResponse={setJustRegistered}
+        />
       )}
+
     </>
-  )
+  );
 }
 
 function VerticalChains({ liftWoodenSign }) {
@@ -146,5 +196,5 @@ function VerticalChains({ liftWoodenSign }) {
           : 'bounce-in 1s linear',
       }}
     ></div>
-  )
+  );
 }

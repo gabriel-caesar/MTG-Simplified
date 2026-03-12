@@ -5,7 +5,6 @@ const Wy = 'h-[768px]' // 3/4 of 1024px (image's height)
 
 export default function ErrorComponent() {
   const error = useRouteError();
-  console.log(error)
   return (
     <>
       <div

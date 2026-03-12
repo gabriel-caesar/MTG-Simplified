@@ -2,10 +2,9 @@ import OutletWrapper from '../OutletWrapper';
 import WoodenSign from '../../../WoodenSign';
 import SideBar from './SideBar';
 import TopBar from './TopBar';
-import axios from 'axios';
 
-import { authContext, globalContext, soundContext } from '../../../../contexts/contexts';
-import { Outlet, useNavigate, useOutletContext } from 'react-router';
+import { globalContext, soundContext } from '../../../../contexts/contexts';
+import { Outlet, useOutletContext } from 'react-router';
 import { useContext, useState } from 'react';
 import { dashboardContext } from '../../../../contexts/contexts';
 
@@ -45,7 +44,7 @@ export default function Dashboard() {
           className='flex items-center justify-between mt-2 w-full px-6'
         >
           <OutletWrapper h={OUTLET_H}>
-            <Outlet/>
+            <Outlet context={{ setTab }} />
           </OutletWrapper>
           
           <SideBar h={OUTLET_H} />

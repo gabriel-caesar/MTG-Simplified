@@ -1,10 +1,10 @@
 import '../../css/rotate_spin.css';
 
-import ErrorDialog from './ErrorDialog';
+import Dialog from './Dialog';
 import axios from 'axios';
 
 import { globalContext, soundContext } from '../../contexts/contexts';
-import { NavLink, useOutletContext } from 'react-router';
+import { NavLink, useNavigate, useOutletContext } from 'react-router';
 import { useContext, useState } from 'react';
 import { LoaderCircle } from 'lucide-react';
 import WoodenSign from '../WoodenSign';
@@ -17,11 +17,16 @@ export default function SignUp() {
   // Wooden sign dimensions
   const { Wx, Wy } = useOutletContext();
 
-  const [formData, setFormData] = useState({
+  const navigate = useNavigate();
+
+  // Empty form data object
+  const FORMDATA_OBJECT = {
     email: '',
     password: '',
     confirm_password: '',
-  });
+  }
+
+  const [formData, setFormData] = useState(FORMDATA_OBJECT);
   const [formErrors, setFormErrors] = useState(null);
   const [isLoading, setIsLoading] = useState(false);
 
@@ -33,9 +38,17 @@ export default function SignUp() {
     axios
       .post('http://localhost:8080/multiplayer/signup', formData)
       .then((response) => {
-        if (response.success) setFormErrors(null); // Clear errors
+        if (response.data.success) {
+          setFormErrors(null); // Clear errors
+          setFormData(FORMDATA_OBJECT)
+          navigate('/multiplayer/login?registered=true');
+        } else {
+          setFormErrors('Something went wrong, try reloading the page')
+        }
       })
-      .catch((err) => setFormErrors(err.response.data))
+      .catch((err) => {
+        setFormErrors(err.response.data)
+      })
       .finally(() => setIsLoading(false));
   }
 
@@ -73,6 +86,7 @@ export default function SignUp() {
               name='email'
               placeholder='helius@email.com...'
               className='bg-gray-900 text-gray-300 p-2 rounded-sm text-3xl font-bold w-full border-1'
+              autoFocus
             />
           </section>
 
@@ -154,7 +168,7 @@ export default function SignUp() {
       </WoodenSign>
       <VerticalChains liftWoodenSign={liftWoodenSign} />
       {formErrors && (
-        <ErrorDialog
+        <Dialog
           loading={isLoading}
           response={formErrors}
           setResponse={setFormErrors}

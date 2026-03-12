@@ -21,3 +21,11 @@ export const LogInSchema = z.object({
   email: z.email({ message: 'Enter a valid email' }),
   password: z.string().min(12, { message: 'Password needs to be min. of 12 characters' }),
 })
+
+export const AddFriendSchema = z.object({
+  senderUsername: z.string(),
+  friendUsername: z.string().min(4, { message: 'Username needs to be min. of 4 characters' })
+}).refine(data => data.senderUsername !== data.friendUsername, {
+  message: `You can't send an invite to yourself`,
+  path: ['senderUsername']
+})
